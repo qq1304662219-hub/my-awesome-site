@@ -12,11 +12,56 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
   const { id } = await params;
   
   // 1. Fetch Video
-  const { data: video, error } = await supabase
-    .from('videos')
-    .select('*')
-    .eq('id', id)
-    .single();
+  let video: any = null;
+  let error: any = null;
+
+  // Handle mock IDs (1-4)
+  if (['1', '2', '3', '4'].includes(id)) {
+      const mockVideos: Record<string, any> = {
+          '1': {
+              id: '1',
+              title: "AI生成的未来太空城市",
+              url: "https://videos.pexels.com/video-files/3129957/3129957-hd_1920_1080_25fps.mp4", // Mock video URL
+              user_id: "mock_user_1",
+              created_at: new Date().toISOString(),
+              description: "这是一段由 DeepMind 生成的未来太空城市概念视频。"
+          },
+          '2': {
+              id: '2',
+              title: "赛博朋克城市夜景",
+              url: "https://videos.pexels.com/video-files/2887463/2887463-hd_1920_1080_30fps.mp4",
+              user_id: "mock_user_2",
+              created_at: new Date().toISOString(),
+              description: "赛博朋克风格的霓虹灯夜景，使用 Unreal Engine 5 渲染。"
+          },
+          '3': {
+              id: '3',
+              title: "未来科技数据流",
+              url: "https://videos.pexels.com/video-files/852421/852421-hd_1920_1080_30fps.mp4",
+              user_id: "mock_user_3",
+              created_at: new Date().toISOString(),
+              description: "抽象的数据流可视化，展示 AI 处理大数据的过程。"
+          },
+          '4': {
+              id: '4',
+              title: "海底生物与光影",
+              url: "https://videos.pexels.com/video-files/856973/856973-hd_1920_1080_24fps.mp4",
+              user_id: "mock_user_4",
+              created_at: new Date().toISOString(),
+              description: "由 AI 生成的深海生物发光效果模拟。"
+          }
+      };
+      video = mockVideos[id];
+  } else {
+      // Fetch real video from Supabase
+      const { data, error: dbError } = await supabase
+        .from('videos')
+        .select('*')
+        .eq('id', id)
+        .single();
+      video = data;
+      error = dbError;
+  }
 
   if (error || !video) {
     return (
