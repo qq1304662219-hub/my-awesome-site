@@ -3,11 +3,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Video, Upload, Menu, X, LogOut, User as UserIcon } from "lucide-react";
+import { Video, Upload, Menu, X, LogOut, User as UserIcon, ChevronDown, Search } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
   const router = useRouter();
@@ -48,39 +54,72 @@ export function Navbar() {
           
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-300">
-            <Link href="/" className="hover:text-white transition-colors">首页</Link>
-            <Link href="/help" className="hover:text-white transition-colors">帮助中心</Link>
-            {user && (
-               <Link href="/dashboard" className="hover:text-white transition-colors">我的作品</Link>
-            )}
+            <Link href="/" className="hover:text-white transition-colors font-semibold text-white">首页</Link>
+            
+            <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-1 hover:text-white transition-colors outline-none">
+                    视频素材 <ChevronDown className="w-4 h-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-[#0f172a] border-white/10 text-gray-300">
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">自然风光</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">城市建筑</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">科技未来</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">人物生活</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Link href="/templates" className="hover:text-white transition-colors">AE模板</Link>
+            <Link href="/music" className="hover:text-white transition-colors">配乐</Link>
+            <Link href="/3d" className="hover:text-white transition-colors">3D模型</Link>
           </div>
         </div>
         
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
+            <div className="relative group hidden lg:block">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input 
+                    type="text" 
+                    placeholder="搜索素材..." 
+                    className="bg-white/5 border border-white/10 rounded-full py-1.5 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-blue-500/50 w-48 transition-all focus:w-64"
+                />
+            </div>
+
             {user ? (
               <>
                  <Link href="/dashboard">
                     <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full">
                       <Upload className="mr-2 h-4 w-4" />
-                      上传
+                      上传作品
                     </Button>
                  </Link>
                  
-                 <Link href={`/profile/${user.id}`}>
-                    <Avatar className="h-8 w-8 cursor-pointer border border-white/10 hover:border-white/30 transition-colors">
-                      <AvatarImage src={user.user_metadata?.avatar_url} />
-                      <AvatarFallback>ME</AvatarFallback>
-                    </Avatar>
-                 </Link>
-
-                 <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-gray-400 hover:text-white">
-                    <LogOut className="h-5 w-5" />
-                 </Button>
+                 <DropdownMenu>
+                    <DropdownMenuTrigger className="outline-none">
+                        <Avatar className="h-8 w-8 cursor-pointer border border-white/10 hover:border-white/30 transition-colors">
+                            <AvatarImage src={user.user_metadata?.avatar_url} />
+                            <AvatarFallback>ME</AvatarFallback>
+                        </Avatar>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-[#0f172a] border-white/10 text-gray-300 w-48">
+                        <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push(`/profile/${user.id}`)}>
+                            个人主页
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/dashboard')}>
+                            作品管理
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/favorites')}>
+                            我的收藏
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="hover:bg-red-500/20 hover:text-red-400 cursor-pointer text-red-400" onClick={handleSignOut}>
+                            退出登录
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                 </DropdownMenu>
               </>
             ) : (
               <Link href="/auth">
-                <Button size="sm" className="bg-white text-black hover:bg-gray-200 rounded-full">
+                <Button size="sm" className="bg-white text-black hover:bg-gray-200 rounded-full font-semibold">
                   登录 / 注册
                 </Button>
               </Link>

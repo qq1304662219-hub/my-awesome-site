@@ -74,7 +74,42 @@ export function VideoGrid() {
         dbQuery = dbQuery.eq('category', category);
       }
 
-      const { data } = await dbQuery.limit(8);
+      // Filter: Resolution
+      const resolutions = searchParams.get("resolution")?.split(',') || [];
+      if (resolutions.length > 0) {
+          const conditions: string[] = [];
+          if (resolutions.includes('4k')) conditions.push('width.gte.3840');
+          if (resolutions.includes('1080p')) conditions.push('and(width.gte.1920,width.lt.3840)');
+          if (resolutions.includes('720p')) conditions.push('and(width.gte.1280,width.lt.1920)');
+          
+          if (conditions.length > 0) {
+              dbQuery = dbQuery.or(conditions.join(','));
+          }
+      }
+
+      // Filter: Duration
+      const durations = searchParams.get("duration")?.split(',') || [];
+      if (durations.length > 0) {
+          const conditions: string[] = [];
+          if (durations.includes('short')) conditions.push('duration.lt.10');
+          if (durations.includes('medium')) conditions.push('and(duration.gte.10,duration.lte.30)');
+          if (durations.includes('long')) conditions.push('duration.gt.30');
+          
+          if (conditions.length > 0) {
+              dbQuery = dbQuery.or(conditions.join(','));
+          }
+      }
+
+      // Filter: Format
+      const formats = searchParams.get("format")?.split(',') || [];
+      if (formats.length > 0) {
+          dbQuery = dbQuery.in('format', formats);
+      }
+
+      const { data, error } = await dbQuery.limit(20);
+      if (error) {
+          console.error("Error fetching videos:", error);
+      }
       if (data) {
         setRealVideos(data);
       }
@@ -82,7 +117,7 @@ export function VideoGrid() {
     };
 
     fetchVideos();
-  }, [query, category]);
+  }, [query, category, searchParams]);
 
   if (loading && realVideos.length === 0) {
       return (

@@ -10,6 +10,8 @@ import { DashboardView } from "@/components/dashboard/DashboardView"
 import { VideoGrid } from "@/components/landing/VideoGrid"
 import { SearchFilter } from "@/components/landing/SearchFilter"
 
+import { SidebarFilters } from "@/components/landing/SidebarFilters"
+
 export default function Home() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -45,20 +47,27 @@ export default function Home() {
       <LandingHero />
       
       {user && (
-         <div className="container mx-auto px-4 py-8">
+         <div className="container mx-auto px-4 py-8 border-b border-white/10">
             <DashboardView />
          </div>
       )}
 
-      <LandingFeatures />
-      <div className="relative z-10 bg-[#020817]/50 backdrop-blur-3xl pb-20">
-          <div className="container mx-auto px-4 py-12 text-center">
-            <h2 className="text-3xl font-bold mb-8">探索社区佳作</h2>
+      <div className="relative z-10 bg-[#020817] pb-20">
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex flex-col lg:flex-row gap-8">
+                {/* Sidebar Filters */}
+                <SidebarFilters />
+                
+                {/* Main Content */}
+                <div className="flex-1">
+                    <SearchFilter />
+                    <VideoGrid />
+                </div>
+            </div>
           </div>
-          <SearchFilter />
-          <VideoGrid />
       </div>
       
+      <LandingFeatures />
       <Footer />
     </main>
   )

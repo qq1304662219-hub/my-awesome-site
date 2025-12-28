@@ -2,7 +2,7 @@ import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Eye, Calendar } from "lucide-react";
+import { Eye, Calendar, Download, ShieldCheck, Heart, Play } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
@@ -24,7 +24,8 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
               url: "https://videos.pexels.com/video-files/3129957/3129957-hd_1920_1080_25fps.mp4", // Mock video URL
               user_id: "mock_user_1",
               created_at: new Date().toISOString(),
-              description: "这是一段由 DeepMind 生成的未来太空城市概念视频。"
+              description: "这是一段由 DeepMind 生成的未来太空城市概念视频。",
+              width: 1920, height: 1080, duration: 15, format: 'mp4'
           },
           '2': {
               id: '2',
@@ -32,7 +33,8 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
               url: "https://videos.pexels.com/video-files/2887463/2887463-hd_1920_1080_30fps.mp4",
               user_id: "mock_user_2",
               created_at: new Date().toISOString(),
-              description: "赛博朋克风格的霓虹灯夜景，使用 Unreal Engine 5 渲染。"
+              description: "赛博朋克风格的霓虹灯夜景，使用 Unreal Engine 5 渲染。",
+              width: 1920, height: 1080, duration: 22, format: 'mp4'
           },
           '3': {
               id: '3',
@@ -40,7 +42,8 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
               url: "https://videos.pexels.com/video-files/852421/852421-hd_1920_1080_30fps.mp4",
               user_id: "mock_user_3",
               created_at: new Date().toISOString(),
-              description: "抽象的数据流可视化，展示 AI 处理大数据的过程。"
+              description: "抽象的数据流可视化，展示 AI 处理大数据的过程。",
+              width: 1920, height: 1080, duration: 10, format: 'mp4'
           },
           '4': {
               id: '4',
@@ -48,7 +51,8 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
               url: "https://videos.pexels.com/video-files/856973/856973-hd_1920_1080_24fps.mp4",
               user_id: "mock_user_4",
               created_at: new Date().toISOString(),
-              description: "由 AI 生成的深海生物发光效果模拟。"
+              description: "由 AI 生成的深海生物发光效果模拟。",
+              width: 1920, height: 1080, duration: 18, format: 'mp4'
           }
       };
       video = mockVideos[id];
@@ -112,6 +116,10 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
     .neq('id', id)
     .limit(5);
 
+  // Mock data for missing fields
+  const views = Math.floor(Math.random() * 10000) + 500;
+  const date = new Date(video.created_at).toLocaleDateString('zh-CN');
+
   return (
     <main className="min-h-screen bg-[#020817] text-foreground">
       <Navbar />
@@ -138,6 +146,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
               <div className="flex items-center gap-4 text-sm text-gray-400 mb-6">
                 <span className="flex items-center gap-1"><Eye className="h-4 w-4" /> {views} 次观看</span>
                 <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {date}</span>
+                <span className="flex items-center gap-1 text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded text-xs border border-blue-500/20">商用授权</span>
               </div>
 
               <VideoInteractions 
@@ -168,15 +177,69 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                     </p>
                   </div>
                 </div>
+
+                {/* Technical Specs */}
+                <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 bg-white/5 rounded-xl p-6 border border-white/10">
+                    <div>
+                        <span className="text-xs text-gray-500 block mb-1">分辨率</span>
+                        <span className="text-white font-medium">{video.width || 1920} x {video.height || 1080}</span>
+                    </div>
+                    <div>
+                        <span className="text-xs text-gray-500 block mb-1">时长</span>
+                        <span className="text-white font-medium">{video.duration || 15} 秒</span>
+                    </div>
+                    <div>
+                        <span className="text-xs text-gray-500 block mb-1">格式</span>
+                        <span className="text-white font-medium uppercase">{video.format || "MP4"}</span>
+                    </div>
+                    <div>
+                        <span className="text-xs text-gray-500 block mb-1">大小</span>
+                        <span className="text-white font-medium">{video.size ? (video.size / 1024 / 1024).toFixed(1) + ' MB' : '12.5 MB'}</span>
+                    </div>
+                </div>
                 
                 <Separator className="bg-white/10 my-6" />
               </VideoInteractions>
             </div>
           </div>
 
-          {/* Sidebar: Recommended */}
-          <div className="lg:col-span-1">
-            <h3 className="text-lg font-semibold text-white mb-4">相关推荐</h3>
+          {/* Sidebar: Download & Recommended */}
+          <div className="lg:col-span-1 space-y-8">
+            {/* Download Panel (New) */}
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <h3 className="text-xl font-bold text-white mb-4">下载素材</h3>
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 rounded-lg border border-blue-500/30 bg-blue-500/10 cursor-pointer relative overflow-hidden">
+                        <div className="relative z-10">
+                            <span className="text-white font-medium block">4K 原画质</span>
+                            <span className="text-xs text-gray-400">3840 x 2160 • MOV</span>
+                        </div>
+                        <span className="text-blue-400 font-bold relative z-10">免费</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg border border-white/10 hover:bg-white/5 cursor-pointer transition-colors">
+                        <div>
+                            <span className="text-gray-300 font-medium block">1080P 高清</span>
+                            <span className="text-xs text-gray-400">1920 x 1080 • MP4</span>
+                        </div>
+                        <span className="text-gray-400">免费</span>
+                    </div>
+                    
+                    <a href={video.url} download target="_blank" rel="noopener noreferrer">
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 mt-4">
+                            <Download className="mr-2 h-5 w-5" /> 立即下载
+                        </Button>
+                    </a>
+                    
+                    <div className="flex items-center justify-center gap-4 text-sm text-gray-400 pt-2">
+                         <span className="flex items-center gap-1"><ShieldCheck className="w-4 h-4" /> 商用授权</span>
+                         <span className="flex items-center gap-1 cursor-pointer hover:text-red-400 transition-colors"><Heart className="w-4 h-4" /> 收藏</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Related Videos */}
+            <div>
+                <h3 className="text-lg font-semibold text-white mb-4">相关推荐</h3>
             <div className="space-y-4">
               {relatedVideos && relatedVideos.length > 0 ? (
                   relatedVideos.map((relatedVideo: any) => (

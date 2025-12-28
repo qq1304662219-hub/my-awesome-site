@@ -57,6 +57,29 @@ export function DragDropUpload({ onUploadComplete }: { onUploadComplete: () => v
         return
       }
 
+      // Extract metadata
+      let metadata = { duration: 0, width: 0, height: 0 };
+      if (file.type.startsWith("video/")) {
+          try {
+              metadata = await new Promise((resolve) => {
+                  const video = document.createElement('video');
+                  video.preload = 'metadata';
+                  video.onloadedmetadata = () => {
+                      window.URL.revokeObjectURL(video.src);
+                      resolve({
+                          duration: Math.round(video.duration),
+                          width: video.videoWidth,
+                          height: video.videoHeight
+                      });
+                  };
+                  video.onerror = () => resolve({ duration: 0, width: 0, height: 0 });
+                  video.src = URL.createObjectURL(file);
+              });
+          } catch (e) {
+              console.warn("Failed to extract video metadata", e);
+          }
+      }
+
       const fileExt = file.name.split(".").pop()
       // Use userId/timestamp-filename format as requested
       const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
@@ -85,7 +108,11 @@ export function DragDropUpload({ onUploadComplete }: { onUploadComplete: () => v
           user_id: user.id,
           category: "Other", // Default category
           description: "Uploaded via Drag & Drop",
-          // We could add a 'type' column later, for now we treat all as videos/assets
+          size: file.size,
+          format: fileExt,
+          duration: metadata.duration,
+          width: metadata.width,
+          height: metadata.height
         })
 
       if (dbError) throw dbError
