@@ -42,21 +42,22 @@ export default function Home() {
     <main className="min-h-screen bg-[#020817] text-white selection:bg-blue-500/30">
       <Navbar />
       
-      {user ? (
-        <DashboardView />
-      ) : (
-        <>
-          <LandingHero />
-          <LandingFeatures />
-          <div className="relative z-10 bg-[#020817]/50 backdrop-blur-3xl pb-20">
-             <div className="container mx-auto px-4 py-12 text-center">
-                <h2 className="text-3xl font-bold mb-8">探索社区佳作</h2>
-             </div>
-             <SearchFilter />
-             <VideoGrid />
-          </div>
-        </>
+      <LandingHero />
+      
+      {user && (
+         <div className="container mx-auto px-4 py-8">
+            <DashboardView />
+         </div>
       )}
+
+      <LandingFeatures />
+      <div className="relative z-10 bg-[#020817]/50 backdrop-blur-3xl pb-20">
+          <div className="container mx-auto px-4 py-12 text-center">
+            <h2 className="text-3xl font-bold mb-8">探索社区佳作</h2>
+          </div>
+          <SearchFilter />
+          <VideoGrid />
+      </div>
       
       <Footer />
     </main>
