@@ -58,7 +58,8 @@ export function DragDropUpload({ onUploadComplete }: { onUploadComplete: () => v
       }
 
       const fileExt = file.name.split(".").pop()
-      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`
+      // Use userId/timestamp-filename format as requested
+      const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
       const filePath = `${user.id}/${fileName}`
 
       // 1. Upload to Storage
