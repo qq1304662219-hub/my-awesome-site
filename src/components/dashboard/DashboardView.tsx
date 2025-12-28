@@ -7,6 +7,9 @@ import { MasonryGrid } from "./MasonryGrid"
 import { Skeleton } from "@/components/ui/skeleton"
 import { motion } from "framer-motion"
 
+import { Button } from "@/components/ui/button"
+import { Compass } from "lucide-react"
+
 export function DashboardView() {
   const [videos, setVideos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -63,8 +66,17 @@ export function DashboardView() {
         ) : videos.length > 0 ? (
             <MasonryGrid videos={videos} onVideoDeleted={fetchVideos} />
         ) : (
-            <div className="text-center py-20 text-gray-500">
-                <p>还没有素材，快拖拽上传吧！</p>
+            <div className="text-center py-20 bg-white/5 rounded-xl border border-white/10 border-dashed">
+                <p className="text-gray-400 mb-4">您的素材库空空如也</p>
+                <div className="flex justify-center gap-4">
+                    <Button 
+                        variant="outline" 
+                        onClick={() => document.getElementById('videos')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="gap-2 border-white/20 hover:bg-white/10"
+                    >
+                        <Compass className="w-4 h-4" /> 探索社区灵感
+                    </Button>
+                </div>
             </div>
         )}
       </motion.div>

@@ -105,9 +105,12 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
   // 4. Fetch Current User
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Mock data for missing fields
-  const views = Math.floor(Math.random() * 10000) + 500;
-  const date = new Date(video.created_at).toLocaleDateString('zh-CN');
+  // 5. Fetch Related Videos (Real data)
+  const { data: relatedVideos } = await supabase
+    .from('videos')
+    .select('id, title, url, thumbnail_url, user_id, created_at')
+    .neq('id', id)
+    .limit(5);
 
   return (
     <main className="min-h-screen bg-[#020817] text-foreground">
@@ -124,7 +127,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                 controls 
                 autoPlay 
                 className="w-full h-full object-contain"
-                poster="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop"
+                poster={video.thumbnail_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop"}
               />
             </div>
 
@@ -156,7 +159,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Link href={`/profile/${video.user_id}`} className="hover:text-blue-400 transition-colors">
-                        <h3 className="font-semibold text-white">{authorProfile?.full_name || `Creator ${video.user_id.slice(0, 6)}`}</h3>
+                        <h3 className="font-semibold text-white">{authorProfile?.full_name || `创作者 ${video.user_id.slice(0, 6)}`}</h3>
                       </Link>
                       <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">Pro</span>
                     </div>
@@ -175,23 +178,54 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
           <div className="lg:col-span-1">
             <h3 className="text-lg font-semibold text-white mb-4">相关推荐</h3>
             <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex gap-3 group cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors">
-                  <div className="w-40 h-24 bg-gray-800 rounded-md overflow-hidden relative flex-shrink-0">
-                     <img 
-                        src={`https://images.unsplash.com/photo-${i % 2 === 0 ? '1614728853911-04285d8e7c16' : '1555680202-c86f0e12f086'}?q=80&w=300&auto=format&fit=crop`} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
-                        alt="Related" 
-                      />
-                      <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1 rounded">00:30</span>
-                  </div>
-                  <div className="flex flex-col justify-center">
-                    <h4 className="text-sm font-medium text-white line-clamp-2 group-hover:text-blue-400 transition-colors">AI 生成的奇幻森林之旅 Part {i}</h4>
-                    <span className="text-xs text-gray-500 mt-1">DeepMind</span>
-                    <span className="text-xs text-gray-600 mt-0.5">3.4k 次观看</span>
-                  </div>
-                </div>
-              ))}
+              {relatedVideos && relatedVideos.length > 0 ? (
+                  relatedVideos.map((relatedVideo: any) => (
+                    <Link href={`/video/${relatedVideo.id}`} key={relatedVideo.id}>
+                        <div className="flex gap-3 group cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors mb-2">
+                        <div className="w-40 h-24 bg-gray-800 rounded-md overflow-hidden relative flex-shrink-0 border border-white/5">
+                            {relatedVideo.url.match(/\.(mp4|webm|mov)$/i) ? (
+                                <video 
+                                    src={relatedVideo.url} 
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                                    muted
+                                />
+                            ) : (
+                                <img 
+                                    src={relatedVideo.url} 
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                                    alt={relatedVideo.title} 
+                                />
+                            )}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
+                                <Play className="w-6 h-6 text-white fill-white" />
+                            </div>
+                        </div>
+                        <div className="flex flex-col justify-center overflow-hidden">
+                            <h4 className="text-sm font-medium text-white line-clamp-2 group-hover:text-blue-400 transition-colors">{relatedVideo.title}</h4>
+                            <span className="text-xs text-gray-500 mt-1">用户 {relatedVideo.user_id.slice(0, 6)}...</span>
+                            <span className="text-xs text-gray-600 mt-0.5">{new Date(relatedVideo.created_at).toLocaleDateString()}</span>
+                        </div>
+                        </div>
+                    </Link>
+                  ))
+              ) : (
+                  // Fallback to static if no related videos found
+                  [1, 2, 3].map((i) => (
+                    <div key={i} className="flex gap-3 group cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors">
+                    <div className="w-40 h-24 bg-gray-800 rounded-md overflow-hidden relative flex-shrink-0">
+                        <img 
+                            src={`https://images.unsplash.com/photo-${i % 2 === 0 ? '1614728853911-04285d8e7c16' : '1555680202-c86f0e12f086'}?q=80&w=300&auto=format&fit=crop`} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                            alt="Related" 
+                        />
+                    </div>
+                    <div className="flex flex-col justify-center">
+                        <h4 className="text-sm font-medium text-white line-clamp-2 group-hover:text-blue-400 transition-colors">推荐视频示例 {i}</h4>
+                        <span className="text-xs text-gray-500 mt-1">系统推荐</span>
+                    </div>
+                    </div>
+                  ))
+              )}
             </div>
           </div>
         </div>

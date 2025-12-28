@@ -71,8 +71,6 @@ export function VideoGrid() {
       }
 
       if (category && category !== "All" && category !== "全部") {
-        // Assuming 'category' column exists. If not, this might fail or return empty if handled strictly.
-        // Ideally we filter by the category column.
         dbQuery = dbQuery.eq('category', category);
       }
 
@@ -87,8 +85,13 @@ export function VideoGrid() {
   }, [query, category]);
 
   if (loading && realVideos.length === 0) {
-      // Optional: Return a skeleton or loading state
-      // For now, we can just render the static parts or a spinner
+      return (
+        <div className="container mx-auto px-4 mb-20 grid grid-cols-1 md:grid-cols-4 gap-6">
+            {[1,2,3,4,5,6,7,8].map(i => (
+                <div key={i} className="bg-white/5 rounded-xl h-64 animate-pulse"></div>
+            ))}
+        </div>
+      )
   }
 
   return (
@@ -109,14 +112,22 @@ export function VideoGrid() {
                         <div className="aspect-video relative overflow-hidden bg-black/50">
                             {/* Use Link for navigation to details page */}
                             <Link href={`/video/${video.id}`} className="block w-full h-full">
-                                <video 
-                                    src={video.url} 
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100" 
-                                    muted
-                                    loop
-                                    onMouseOver={(e) => e.currentTarget.play()}
-                                    onMouseOut={(e) => e.currentTarget.pause()}
-                                />
+                                {video.url.match(/\.(mp4|webm|mov)$/i) ? (
+                                    <video 
+                                        src={video.url} 
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100" 
+                                        muted
+                                        loop
+                                        onMouseOver={(e) => e.currentTarget.play()}
+                                        onMouseOut={(e) => e.currentTarget.pause()}
+                                    />
+                                ) : (
+                                    <img 
+                                        src={video.url} 
+                                        alt={video.title} 
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100" 
+                                    />
+                                )}
                                 
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
                                     <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -131,13 +142,11 @@ export function VideoGrid() {
                             </Link>
                             <div className="flex items-center justify-between text-xs text-gray-400">
                                 <Link href={`/profile/${video.user_id}`} className="hover:text-white transition-colors flex items-center gap-1">
-                                    <span>User {video.user_id.slice(0, 6)}...</span>
+                                    <span>用户 {video.user_id.slice(0, 6)}...</span>
                                 </Link>
-                                {video.category && (
-                                    <Badge variant="outline" className="border-white/10 text-xs py-0 h-5">
-                                        {video.category}
-                                    </Badge>
-                                )}
+                                <span className="text-xs text-gray-500">
+                                    {new Date(video.created_at).toLocaleDateString()}
+                                </span>
                             </div>
                         </div>
                     </div>
