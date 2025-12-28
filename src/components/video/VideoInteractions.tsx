@@ -38,7 +38,7 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
   const [loadingComments, setLoadingComments] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   
-  const isMock = videoId.match(/^[1-4]$/);
+  const isMock = /^[1-4]$/.test(videoId);
 
   useEffect(() => {
     if (isMock) {
