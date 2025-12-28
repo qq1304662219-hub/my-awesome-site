@@ -4,4 +4,14 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
+### Important: Environment Variables
+
+When deploying to Vercel, you **must** configure the Environment Variables in the Vercel Dashboard. The `.env.local` file is not uploaded for security reasons.
+
+1. Go to your Vercel Project Settings > **Environment Variables**.
+2. Add the following variables (copy them from your local `.env.local`):
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. After adding them, go to the **Deployments** tab and click **Redeploy** on the latest failed deployment.
+
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
