@@ -7,6 +7,12 @@ import { Label } from '@/components/ui/label'
 import { Upload, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+const CATEGORIES = [
+  "Nature", "Abstract", "Technology", "People", "Animals", "Urban", "Other"
+]
+
 interface FileUploadProps {
   userId: string;
   onUploadSuccess?: () => void;
@@ -15,6 +21,7 @@ interface FileUploadProps {
 export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
   const [file, setFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
+  const [category, setCategory] = useState('Other')
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
@@ -57,7 +64,8 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
         .insert({
           title: title || file.name,
           url: publicUrl,
-          user_id: userId
+          user_id: userId,
+          category: category
         })
 
       if (dbError) throw dbError
@@ -65,6 +73,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
       setMessage({ type: 'success', text: '上传成功！' })
       setFile(null)
       setTitle('')
+      setCategory('Other')
       // Reset file input value
       const fileInput = document.getElementById('picture') as HTMLInputElement
       if (fileInput) fileInput.value = ''
@@ -92,6 +101,20 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           placeholder="给你的作品起个名字"
           className="bg-black/20 border-white/10 text-white"
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="category" className="text-gray-300">分类</Label>
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger className="bg-black/20 border-white/10 text-white">
+            <SelectValue placeholder="选择分类" />
+          </SelectTrigger>
+          <SelectContent>
+            {CATEGORIES.map(cat => (
+              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       
       <div className="space-y-2">

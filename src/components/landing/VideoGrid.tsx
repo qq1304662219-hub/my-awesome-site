@@ -1,6 +1,11 @@
+"use client"
+
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Play, Heart, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
 const videos = [
   {
@@ -45,21 +50,46 @@ const videos = [
   },
 ];
 
-export async function VideoGrid({ query, category }: { query?: string; category?: string }) {
-  // Fetch real videos from Supabase
-  let dbQuery = supabase
-    .from('videos')
-    .select('*')
-    .order('created_at', { ascending: false });
+export function VideoGrid() {
+  const searchParams = useSearchParams();
+  const query = searchParams.get("q");
+  const category = searchParams.get("category");
+  
+  const [realVideos, setRealVideos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (query) {
-    dbQuery = dbQuery.ilike('title', `%${query}%`);
+  useEffect(() => {
+    const fetchVideos = async () => {
+      setLoading(true);
+      let dbQuery = supabase
+        .from('videos')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (query) {
+        dbQuery = dbQuery.ilike('title', `%${query}%`);
+      }
+
+      if (category && category !== "All" && category !== "全部") {
+        // Assuming 'category' column exists. If not, this might fail or return empty if handled strictly.
+        // Ideally we filter by the category column.
+        dbQuery = dbQuery.eq('category', category);
+      }
+
+      const { data } = await dbQuery.limit(8);
+      if (data) {
+        setRealVideos(data);
+      }
+      setLoading(false);
+    };
+
+    fetchVideos();
+  }, [query, category]);
+
+  if (loading && realVideos.length === 0) {
+      // Optional: Return a skeleton or loading state
+      // For now, we can just render the static parts or a spinner
   }
-
-  // Note: category filtering would require a 'category' column in the database, which we don't have yet.
-  // We will just filter by query for now.
-
-  const { data: realVideos } = await dbQuery.limit(8);
 
   return (
     <div className="container mx-auto px-4 mb-20" id="videos">
@@ -77,23 +107,37 @@ export async function VideoGrid({ query, category }: { query?: string; category?
                 {realVideos.map((video: any) => (
                     <div key={video.id} className="group relative bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-green-500/50 transition-all hover:transform hover:-translate-y-1">
                         <div className="aspect-video relative overflow-hidden bg-black/50">
-                            <img 
-                                src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=600&auto=format&fit=crop" 
-                                alt={video.title} 
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100" 
-                            />
-                            
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <a href={video.url} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-white/30">
-                                    <Play className="fill-white text-white ml-1" />
-                                </a>
-                            </div>
+                            {/* Use Link for navigation to details page */}
+                            <Link href={`/video/${video.id}`} className="block w-full h-full">
+                                <video 
+                                    src={video.url} 
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100" 
+                                    muted
+                                    loop
+                                    onMouseOver={(e) => e.currentTarget.play()}
+                                    onMouseOut={(e) => e.currentTarget.pause()}
+                                />
+                                
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                        <Play className="fill-white text-white ml-1" />
+                                    </div>
+                                </div>
+                            </Link>
                         </div>
                         <div className="p-4">
-                            <h4 className="text-white font-medium truncate mb-2">{video.title}</h4>
+                            <Link href={`/video/${video.id}`}>
+                                <h4 className="text-white font-medium truncate mb-2 hover:text-blue-400 transition-colors">{video.title}</h4>
+                            </Link>
                             <div className="flex items-center justify-between text-xs text-gray-400">
-                                <span>User {video.user_id.slice(0, 6)}...</span>
-                                <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">New</span>
+                                <Link href={`/profile/${video.user_id}`} className="hover:text-white transition-colors flex items-center gap-1">
+                                    <span>User {video.user_id.slice(0, 6)}...</span>
+                                </Link>
+                                {video.category && (
+                                    <Badge variant="outline" className="border-white/10 text-xs py-0 h-5">
+                                        {video.category}
+                                    </Badge>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -115,26 +159,30 @@ export async function VideoGrid({ query, category }: { query?: string; category?
           {videos.map((video) => (
             <div key={video.id} className="group relative bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-blue-500/50 transition-all hover:transform hover:-translate-y-1">
               <div className="aspect-video relative overflow-hidden">
-                <img src={video.image} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                <div className="absolute top-2 left-2">
-                    <Badge className={`
-                        ${video.rank === 1 ? 'bg-yellow-500' : video.rank === 2 ? 'bg-gray-400' : video.rank === 3 ? 'bg-orange-600' : 'bg-blue-500'} 
-                        text-white border-0 w-6 h-6 flex items-center justify-center rounded-full p-0
-                    `}>
-                        {video.rank}
-                    </Badge>
-                </div>
-                <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 rounded text-xs text-white">
-                    {video.duration}
-                </div>
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-white/30">
-                        <Play className="fill-white text-white ml-1" />
+                <Link href={`/video/${video.id}`} className="block w-full h-full">
+                    <img src={video.image} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute top-2 left-2">
+                        <Badge className={`
+                            ${video.rank === 1 ? 'bg-yellow-500' : video.rank === 2 ? 'bg-gray-400' : video.rank === 3 ? 'bg-orange-600' : 'bg-blue-500'} 
+                            text-white border-0 w-6 h-6 flex items-center justify-center rounded-full p-0
+                        `}>
+                            {video.rank}
+                        </Badge>
                     </div>
-                </div>
+                    <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 rounded text-xs text-white">
+                        {video.duration}
+                    </div>
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-white/30">
+                            <Play className="fill-white text-white ml-1" />
+                        </div>
+                    </div>
+                </Link>
               </div>
               <div className="p-4">
-                <h4 className="text-white font-medium truncate mb-2">{video.title}</h4>
+                <Link href={`/video/${video.id}`}>
+                    <h4 className="text-white font-medium truncate mb-2 hover:text-blue-400 transition-colors">{video.title}</h4>
+                </Link>
                 <div className="flex items-center justify-between text-xs text-gray-400">
                     <span>{video.author}</span>
                     <span className="flex items-center gap-1"><Play className="w-3 h-3" /> {video.views}</span>

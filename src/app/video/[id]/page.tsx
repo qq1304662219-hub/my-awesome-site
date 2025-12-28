@@ -2,13 +2,16 @@ import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Share2, Download, ThumbsUp, MessageSquare, Eye, Calendar, User } from "lucide-react";
+import { Eye, Calendar } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { VideoInteractions } from "@/components/video/VideoInteractions";
 
 export default async function VideoDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  
+  // 1. Fetch Video
   const { data: video, error } = await supabase
     .from('videos')
     .select('*')
@@ -31,9 +34,34 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
     );
   }
 
+  // 2. Fetch Author Profile
+  let authorProfile = null;
+  if (video.user_id && !video.user_id.startsWith("mock_")) {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', video.user_id)
+        .single();
+      authorProfile = data;
+  }
+
+  // 3. Fetch Initial Likes
+  let initialLikes = 0;
+  if (!video.id.toString().match(/^[1-4]$/)) { // Only fetch real likes for non-mock videos
+      const { count } = await supabase
+        .from('likes')
+        .select('*', { count: 'exact', head: true })
+        .eq('video_id', id);
+      initialLikes = count || 0;
+  } else {
+      initialLikes = Math.floor(Math.random() * 500) + 100; // Mock likes
+  }
+
+  // 4. Fetch Current User
+  const { data: { user } } = await supabase.auth.getUser();
+
   // Mock data for missing fields
   const views = Math.floor(Math.random() * 10000) + 500;
-  const likes = Math.floor(views * 0.1);
   const date = new Date(video.created_at).toLocaleDateString('zh-CN');
 
   return (
@@ -59,75 +87,42 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
             <div>
               <h1 className="text-2xl font-bold text-white mb-2">{video.title}</h1>
               
-              <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
-                <div className="flex items-center gap-4 text-sm text-gray-400">
-                  <span className="flex items-center gap-1"><Eye className="h-4 w-4" /> {views} 次观看</span>
-                  <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {date}</span>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-0">
-                    <ThumbsUp className="h-4 w-4 mr-2" />
-                    {likes}
-                  </Button>
-                  <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-0">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    分享
-                  </Button>
-                  <a href={video.url} download target="_blank">
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                      <Download className="h-4 w-4 mr-2" />
-                      下载
-                    </Button>
-                  </a>
-                </div>
+              <div className="flex items-center gap-4 text-sm text-gray-400 mb-6">
+                <span className="flex items-center gap-1"><Eye className="h-4 w-4" /> {views} 次观看</span>
+                <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {date}</span>
               </div>
 
-              <Separator className="bg-white/10 my-6" />
+              <VideoInteractions 
+                videoId={video.id} 
+                initialLikes={initialLikes || 0} 
+                currentUser={user} 
+                videoUrl={video.url}
+              >
+                <Separator className="bg-white/10 my-6" />
 
-              {/* Author & Description */}
-              <div className="flex gap-4">
-                <Avatar className="h-12 w-12 border border-white/10">
-                  <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${video.user_id}`} />
-                  <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-white">Creator {video.user_id.slice(0, 6)}</h3>
-                    <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">Pro</span>
-                  </div>
-                  <p className="text-gray-400 text-sm leading-relaxed">
-                    这是一个由 AI 生成的精彩视频。探索人工智能带来的无限创意可能。
-                    {video.description || "该作者很懒，没有留下描述。"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Comments Section (Mock) */}
-            <div className="mt-8 pt-8 border-t border-white/10">
-              <h3 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                评论 (3)
-              </h3>
-              
-              <div className="space-y-6">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex gap-4">
-                    <Avatar className="h-10 w-10 border border-white/10">
-                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`} />
+                {/* Author & Description */}
+                <div className="flex gap-4">
+                  <Link href={`/profile/${video.user_id}`}>
+                    <Avatar className="h-12 w-12 border border-white/10 hover:opacity-80 transition-opacity">
+                      <AvatarImage src={authorProfile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${video.user_id}`} />
                       <AvatarFallback>U</AvatarFallback>
                     </Avatar>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-white text-sm">User {i}</span>
-                        <span className="text-xs text-gray-500">2天前</span>
-                      </div>
-                      <p className="text-gray-400 text-sm">太棒了！这个效果是怎么做到的？期待更多作品。</p>
+                  </Link>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Link href={`/profile/${video.user_id}`} className="hover:text-blue-400 transition-colors">
+                        <h3 className="font-semibold text-white">{authorProfile?.full_name || `Creator ${video.user_id.slice(0, 6)}`}</h3>
+                      </Link>
+                      <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">Pro</span>
                     </div>
+                    <p className="text-gray-400 text-sm leading-relaxed">
+                      {video.description || "这是一个由 AI 生成的精彩视频。探索人工智能带来的无限创意可能。"}
+                    </p>
                   </div>
-                ))}
-              </div>
+                </div>
+                
+                <Separator className="bg-white/10 my-6" />
+              </VideoInteractions>
             </div>
           </div>
 

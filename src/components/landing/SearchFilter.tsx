@@ -1,5 +1,7 @@
 "use client"
 
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Search, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,9 +15,49 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+const CATEGORIES = ["All", "Nature", "Abstract", "Technology", "People", "Animals", "Urban", "Other"];
+
 export function SearchFilter() {
-  const tags = ["热门", "4K", "赛博朋克", "风景", "二次元", "抽象艺术", "未来科技", "城市"];
-  const categories = ["全部", "营销视频", "写实自然", "3D动画", "中国风", "科幻", "抽象", "二次元", "太空"];
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("q") || "";
+  const initialCategory = searchParams.get("category") || "All";
+
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
+
+  useEffect(() => {
+    setActiveCategory(searchParams.get("category") || "All");
+    setSearchQuery(searchParams.get("q") || "");
+  }, [searchParams]);
+
+  const handleSearch = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (searchQuery.trim()) {
+      params.set("q", searchQuery.trim());
+    } else {
+      params.delete("q");
+    }
+    // Reset page to 1 if pagination exists (optional)
+    router.push(`/?${params.toString()}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category);
+    const params = new URLSearchParams(searchParams.toString());
+    if (category && category !== "All") {
+      params.set("category", category);
+    } else {
+      params.delete("category");
+    }
+    router.push(`/?${params.toString()}`);
+  };
 
   return (
     <div className="container mx-auto px-4 mb-20">
@@ -46,32 +88,23 @@ export function SearchFilter() {
         </div>
       </div>
 
-      {/* Tags */}
-      <div className="flex flex-wrap justify-center gap-2 mb-8">
-        <span className="text-orange-500 flex items-center text-sm mr-2">🔥 热门:</span>
-        {tags.map((tag) => (
-          <Badge key={tag} variant="secondary" className="bg-white/5 hover:bg-white/10 text-gray-300 cursor-pointer border-white/5">
-            {tag}
-          </Badge>
-        ))}
-      </div>
-
       {/* Category Tabs */}
       <div className="flex justify-center mb-8">
-        <Tabs defaultValue="全部" className="w-full max-w-4xl">
+        <Tabs value={activeCategory} onValueChange={handleCategoryChange} className="w-full max-w-4xl">
           <TabsList className="w-full h-auto flex flex-wrap justify-center bg-transparent gap-2">
-            {categories.map((cat) => (
+            {CATEGORIES.map((cat) => (
               <TabsTrigger 
                 key={cat} 
                 value={cat}
                 className="rounded-full px-6 py-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white bg-white/5 text-gray-400 hover:text-white border border-transparent data-[state=active]:border-blue-500 transition-all"
               >
-                {cat}
+                {cat === "All" ? "全部" : cat}
               </TabsTrigger>
             ))}
           </TabsList>
         </Tabs>
       </div>
+
 
       {/* Filters */}
       <div className="max-w-4xl mx-auto p-4 bg-white/5 rounded-xl border border-white/10 flex flex-wrap items-center gap-4">
