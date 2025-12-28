@@ -26,7 +26,7 @@ export default function AuthCallbackPage() {
       // 监听状态变化（处理 code exchange）
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN' && session) {
-          router.push('/dashboard')
+          router.push('/')
         }
       })
 
