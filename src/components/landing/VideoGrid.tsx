@@ -1,5 +1,6 @@
 import { Play, Heart, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/lib/supabase";
 
 const videos = [
   {
@@ -44,9 +45,55 @@ const videos = [
   },
 ];
 
-export function VideoGrid() {
+export async function VideoGrid() {
+  // Fetch real videos from Supabase
+  const { data: realVideos } = await supabase
+    .from('videos')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(4);
+
   return (
-    <div className="container mx-auto px-4 mb-20">
+    <div className="container mx-auto px-4 mb-20" id="videos">
+      
+      {/* Latest Uploads (New Section) */}
+      {realVideos && realVideos.length > 0 && (
+        <div className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <span className="text-green-500">🆕</span> 最新上传
+                </h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {realVideos.map((video: any) => (
+                    <div key={video.id} className="group relative bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-green-500/50 transition-all hover:transform hover:-translate-y-1">
+                        <div className="aspect-video relative overflow-hidden bg-black/50">
+                            <img 
+                                src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=600&auto=format&fit=crop" 
+                                alt={video.title} 
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100" 
+                            />
+                            
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <a href={video.url} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-white/30">
+                                    <Play className="fill-white text-white ml-1" />
+                                </a>
+                            </div>
+                        </div>
+                        <div className="p-4">
+                            <h4 className="text-white font-medium truncate mb-2">{video.title}</h4>
+                            <div className="flex items-center justify-between text-xs text-gray-400">
+                                <span>User {video.user_id.slice(0, 6)}...</span>
+                                <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded">New</span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+      )}
+
       {/* Hot Videos */}
       <div className="mb-16">
         <div className="flex items-center justify-between mb-6">

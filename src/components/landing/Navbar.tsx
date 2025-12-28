@@ -16,17 +16,19 @@ export function Navbar() {
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-300">
-            <Link href="#" className="hover:text-white transition-colors">首页</Link>
-            <Link href="#" className="hover:text-white transition-colors">浏览素材</Link>
-            <Link href="#" className="hover:text-white transition-colors">我的作品</Link>
+            <Link href="/" className="hover:text-white transition-colors">首页</Link>
+            <Link href="#videos" className="hover:text-white transition-colors">浏览素材</Link>
+            <Link href="/dashboard" className="hover:text-white transition-colors">我的作品</Link>
           </div>
         </div>
         
         <div className="flex items-center gap-4">
-            <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0" onClick={() => window.location.href = '/dashboard'}>
-              <Upload className="mr-2 h-4 w-4" />
-              上传素材
-            </Button>
+            <Link href="/dashboard">
+              <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0">
+                <Upload className="mr-2 h-4 w-4" />
+                上传素材
+              </Button>
+            </Link>
             <Link href="/auth">
               <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white hover:bg-white/10">
                 登录
