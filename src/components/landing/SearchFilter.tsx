@@ -33,8 +33,14 @@ export function SearchFilter() {
           <Input 
             className="w-full h-12 pl-12 pr-24 bg-white/5 border-white/10 text-white rounded-full focus-visible:ring-blue-500 placeholder:text-gray-500"
             placeholder="搜索生成的AI视频，场景，Midjourney..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
-          <Button className="absolute right-1 top-1 bottom-1 rounded-full bg-blue-600 hover:bg-blue-700 px-6">
+          <Button 
+            className="absolute right-1 top-1 bottom-1 rounded-full bg-blue-600 hover:bg-blue-700 px-6"
+            onClick={handleSearch}
+          >
             搜索
           </Button>
         </div>

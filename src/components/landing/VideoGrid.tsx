@@ -45,13 +45,21 @@ const videos = [
   },
 ];
 
-export async function VideoGrid() {
+export async function VideoGrid({ query, category }: { query?: string; category?: string }) {
   // Fetch real videos from Supabase
-  const { data: realVideos } = await supabase
+  let dbQuery = supabase
     .from('videos')
     .select('*')
-    .order('created_at', { ascending: false })
-    .limit(4);
+    .order('created_at', { ascending: false });
+
+  if (query) {
+    dbQuery = dbQuery.ilike('title', `%${query}%`);
+  }
+
+  // Note: category filtering would require a 'category' column in the database, which we don't have yet.
+  // We will just filter by query for now.
+
+  const { data: realVideos } = await dbQuery.limit(8);
 
   return (
     <div className="container mx-auto px-4 mb-20" id="videos">
