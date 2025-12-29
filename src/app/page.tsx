@@ -18,14 +18,17 @@ export default function Home() {
 
   useEffect(() => {
     const checkUser = async () => {
+      console.log('Home: 检查用户...')
       const { data: { user } } = await supabase.auth.getUser()
+      console.log('Home: 用户状态 (getUser):', user)
       setUser(user)
       setLoading(false)
     }
 
     checkUser()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Home: Auth state change:', event, session?.user)
       setUser(session?.user ?? null)
     })
 

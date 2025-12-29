@@ -24,13 +24,19 @@ export function Navbar() {
 
   useEffect(() => {
     // Check initial user
+    console.log('Navbar: 检查用户...')
     supabase.auth.getUser().then(({ data: { user } }) => {
+      console.log('Navbar: 用户状态 (getUser):', user)
       setUser(user);
     });
 
     // Listen for changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Navbar: Auth state change:', event, session?.user)
       setUser(session?.user ?? null);
+      if (event === 'SIGNED_OUT') {
+        router.refresh()
+      }
     });
 
     return () => subscription.unsubscribe();
