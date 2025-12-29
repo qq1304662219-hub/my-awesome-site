@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { motion } from "framer-motion";
 
 const CATEGORIES = ["All", "Nature", "Abstract", "Technology", "People", "Animals", "Urban", "Other"];
 
@@ -61,56 +62,67 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
 
   return (
     <div className="container mx-auto px-4 mb-20">
-      <div className="text-center mb-10">
-        <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 inline-block mb-2 blur-[0.5px]">
-          探索 未来视界
-        </h2>
-        <p className="text-gray-500">个性化筛选 AI 视频素材库，上传 Prompts，作品，互助共赢。</p>
-      </div>
-
-      {/* Search Bar */}
-      <div className="max-w-2xl mx-auto relative mb-6">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <Input 
-            className="w-full h-12 pl-12 pr-24 bg-white/5 border-white/10 text-white rounded-full focus-visible:ring-blue-500 placeholder:text-gray-500"
-            placeholder="搜索生成的AI视频，场景，Midjourney..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <Button 
-            className="absolute right-1 top-1 bottom-1 rounded-full bg-blue-600 hover:bg-blue-700 px-6"
-            onClick={handleSearch}
-          >
-            搜索
-          </Button>
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <div className="text-center mb-10">
+            <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 inline-block mb-2 blur-[0.5px]">
+            探索 未来视界
+            </h2>
+            <p className="text-gray-500">个性化筛选 AI 视频素材库，上传 Prompts，作品，互助共赢。</p>
         </div>
-      </div>
 
-      {/* Category Tabs */}
-      <div className="flex justify-center mb-8">
-        <Tabs value={activeCategory} onValueChange={handleCategoryChange} className="w-full max-w-4xl">
-          <TabsList className="w-full h-auto flex flex-wrap justify-center bg-transparent gap-2">
-            {CATEGORIES.map((cat) => (
-              <TabsTrigger 
-                key={cat} 
-                value={cat}
-                className="rounded-full px-6 py-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white bg-white/5 text-gray-400 hover:text-white border border-transparent data-[state=active]:border-blue-500 transition-all"
-              >
-                {cat === "All" ? "全部" : cat}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </div>
+        {/* Search Bar */}
+        <div className="max-w-2xl mx-auto relative mb-6">
+            <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Input 
+                className="w-full h-12 pl-12 pr-24 bg-white/5 border-white/10 text-white rounded-full focus-visible:ring-blue-500 placeholder:text-gray-500"
+                placeholder="搜索生成的AI视频，场景，Midjourney..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+            />
+            <Button 
+                className="absolute right-1 top-1 bottom-1 rounded-full bg-blue-600 hover:bg-blue-700 px-6"
+                onClick={handleSearch}
+            >
+                搜索
+            </Button>
+            </div>
+        </div>
+
+        {/* Category Tabs */}
+        <div className="flex justify-center mb-8">
+            <Tabs value={activeCategory} onValueChange={handleCategoryChange} className="w-full max-w-4xl">
+            <TabsList className="w-full h-auto flex flex-wrap justify-center bg-transparent gap-2">
+                {CATEGORIES.map((cat) => (
+                <TabsTrigger 
+                    key={cat} 
+                    value={cat}
+                    className="rounded-full px-6 py-2 data-[state=active]:bg-blue-600 data-[state=active]:text-white bg-white/5 text-gray-400 hover:text-white border border-transparent data-[state=active]:border-blue-500 transition-all"
+                >
+                    {cat === "All" ? "全部" : cat}
+                </TabsTrigger>
+                ))}
+            </TabsList>
+            </Tabs>
+        </div>
+      </motion.div>
 
 
       {/* Filters */}
-      <div className="max-w-4xl mx-auto p-4 bg-white/5 rounded-xl border border-white/10 flex flex-wrap items-center gap-4">
-        <span className="text-gray-400 text-sm">高级筛选:</span>
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="max-w-4xl mx-auto py-1 px-3 bg-white/5 rounded-xl border border-white/10 flex flex-wrap items-center gap-2"
+      >
+        <span className="text-gray-400 text-xs">高级筛选:</span>
         <Select>
-          <SelectTrigger className="w-[120px] bg-black/20 border-white/10 text-gray-300 h-9">
+          <SelectTrigger className="w-[110px] bg-black/20 border-white/10 text-gray-300 h-7 text-xs">
             <SelectValue placeholder="所有分辨率" />
           </SelectTrigger>
           <SelectContent>
@@ -120,7 +132,7 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
         </Select>
 
         <Select>
-          <SelectTrigger className="w-[120px] bg-black/20 border-white/10 text-gray-300 h-9">
+          <SelectTrigger className="w-[110px] bg-black/20 border-white/10 text-gray-300 h-7 text-xs">
             <SelectValue placeholder="所有时长" />
           </SelectTrigger>
           <SelectContent>
@@ -130,29 +142,36 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
         </Select>
 
         <Select>
-          <SelectTrigger className="w-[120px] bg-black/20 border-white/10 text-gray-300 h-9">
-            <SelectValue placeholder="所有色调" />
+          <SelectTrigger className="w-[110px] bg-black/20 border-white/10 text-gray-300 h-7 text-xs">
+            <SelectValue placeholder="所有格式" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="dark">Dark</SelectItem>
-            <SelectItem value="light">Light</SelectItem>
+            <SelectItem value="mp4">MP4</SelectItem>
+            <SelectItem value="webm">WebM</SelectItem>
           </SelectContent>
         </Select>
 
-        <div className="ml-auto flex gap-2">
-            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
-                <RotateCcw className="h-4 w-4 mr-1" /> 重置
+        <div className="flex-1" />
+
+        <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white h-7 text-xs px-2" onClick={() => {
+              setSearchQuery("");
+              setActiveCategory("All");
+              router.push("/explore");
+            }}>
+                <RotateCcw className="h-3 w-3 mr-1" /> 重置
             </Button>
+            
             <Button 
               variant="secondary" 
               size="sm" 
-              className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/30"
+              className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 h-7 text-xs px-2"
               onClick={onOpenFilters}
             >
-                <SlidersHorizontal className="h-4 w-4 mr-1" /> 多向筛选
+                <SlidersHorizontal className="h-3 w-3 mr-1" /> 多向筛选
             </Button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

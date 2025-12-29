@@ -6,6 +6,13 @@ import Link from "next/link"
 import { ArrowRight, Sparkles } from "lucide-react"
 
 export function LandingHero() {
+  const handleLearnMore = () => {
+    const element = document.getElementById('explore-content');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20">
       {/* Background Effects */}
@@ -50,11 +57,15 @@ export function LandingHero() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link href="/explore">
-              <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-full border-white/20 hover:bg-white/10 hover:border-white/40 bg-transparent backdrop-blur-sm">
+            
+            <Button 
+                size="lg" 
+                variant="outline" 
+                className="h-14 px-8 text-lg rounded-full border-white/20 hover:bg-white/10 hover:border-white/40 bg-transparent backdrop-blur-sm"
+                onClick={handleLearnMore}
+            >
                 了解更多
-              </Button>
-            </Link>
+            </Button>
           </motion.div>
         </motion.div>
       </div>
