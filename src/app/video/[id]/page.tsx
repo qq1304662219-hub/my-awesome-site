@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { VideoInteractions } from "@/components/video/VideoInteractions";
+import { LicenseSelector } from "@/components/video/LicenseSelector";
 
 export default async function VideoDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -233,37 +234,12 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
 
           {/* Sidebar: Download & Recommended */}
           <div className="lg:col-span-1 space-y-8">
-            {/* Download Panel (New) */}
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                <h3 className="text-xl font-bold text-white mb-4">下载素材</h3>
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 rounded-lg border border-blue-500/30 bg-blue-500/10 cursor-pointer relative overflow-hidden">
-                        <div className="relative z-10">
-                            <span className="text-white font-medium block">4K 原画质</span>
-                            <span className="text-xs text-gray-400">3840 x 2160 • MOV</span>
-                        </div>
-                        <span className="text-blue-400 font-bold relative z-10">免费</span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 rounded-lg border border-white/10 hover:bg-white/5 cursor-pointer transition-colors">
-                        <div>
-                            <span className="text-gray-300 font-medium block">1080P 高清</span>
-                            <span className="text-xs text-gray-400">1920 x 1080 • MP4</span>
-                        </div>
-                        <span className="text-gray-400">免费</span>
-                    </div>
-                    
-                    <a href={video.url} download target="_blank" rel="noopener noreferrer">
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 mt-4">
-                            <Download className="mr-2 h-5 w-5" /> 立即下载
-                        </Button>
-                    </a>
-                    
-                    <div className="flex items-center justify-center gap-4 text-sm text-gray-400 pt-2">
-                         <span className="flex items-center gap-1"><ShieldCheck className="w-4 h-4" /> 商用授权</span>
-                         <span className="flex items-center gap-1 cursor-pointer hover:text-red-400 transition-colors"><Heart className="w-4 h-4" /> 收藏</span>
-                    </div>
-                </div>
-            </div>
+            {/* License Selector Panel */}
+            <LicenseSelector 
+                videoId={video.id} 
+                title={video.title} 
+                thumbnail={video.thumbnail_url || video.url} 
+            />
 
             {/* Related Videos */}
             <div>

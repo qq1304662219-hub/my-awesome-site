@@ -140,7 +140,12 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
                     <button className="px-3 py-1 text-sm rounded-md bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">AE模板</button>
                     <button className="px-3 py-1 text-sm rounded-md bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">C4D模型</button>
                     <button className="px-3 py-1 text-sm rounded-md bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">Pr模板</button>
-                    <button className="px-3 py-1 text-sm rounded-md bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white">更多 <SlidersHorizontal className="inline w-3 h-3 ml-1" /></button>
+                    <button 
+                        onClick={onOpenFilters}
+                        className="px-3 py-1 text-sm rounded-md bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white flex items-center"
+                    >
+                        更多 <SlidersHorizontal className="inline w-3 h-3 ml-1" />
+                    </button>
                 </div>
             </div>
 

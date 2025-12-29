@@ -116,25 +116,52 @@ export function VideoGrid() {
   };
 
   const VideoSkeleton = () => (
-    <div className="space-y-3">
-      <Skeleton className="h-[200px] w-full rounded-xl bg-white/5" />
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-[250px] bg-white/5" />
-        <Skeleton className="h-4 w-[200px] bg-white/5" />
+    <div className="bg-[#0f172a] rounded-xl overflow-hidden border border-white/5">
+      {/* Thumbnail */}
+      <Skeleton className="aspect-video w-full bg-white/5" />
+      
+      {/* Content */}
+      <div className="p-3.5">
+        <div className="flex gap-3 items-start">
+          {/* Avatar */}
+          <Skeleton className="h-8 w-8 rounded-full bg-white/5 flex-shrink-0" />
+          
+          {/* Text Content */}
+          <div className="flex-1 space-y-2">
+            {/* Title */}
+            <Skeleton className="h-4 w-3/4 bg-white/5" />
+            
+            {/* Author/Meta */}
+            <div className="flex justify-between items-center pt-1">
+               <Skeleton className="h-3 w-1/3 bg-white/5" />
+               <Skeleton className="h-3 w-12 bg-white/5" />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
 
   return (
     <div className="container mx-auto px-4 mb-20" id="videos">
       
       {/* Latest Uploads Section */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="mb-16"
-      >
+      <div className="mb-16">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold text-white flex items-center gap-2">
             <Clock className="w-5 h-5 text-green-500" /> 最新发布
@@ -146,14 +173,18 @@ export function VideoGrid() {
              {[...Array(8)].map((_, i) => <VideoSkeleton key={i} />)}
            </div>
         ) : latestVideos.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <motion.div 
+                variants={container}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            >
                 {latestVideos.map((video) => (
-                    <VideoCard 
-                        key={video.id}
-                        {...video}
-                    />
+                    <motion.div key={video.id} variants={item}>
+                        <VideoCard {...video} />
+                    </motion.div>
                 ))}
-            </div>
+            </motion.div>
         ) : (
             <div className="text-gray-500 text-center py-20 bg-white/5 rounded-xl border border-white/10">
               <p>暂无相关视频</p>
@@ -180,33 +211,35 @@ export function VideoGrid() {
              </Button>
            </div>
         )}
-      </motion.div>
+      </div>
 
       {/* Hot Videos Section */}
       {hotVideos.length > 0 && (
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-16"
-        >
+        <div className="mb-16">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
               <Flame className="w-5 h-5 text-orange-500" /> 热门推荐
             </h3>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div 
+            variants={container}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
             {hotVideos.map((video, index) => (
-              <VideoCard 
-                  key={`hot-${video.id}`}
-                  {...video}
-                  rank={index + 1}
-                  showRank={index < 3}
-              />
+              <motion.div key={`hot-${video.id}`} variants={item}>
+                  <VideoCard 
+                      {...video}
+                      rank={index + 1}
+                      showRank={index < 3}
+                  />
+              </motion.div>
             ))}
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       )}
     </div>
   );
