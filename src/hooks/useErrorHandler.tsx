@@ -1,15 +1,15 @@
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 export const useErrorHandler = () => {
-  const handleError = (error: any, customMessage?: string) => {
+  const handleError = useCallback((error: any, customMessage?: string) => {
     console.error(error);
     const message = customMessage || error?.message || "Something went wrong. Please try again.";
     toast.error(message);
-  };
+  }, []);
 
   return { handleError };
 };
