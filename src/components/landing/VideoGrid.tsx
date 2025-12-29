@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { Play, Heart, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
 
 const videos = [
   {
@@ -264,83 +265,92 @@ export function VideoGrid() {
   const { handleError } = useErrorHandler();
   
   const [realVideos, setRealVideos] = useState<Video[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
+  const { ref, inView } = useInView();
 
-  useEffect(() => {
-    const fetchVideos = async () => {
-      setLoading(true);
-      try {
-        let dbQuery = supabase
-            .from('videos')
-            .select('*')
-            .order('created_at', { ascending: false });
+  const fetchVideos = useCallback(async (pageParam: number) => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      let dbQuery = supabase
+          .from('videos')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .range(pageParam * 12, (pageParam + 1) * 12 - 1);
 
-        if (query) {
-            dbQuery = dbQuery.ilike('title', `%${query}%`);
-        }
-
-        if (category && category !== "All" && category !== "全部") {
-            dbQuery = dbQuery.eq('category', category);
-        }
-
-        // Filter: Resolution
-        const resolutions = searchParams.get("resolution")?.split(',') || [];
-        if (resolutions.length > 0) {
-            const conditions: string[] = [];
-            if (resolutions.includes('4k')) conditions.push('width.gte.3840');
-            if (resolutions.includes('1080p')) conditions.push('and(width.gte.1920,width.lt.3840)');
-            if (resolutions.includes('720p')) conditions.push('and(width.gte.1280,width.lt.1920)');
-            
-            if (conditions.length > 0) {
-                dbQuery = dbQuery.or(conditions.join(','));
-            }
-        }
-
-        // Filter: Duration
-        const durations = searchParams.get("duration")?.split(',') || [];
-        if (durations.length > 0) {
-            const conditions: string[] = [];
-            if (durations.includes('short')) conditions.push('duration.lt.10');
-            if (durations.includes('medium')) conditions.push('and(duration.gte.10,duration.lte.30)');
-            if (durations.includes('long')) conditions.push('duration.gt.30');
-            
-            if (conditions.length > 0) {
-                dbQuery = dbQuery.or(conditions.join(','));
-            }
-        }
-
-        // Filter: Format
-        const formats = searchParams.get("format")?.split(',') || [];
-        if (formats.length > 0) {
-            dbQuery = dbQuery.in('format', formats);
-        }
-
-        const { data, error } = await dbQuery.limit(20);
-        if (error) {
-            throw error;
-        }
-        if (data) {
-            setRealVideos(data);
-        }
-      } catch (error) {
-        handleError(error, "Failed to load videos");
-      } finally {
-        setLoading(false);
+      if (query) {
+          dbQuery = dbQuery.ilike('title', `%${query}%`);
       }
-    };
 
-    fetchVideos();
+      if (category && category !== "All" && category !== "全部") {
+          dbQuery = dbQuery.eq('category', category);
+      }
+
+      // Filter: Resolution
+      const resolutions = searchParams.get("resolution")?.split(',') || [];
+      if (resolutions.length > 0) {
+          const conditions: string[] = [];
+          if (resolutions.includes('4k')) conditions.push('width.gte.3840');
+          if (resolutions.includes('1080p')) conditions.push('and(width.gte.1920,width.lt.3840)');
+          if (resolutions.includes('720p')) conditions.push('and(width.gte.1280,width.lt.1920)');
+          
+          if (conditions.length > 0) {
+              dbQuery = dbQuery.or(conditions.join(','));
+          }
+      }
+
+      // Filter: Duration
+      const durations = searchParams.get("duration")?.split(',') || [];
+      if (durations.length > 0) {
+          const conditions: string[] = [];
+          if (durations.includes('short')) conditions.push('duration.lt.10');
+          if (durations.includes('medium')) conditions.push('and(duration.gte.10,duration.lte.30)');
+          if (durations.includes('long')) conditions.push('duration.gt.30');
+          
+          if (conditions.length > 0) {
+              dbQuery = dbQuery.or(conditions.join(','));
+          }
+      }
+
+      // Filter: Format
+      const formats = searchParams.get("format")?.split(',') || [];
+      if (formats.length > 0) {
+          dbQuery = dbQuery.in('format', formats);
+      }
+
+      const { data, error } = await dbQuery;
+      if (error) throw error;
+      
+      if (data) {
+          if (data.length < 12) setHasMore(false);
+          setRealVideos(prev => pageParam === 0 ? data : [...prev, ...data]);
+      }
+    } catch (error) {
+      handleError(error, "Failed to load videos");
+    } finally {
+      setLoading(false);
+    }
   }, [query, category, searchParams, handleError]);
 
-  if (loading && realVideos.length === 0) {
-      return (
-        <div className="container mx-auto px-4 mb-20 grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[1,2,3,4,5,6,7,8].map(i => (
-                <div key={i} className="bg-white/5 rounded-xl h-64 animate-pulse"></div>
-            ))}
-        </div>
-      )
-  }
+  // Reset when filters change
+  useEffect(() => {
+    setPage(0);
+    setHasMore(true);
+    fetchVideos(0);
+  }, [query, category, searchParams, fetchVideos]);
+
+  // Load more when scrolling
+  useEffect(() => {
+    if (inView && hasMore && !loading) {
+      setPage(prev => {
+        const newPage = prev + 1;
+        fetchVideos(newPage);
+        return newPage;
+      });
+    }
+  }, [inView, hasMore, loading, fetchVideos]);
 
   return (
     <div className="container mx-auto px-4 mb-20" id="videos">
@@ -380,19 +390,19 @@ export function VideoGrid() {
       </motion.div>
       
       {/* Latest Uploads */}
-      {realVideos && realVideos.length > 0 && (
-        <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="mb-16"
-        >
-            <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    <span className="text-green-500">🆕</span> 最新上传
-                </h3>
-            </div>
-            
+      <motion.div
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="mb-16"
+      >
+        <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <span className="text-green-500">🆕</span> 最新上传
+            </h3>
+        </div>
+        
+        {realVideos.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {realVideos.map((video) => (
                     <VideoCard 
@@ -406,8 +416,25 @@ export function VideoGrid() {
                     />
                 ))}
             </div>
-        </motion.div>
-      )}
+        ) : loading && page === 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {[1,2,3,4].map(i => (
+                    <div key={i} className="bg-white/5 rounded-xl h-64 animate-pulse"></div>
+                ))}
+            </div>
+        ) : (
+            <div className="text-gray-500 text-center py-10">暂无视频</div>
+        )}
+
+        {/* Loading trigger */}
+        {hasMore && (
+            <div ref={ref} className="w-full py-8 flex justify-center">
+                {loading && page > 0 && (
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                )}
+            </div>
+        )}
+      </motion.div>
 
       {/* Hot Videos */}
       <motion.div

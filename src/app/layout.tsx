@@ -26,7 +26,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "AI Vision",
     description: "Create, share and discover amazing AI-generated videos.",
-  }
+  },
+  manifest: '/manifest.json',
 };
 
 import { GlobalErrorListener } from "@/hooks/useErrorHandler";

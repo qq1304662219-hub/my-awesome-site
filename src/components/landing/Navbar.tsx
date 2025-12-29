@@ -8,6 +8,8 @@ import { supabase } from "@/lib/supabase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useUIStore } from "@/store/useUIStore";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,8 +19,8 @@ import {
 
 export function Navbar() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, setUser } = useAuthStore();
+  const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
 
   useEffect(() => {
     // Check initial user
@@ -45,7 +47,7 @@ export function Navbar() {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <Video className="h-6 w-6 text-blue-500" />
             <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
               AI Vision
@@ -157,28 +159,28 @@ export function Navbar() {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
-            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            <Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
+      {isMobileMenuOpen && (
         <div className="md:hidden absolute top-16 left-0 w-full bg-[#020817] border-b border-white/10 p-4 flex flex-col gap-4 shadow-xl">
-            <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white py-2">首页</Link>
-            <Link href="/help" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white py-2">帮助中心</Link>
+            <Link href="/" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2">首页</Link>
+            <Link href="/help" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2">帮助中心</Link>
             
             {user ? (
                 <>
-                    <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white py-2">我的作品</Link>
-                    <Link href={`/profile/${user.id}`} onClick={() => setMobileMenuOpen(false)} className="text-gray-300 hover:text-white py-2">个人主页</Link>
-                    <Button onClick={() => { handleSignOut(); setMobileMenuOpen(false); }} variant="destructive" className="w-full mt-2">
+                    <Link href="/dashboard" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2">我的作品</Link>
+                    <Link href={`/profile/${user.id}`} onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2">个人主页</Link>
+                    <Button onClick={() => { handleSignOut(); closeMobileMenu(); }} variant="destructive" className="w-full mt-2">
                         退出登录
                     </Button>
                 </>
             ) : (
-                <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/auth" onClick={closeMobileMenu}>
                     <Button className="w-full bg-white text-black hover:bg-gray-200">
                         登录 / 注册
                     </Button>

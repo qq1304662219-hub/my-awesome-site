@@ -120,8 +120,36 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
   const views = Math.floor(Math.random() * 10000) + 500;
   const date = new Date(video.created_at).toLocaleDateString('zh-CN');
 
+  // JSON-LD Structured Data
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": video.title,
+    "description": video.description || "AI generated video",
+    "thumbnailUrl": [
+      video.thumbnail_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop"
+    ],
+    "uploadDate": video.created_at,
+    "duration": video.duration ? `PT${video.duration}S` : "PT15S",
+    "contentUrl": video.url,
+    "embedUrl": video.url,
+    "interactionStatistic": {
+      "@type": "InteractionCounter",
+      "interactionType": { "@type": "WatchAction" },
+      "userInteractionCount": views
+    },
+    "author": {
+      "@type": "Person",
+      "name": authorProfile?.full_name || `User ${video.user_id.slice(0, 6)}`
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#020817] text-foreground">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
       
       <div className="container mx-auto px-4 pt-24 pb-16">

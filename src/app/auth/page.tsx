@@ -45,6 +45,7 @@ export default function AuthPage() {
       alert(error.message)
     } else {
       router.push('/')
+      router.refresh()
     }
     setLoading(false)
   }

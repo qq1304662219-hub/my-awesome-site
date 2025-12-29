@@ -37,7 +37,7 @@ export function VideoCard({
   return (
     <div className="group relative bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-blue-500/50 transition-all hover:transform hover:-translate-y-1">
       <div className="aspect-video relative overflow-hidden bg-black/50">
-        <Link href={`/video/${id}`} className="block w-full h-full">
+        <Link href={`/video/${id}`} className="block w-full h-full" prefetch={true}>
           {isVideoUrl ? (
             <video
               src={url}
@@ -95,7 +95,7 @@ export function VideoCard({
       </div>
       
       <div className="p-4">
-        <Link href={`/video/${id}`}>
+        <Link href={`/video/${id}`} prefetch={true}>
           <h4 className="text-white font-medium truncate mb-2 hover:text-blue-400 transition-colors">
             {title}
           </h4>

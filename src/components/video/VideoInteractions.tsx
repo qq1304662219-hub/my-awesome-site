@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -102,26 +102,36 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
     }
   };
 
+  import { useRef } from "react";
+
+  // ... inside component ...
+  const lastClickTime = useRef(0);
+
   const handleLike = async () => {
+    const now = Date.now();
+    if (now - lastClickTime.current < 1000) return; // Simple 1s throttle
+    lastClickTime.current = now;
+
     if (!currentUser) {
       router.push("/auth");
       return;
     }
 
-    if (hasLiked) {
-      setLikes(prev => prev - 1);
-      setHasLiked(false);
-      if (!isMock) {
+    // Optimistic update
+    const newHasLiked = !hasLiked;
+    setHasLiked(newHasLiked);
+    setLikes(prev => newHasLiked ? prev + 1 : prev - 1);
+
+    if (isMock) return;
+
+    try {
+      if (!newHasLiked) {
         await supabase
             .from("likes")
             .delete()
             .eq("video_id", videoId)
             .eq("user_id", currentUser.id);
-      }
-    } else {
-      setLikes(prev => prev + 1);
-      setHasLiked(true);
-      if (!isMock) {
+      } else {
         await supabase
             .from("likes")
             .insert({
@@ -129,6 +139,11 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
             user_id: currentUser.id
             });
       }
+    } catch (error) {
+      // Revert on error
+      setHasLiked(!newHasLiked);
+      setLikes(prev => !newHasLiked ? prev + 1 : prev - 1);
+      console.error("Error toggling like:", error);
     }
   };
 
