@@ -17,6 +17,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { UserHoverMenu } from "@/components/landing/UserHoverMenu";
+
 export function Navbar() {
   const router = useRouter();
   const { user, setUser } = useAuthStore();
@@ -123,42 +125,7 @@ export function Navbar() {
                         </Button>
                     </Link>
                     
-                    <DropdownMenu>
-                        <DropdownMenuTrigger className="outline-none">
-                            <Avatar className="h-9 w-9 border border-white/10 transition-transform hover:scale-105">
-                                <AvatarImage src={user.user_metadata?.avatar_url} />
-                                <AvatarFallback className="bg-blue-600 text-white">
-                                    {user.email?.[0]?.toUpperCase()}
-                                </AvatarFallback>
-                            </Avatar>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56 bg-[#0f172a] border-white/10 text-gray-300">
-                            <div className="px-2 py-1.5 text-sm border-b border-white/10 mb-1">
-                                <p className="font-medium text-white truncate">{user.email}</p>
-                                <p className="text-xs text-gray-500">普通会员</p>
-                            </div>
-                            <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/dashboard')}>
-                                <UserIcon className="mr-2 h-4 w-4" />
-                                个人中心
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/settings')}>
-                                <UserIcon className="mr-2 h-4 w-4" />
-                                个人设置
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/dashboard')}>
-                                <Upload className="mr-2 h-4 w-4" />
-                                我的作品
-                            </DropdownMenuItem>
-                            <div className="h-px bg-white/10 my-1" />
-                            <DropdownMenuItem 
-                                className="text-red-400 hover:text-red-300 hover:bg-red-900/20 cursor-pointer"
-                                onClick={handleSignOut}
-                            >
-                                <LogOut className="mr-2 h-4 w-4" />
-                                退出登录
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <UserHoverMenu user={user} onSignOut={handleSignOut} />
                  </div>
               </>
             ) : (
