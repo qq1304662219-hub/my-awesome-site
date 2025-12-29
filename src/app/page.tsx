@@ -6,10 +6,6 @@ import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
 import { LandingHero } from "@/components/landing/LandingHero"
 import { DashboardView } from "@/components/dashboard/DashboardView"
-import { VideoGrid } from "@/components/landing/VideoGrid"
-import { SearchFilter } from "@/components/landing/SearchFilter"
-
-import { SidebarFilters } from "@/components/landing/SidebarFilters"
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
@@ -50,21 +46,6 @@ export default function Home() {
             <DashboardView />
          </div>
       )}
-
-      <div className="relative z-10 bg-[#020817] pb-20">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col lg:flex-row gap-8">
-                {/* Sidebar Filters */}
-                <SidebarFilters />
-                
-                {/* Main Content */}
-                <div className="flex-1">
-                    <SearchFilter />
-                    <VideoGrid />
-                </div>
-            </div>
-          </div>
-      </div>
       
       <Footer />
     </main>

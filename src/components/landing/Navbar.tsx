@@ -65,12 +65,16 @@ export function Navbar() {
                     <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">城市建筑</DropdownMenuItem>
                     <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">科技未来</DropdownMenuItem>
                     <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">人物生活</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">抽象艺术</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">动物世界</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">情感表达</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">商业职场</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            <Link href="/templates" className="hover:text-white transition-colors">AE模板</Link>
-            <Link href="/music" className="hover:text-white transition-colors">配乐</Link>
-            <Link href="/3d" className="hover:text-white transition-colors">3D模型</Link>
+            <Link href="/events" className="hover:text-white transition-colors">活动</Link>
+            <Link href="/classroom" className="hover:text-white transition-colors">课堂</Link>
+            <Link href="/models" className="hover:text-white transition-colors">大模型</Link>
           </div>
         </div>
         

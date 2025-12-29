@@ -62,7 +62,7 @@ export function SidebarFilters() {
     }
 
     return (
-        <div className="w-64 flex-shrink-0 space-y-8 hidden lg:block pr-6 border-r border-white/10 h-fit sticky top-24">
+        <div className="space-y-8 pr-6">
             <div className="flex items-center justify-between">
                 <h3 className="font-bold text-white text-lg">筛选</h3>
                 <button onClick={clearFilters} className="text-xs text-blue-400 hover:text-blue-300">重置</button>

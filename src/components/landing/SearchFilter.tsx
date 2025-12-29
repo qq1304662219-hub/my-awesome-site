@@ -17,7 +17,7 @@ import {
 
 const CATEGORIES = ["All", "Nature", "Abstract", "Technology", "People", "Animals", "Urban", "Other"];
 
-export function SearchFilter() {
+export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
@@ -143,7 +143,12 @@ export function SearchFilter() {
             <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
                 <RotateCcw className="h-4 w-4 mr-1" /> 重置
             </Button>
-            <Button variant="secondary" size="sm" className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/30">
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              className="bg-blue-600/20 text-blue-400 hover:bg-blue-600/30"
+              onClick={onOpenFilters}
+            >
                 <SlidersHorizontal className="h-4 w-4 mr-1" /> 多向筛选
             </Button>
         </div>
