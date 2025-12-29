@@ -31,6 +31,7 @@ interface VideoInteractionsProps {
 
 export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl, children }: VideoInteractionsProps) {
   const router = useRouter();
+  const lastClickTime = useRef(0);
   const [likes, setLikes] = useState(initialLikes);
   const [hasLiked, setHasLiked] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -102,10 +103,7 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
     }
   };
 
-  import { useRef } from "react";
 
-  // ... inside component ...
-  const lastClickTime = useRef(0);
 
   const handleLike = async () => {
     const now = Date.now();
