@@ -68,15 +68,20 @@ export default function Dashboard() {
       {/* Navbar */}
       <nav className="border-b border-white/10 bg-black/20 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <Video className="h-6 w-6 text-blue-500" />
             <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              AI Vision 面板
+              AI Vision
             </span>
-          </div>
+          </Link>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400 hidden md:inline">{user.email}</span>
-            <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-gray-400 hover:text-white hover:bg-white/10">
+            <Button variant="ghost" asChild className="text-gray-400 hover:text-white hover:bg-white/10">
+                <Link href="/">
+                    返回首页
+                </Link>
+            </Button>
+            <span className="text-sm text-gray-400 hidden md:inline border-l border-white/10 pl-4">{user.email}</span>
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-red-400 hover:text-red-300 hover:bg-red-500/10">
               <LogOut className="h-4 w-4 mr-2" />
               退出
             </Button>

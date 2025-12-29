@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Upload, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import Link from 'next/link'
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
@@ -70,7 +71,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
 
       if (dbError) throw dbError
 
-      setMessage({ type: 'success', text: '上传成功！' })
+      setMessage({ type: 'success', text: '上传成功！您的作品已发布到首页。' })
       setFile(null)
       setTitle('')
       setCategory('Other')
@@ -90,55 +91,109 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
     }
   }
 
+  if (message?.type === 'success') {
+    return (
+        <div className="space-y-6 py-4">
+            <div className="flex flex-col items-center justify-center text-center space-y-2">
+                <div className="h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center mb-2">
+                    <CheckCircle className="h-6 w-6 text-green-500" />
+                </div>
+                <h3 className="text-xl font-bold text-white">上传成功</h3>
+                <p className="text-gray-400">您的作品已成功发布，快去首页看看吧！</p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+                <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 h-11 text-base">
+                    <Link href="/">
+                        返回首页查看
+                    </Link>
+                </Button>
+                <Button 
+                    onClick={() => setMessage(null)} 
+                    variant="outline" 
+                    className="w-full border-white/10 hover:bg-white/5 text-gray-300 hover:text-white h-11"
+                >
+                    继续上传
+                </Button>
+            </div>
+        </div>
+    )
+  }
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="title" className="text-gray-300">标题</Label>
+        <Label htmlFor="title" className="text-gray-300 font-medium">作品标题</Label>
         <Input 
           id="title" 
           value={title} 
           onChange={(e) => setTitle(e.target.value)}
           placeholder="给你的作品起个名字"
-          className="bg-black/20 border-white/10 text-white"
+          className="bg-black/20 border-white/10 text-white h-11 focus-visible:ring-blue-500/50 placeholder:text-gray-600"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="category" className="text-gray-300">分类</Label>
+        <Label htmlFor="category" className="text-gray-300 font-medium">作品分类</Label>
         <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="bg-black/20 border-white/10 text-white">
+          <SelectTrigger className="bg-black/20 border-white/10 text-white h-11 focus:ring-blue-500/50">
             <SelectValue placeholder="选择分类" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-[#1e293b] border-white/10 text-white">
             {CATEGORIES.map(cat => (
-              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              <SelectItem key={cat} value={cat} className="focus:bg-blue-600 focus:text-white cursor-pointer">{cat}</SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="picture" className="text-gray-300">选择文件</Label>
-        <Input 
-          id="picture" 
-          type="file" 
-          onChange={handleFileChange} 
-          className="bg-black/20 border-white/10 text-white file:text-white file:bg-blue-600 file:border-0 file:rounded-md file:mr-4 file:px-2 file:py-1 hover:file:bg-blue-700"
-          accept="image/*,video/*"
-        />
+        <Label htmlFor="picture" className="text-gray-300 font-medium">上传文件</Label>
+        <div className="relative group cursor-pointer">
+            <Input 
+            id="picture" 
+            type="file" 
+            onChange={handleFileChange} 
+            className="hidden"
+            accept="image/*,video/*"
+            />
+            <label 
+                htmlFor="picture" 
+                className={`
+                    flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors
+                    ${file ? 'border-blue-500/50 bg-blue-500/10' : 'border-white/10 bg-black/20 hover:border-white/20 hover:bg-white/5'}
+                `}
+            >
+                {file ? (
+                    <div className="text-center px-4">
+                        <CheckCircle className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                        <p className="text-sm text-blue-200 truncate max-w-[200px]">{file.name}</p>
+                    </div>
+                ) : (
+                    <div className="text-center text-gray-400 group-hover:text-gray-300">
+                        <Upload className="w-8 h-8 mx-auto mb-2" />
+                        <p className="text-sm">点击选择视频或图片</p>
+                    </div>
+                )}
+            </label>
+        </div>
       </div>
 
-      {message && (
-        <Alert variant={message.type === 'error' ? 'destructive' : 'default'} className={message.type === 'success' ? 'border-green-500/50 text-green-500 bg-green-500/10' : ''}>
-          {message.type === 'success' ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-          <AlertTitle>{message.type === 'success' ? '成功' : '错误'}</AlertTitle>
+      {message && message.type === 'error' && (
+        <Alert variant="destructive" className="bg-red-900/20 border-red-900/50 text-red-200">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>错误</AlertTitle>
           <AlertDescription>
             {message.text}
           </AlertDescription>
         </Alert>
       )}
 
-      <Button onClick={handleUpload} disabled={!file || uploading} className="w-full bg-blue-600 hover:bg-blue-700">
+      <Button 
+        onClick={handleUpload} 
+        disabled={!file || uploading} 
+        className="w-full bg-blue-600 hover:bg-blue-700 h-11 text-base font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
+      >
         {uploading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -147,7 +202,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
         ) : (
           <>
             <Upload className="mr-2 h-4 w-4" />
-            开始上传
+            开始发布
           </>
         )}
       </Button>
