@@ -293,6 +293,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
           </div>
         </div>
       </div>
+      </div>
       <Footer />
     </main>
   );

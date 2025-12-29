@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabase"
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
 import { LandingHero } from "@/components/landing/LandingHero"
-import { LandingFeatures } from "@/components/landing/LandingFeatures"
 import { DashboardView } from "@/components/dashboard/DashboardView"
 import { VideoGrid } from "@/components/landing/VideoGrid"
 import { SearchFilter } from "@/components/landing/SearchFilter"
@@ -67,7 +66,6 @@ export default function Home() {
           </div>
       </div>
       
-      <LandingFeatures />
       <Footer />
     </main>
   )
