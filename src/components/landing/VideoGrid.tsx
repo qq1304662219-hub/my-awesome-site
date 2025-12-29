@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { Play, Heart, Download, Flame, Clock, ThumbsUp } from "lucide-react";
+import { Play, Heart, Download, Flame, Clock, ThumbsUp, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -22,10 +23,18 @@ export function VideoGrid() {
   const [latestVideos, setLatestVideos] = useState<Video[]>([]);
   const [hotVideos, setHotVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const { ref, inView } = useInView();
 
-  const fetchVideos = useCallback(async () => {
-    setLoading(true);
+  const fetchVideos = useCallback(async (pageToFetch: number = 0) => {
+    if (pageToFetch === 0) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
     try {
       // Fetch Latest Videos
       let latestQuery = supabase
@@ -38,7 +47,7 @@ export function VideoGrid() {
             )
           `)
           .order('created_at', { ascending: false })
-          .limit(12);
+          .range(pageToFetch * 12, (pageToFetch + 1) * 12 - 1);
 
       if (query) {
           latestQuery = latestQuery.ilike('title', `%${query}%`);
@@ -51,9 +60,19 @@ export function VideoGrid() {
       const { data: latestData, error: latestError } = await latestQuery;
       if (latestError) throw latestError;
 
-      // Fetch Hot Videos (simulated by random limit for now as we don't have enough data)
-      // In a real app, this would order by views/likes
-      const { data: hotData, error: hotError } = await supabase
+      const formatVideo = (v: any) => ({
+        ...v,
+        author: v.profiles?.full_name || `用户 ${v.user_id?.slice(0, 6)}`,
+        user_avatar: v.profiles?.avatar_url
+      });
+
+      const formattedVideos = (latestData || []).map(formatVideo);
+
+      if (pageToFetch === 0) {
+        setLatestVideos(formattedVideos);
+        
+        // Fetch Hot Videos only on initial load
+        const { data: hotData, error: hotError } = await supabase
           .from('videos')
           .select(`
             *,
@@ -64,27 +83,37 @@ export function VideoGrid() {
           `)
           .limit(8); 
           
-      if (hotError) throw hotError;
+        if (!hotError) {
+          setHotVideos((hotData || []).map(formatVideo));
+        }
+      } else {
+        setLatestVideos(prev => [...prev, ...formattedVideos]);
+      }
 
-      const formatVideo = (v: any) => ({
-        ...v,
-        author: v.profiles?.full_name || `用户 ${v.user_id?.slice(0, 6)}`,
-        user_avatar: v.profiles?.avatar_url
-      });
-
-      setLatestVideos((latestData || []).map(formatVideo));
-      setHotVideos((hotData || []).map(formatVideo));
+      if (formattedVideos.length < 12) {
+        setHasMore(false);
+      } else {
+        setHasMore(true);
+      }
+      
+      setPage(pageToFetch);
 
     } catch (error) {
       handleError(error, "获取视频列表失败");
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   }, [query, category, handleError]);
 
   useEffect(() => {
-    fetchVideos();
+    setHasMore(true);
+    fetchVideos(0);
   }, [fetchVideos]);
+
+  const handleLoadMore = () => {
+    fetchVideos(page + 1);
+  };
 
   const VideoSkeleton = () => (
     <div className="space-y-3">
@@ -129,6 +158,27 @@ export function VideoGrid() {
             <div className="text-gray-500 text-center py-20 bg-white/5 rounded-xl border border-white/10">
               <p>暂无相关视频</p>
             </div>
+        )}
+
+        {/* Load More Button */}
+        {!loading && latestVideos.length > 0 && hasMore && (
+           <div className="mt-12 flex justify-center">
+             <Button 
+                variant="outline" 
+                className="rounded-full px-12 py-6 text-base border-white/10 hover:bg-white/10 hover:text-white bg-white/5 transition-all hover:scale-105"
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+             >
+                {loadingMore ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        加载中...
+                    </>
+                ) : (
+                    "查看更多"
+                )}
+             </Button>
+           </div>
         )}
       </motion.div>
 

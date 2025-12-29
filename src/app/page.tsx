@@ -8,6 +8,7 @@ import { LandingHero } from "@/components/landing/LandingHero"
 import { VideoGrid } from "@/components/landing/VideoGrid"
 import { SearchFilter } from "@/components/landing/SearchFilter"
 import { SidebarFilters } from "@/components/landing/SidebarFilters"
+import { FloatingActions } from "@/components/shared/FloatingActions"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function Home() {
@@ -50,6 +51,7 @@ export default function Home() {
 
       <div className="relative z-10 bg-[#020817] pb-20" id="explore-content">
         <SearchFilter onOpenFilters={() => setIsFiltersOpen(!isFiltersOpen)} />
+        <FloatingActions />
         <div className="container mx-auto px-4 py-8">
             <div className="flex gap-8 items-start">
                 {/* Sidebar with Animation */}
