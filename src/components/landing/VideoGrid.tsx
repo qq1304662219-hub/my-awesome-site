@@ -251,74 +251,86 @@ const videos = [
   }
 ];
 
+import { VideoCard } from "@/components/shared/VideoCard";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
+import { Video } from "@/types/video";
+
+// ... existing imports
+
 export function VideoGrid() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
   const category = searchParams.get("category");
+  const { handleError } = useErrorHandler();
   
-  const [realVideos, setRealVideos] = useState<any[]>([]);
+  const [realVideos, setRealVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchVideos = async () => {
       setLoading(true);
-      let dbQuery = supabase
-        .from('videos')
-        .select('*')
-        .order('created_at', { ascending: false });
+      try {
+        let dbQuery = supabase
+            .from('videos')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-      if (query) {
-        dbQuery = dbQuery.ilike('title', `%${query}%`);
-      }
+        if (query) {
+            dbQuery = dbQuery.ilike('title', `%${query}%`);
+        }
 
-      if (category && category !== "All" && category !== "全部") {
-        dbQuery = dbQuery.eq('category', category);
-      }
+        if (category && category !== "All" && category !== "全部") {
+            dbQuery = dbQuery.eq('category', category);
+        }
 
-      // Filter: Resolution
-      const resolutions = searchParams.get("resolution")?.split(',') || [];
-      if (resolutions.length > 0) {
-          const conditions: string[] = [];
-          if (resolutions.includes('4k')) conditions.push('width.gte.3840');
-          if (resolutions.includes('1080p')) conditions.push('and(width.gte.1920,width.lt.3840)');
-          if (resolutions.includes('720p')) conditions.push('and(width.gte.1280,width.lt.1920)');
-          
-          if (conditions.length > 0) {
-              dbQuery = dbQuery.or(conditions.join(','));
-          }
-      }
+        // Filter: Resolution
+        const resolutions = searchParams.get("resolution")?.split(',') || [];
+        if (resolutions.length > 0) {
+            const conditions: string[] = [];
+            if (resolutions.includes('4k')) conditions.push('width.gte.3840');
+            if (resolutions.includes('1080p')) conditions.push('and(width.gte.1920,width.lt.3840)');
+            if (resolutions.includes('720p')) conditions.push('and(width.gte.1280,width.lt.1920)');
+            
+            if (conditions.length > 0) {
+                dbQuery = dbQuery.or(conditions.join(','));
+            }
+        }
 
-      // Filter: Duration
-      const durations = searchParams.get("duration")?.split(',') || [];
-      if (durations.length > 0) {
-          const conditions: string[] = [];
-          if (durations.includes('short')) conditions.push('duration.lt.10');
-          if (durations.includes('medium')) conditions.push('and(duration.gte.10,duration.lte.30)');
-          if (durations.includes('long')) conditions.push('duration.gt.30');
-          
-          if (conditions.length > 0) {
-              dbQuery = dbQuery.or(conditions.join(','));
-          }
-      }
+        // Filter: Duration
+        const durations = searchParams.get("duration")?.split(',') || [];
+        if (durations.length > 0) {
+            const conditions: string[] = [];
+            if (durations.includes('short')) conditions.push('duration.lt.10');
+            if (durations.includes('medium')) conditions.push('and(duration.gte.10,duration.lte.30)');
+            if (durations.includes('long')) conditions.push('duration.gt.30');
+            
+            if (conditions.length > 0) {
+                dbQuery = dbQuery.or(conditions.join(','));
+            }
+        }
 
-      // Filter: Format
-      const formats = searchParams.get("format")?.split(',') || [];
-      if (formats.length > 0) {
-          dbQuery = dbQuery.in('format', formats);
-      }
+        // Filter: Format
+        const formats = searchParams.get("format")?.split(',') || [];
+        if (formats.length > 0) {
+            dbQuery = dbQuery.in('format', formats);
+        }
 
-      const { data, error } = await dbQuery.limit(20);
-      if (error) {
-          console.error("Error fetching videos:", error);
+        const { data, error } = await dbQuery.limit(20);
+        if (error) {
+            throw error;
+        }
+        if (data) {
+            setRealVideos(data);
+        }
+      } catch (error) {
+        handleError(error, "Failed to load videos");
+      } finally {
+        setLoading(false);
       }
-      if (data) {
-        setRealVideos(data);
-      }
-      setLoading(false);
     };
 
     fetchVideos();
-  }, [query, category, searchParams]);
+  }, [query, category, searchParams, handleError]);
 
   if (loading && realVideos.length === 0) {
       return (
@@ -382,49 +394,16 @@ export function VideoGrid() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {realVideos.map((video: any) => (
-                    <div key={video.id} className="group relative bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-green-500/50 transition-all hover:transform hover:-translate-y-1">
-                        <div className="aspect-video relative overflow-hidden bg-black/50">
-                            {/* Use Link for navigation to details page */}
-                            <Link href={`/video/${video.id}`} className="block w-full h-full">
-                                {video.url.match(/\.(mp4|webm|mov)$/i) ? (
-                                    <video 
-                                        src={video.url} 
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100" 
-                                        muted
-                                        loop
-                                        onMouseOver={(e) => e.currentTarget.play()}
-                                        onMouseOut={(e) => e.currentTarget.pause()}
-                                    />
-                                ) : (
-                                    <img 
-                                        src={video.url} 
-                                        alt={video.title} 
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100" 
-                                    />
-                                )}
-                                
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                        <Play className="fill-white text-white ml-1" />
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-                        <div className="p-4">
-                            <Link href={`/video/${video.id}`}>
-                                <h4 className="text-white font-medium truncate mb-2 hover:text-blue-400 transition-colors">{video.title}</h4>
-                            </Link>
-                            <div className="flex items-center justify-between text-xs text-gray-400">
-                                <Link href={`/profile/${video.user_id}`} className="hover:text-white transition-colors flex items-center gap-1">
-                                    <span>用户 {video.user_id.slice(0, 6)}...</span>
-                                </Link>
-                                <span className="text-xs text-gray-500">
-                                    {new Date(video.created_at).toLocaleDateString()}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                {realVideos.map((video) => (
+                    <VideoCard 
+                        key={video.id}
+                        id={video.id}
+                        title={video.title}
+                        url={video.url}
+                        user_id={video.user_id}
+                        author={`用户 ${video.user_id?.slice(0, 6)}...`}
+                        created_at={video.created_at}
+                    />
                 ))}
             </div>
         </motion.div>
@@ -446,38 +425,17 @@ export function VideoGrid() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {videos.map((video) => (
-            <div key={video.id} className="group relative bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-blue-500/50 transition-all hover:transform hover:-translate-y-1">
-              <div className="aspect-video relative overflow-hidden">
-                <Link href={`/video/${video.id}`} className="block w-full h-full">
-                    <img src={video.image} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute top-2 left-2">
-                        <Badge className={`
-                            ${video.rank === 1 ? 'bg-yellow-500' : video.rank === 2 ? 'bg-gray-400' : video.rank === 3 ? 'bg-orange-600' : 'bg-blue-500'} 
-                            text-white border-0 w-6 h-6 flex items-center justify-center rounded-full p-0
-                        `}>
-                            {video.rank}
-                        </Badge>
-                    </div>
-                    <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 rounded text-xs text-white">
-                        {video.duration}
-                    </div>
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-white/30">
-                            <Play className="fill-white text-white ml-1" />
-                        </div>
-                    </div>
-                </Link>
-              </div>
-              <div className="p-4">
-                <Link href={`/video/${video.id}`}>
-                    <h4 className="text-white font-medium truncate mb-2 hover:text-blue-400 transition-colors">{video.title}</h4>
-                </Link>
-                <div className="flex items-center justify-between text-xs text-gray-400">
-                    <span>{video.author}</span>
-                    <span className="flex items-center gap-1"><Play className="w-3 h-3" /> {video.views}</span>
-                </div>
-              </div>
-            </div>
+            <VideoCard 
+                key={video.id}
+                id={video.id}
+                title={video.title}
+                image={video.image}
+                author={video.author}
+                views={video.views}
+                duration={video.duration}
+                rank={video.rank}
+                showRank={true}
+            />
           ))}
         </div>
       </motion.div>

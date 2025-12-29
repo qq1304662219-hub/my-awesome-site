@@ -29,25 +29,33 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
 
   useEffect(() => {
     setActiveCategory(searchParams.get("category") || "All");
-    setSearchQuery(searchParams.get("q") || "");
+    const query = searchParams.get("q") || "";
+    if (query !== searchQuery) {
+        setSearchQuery(query);
+    }
   }, [searchParams]);
 
-  const handleSearch = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (searchQuery.trim()) {
-      params.set("q", searchQuery.trim());
-    } else {
-      params.delete("q");
-    }
-    // Reset page to 1 if pagination exists (optional)
-    router.push(`/?${params.toString()}`);
-  };
+  // Real-time search with debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (searchQuery.trim()) {
+            params.set("q", searchQuery.trim());
+        } else {
+            params.delete("q");
+        }
+        
+        // Only push if the query actually changed relative to the URL
+        // (to avoid infinite loops if the URL update triggers the first useEffect which triggers this one)
+        // But since we are debouncing user input, we should check if URL needs update.
+        const currentQ = searchParams.get("q") || "";
+        if (currentQ !== searchQuery.trim()) {
+            router.push(`/?${params.toString()}`);
+        }
+    }, 500); // 500ms debounce
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSearch();
-    }
-  };
+    return () => clearTimeout(timer);
+  }, [searchQuery, router, searchParams]);
 
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
@@ -83,11 +91,9 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
                 placeholder="搜索生成的AI视频，场景，Midjourney..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
             />
             <Button 
                 className="absolute right-1 top-1 bottom-1 rounded-full bg-blue-600 hover:bg-blue-700 px-6"
-                onClick={handleSearch}
             >
                 搜索
             </Button>

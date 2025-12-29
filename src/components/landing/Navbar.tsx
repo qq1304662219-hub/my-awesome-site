@@ -91,42 +91,67 @@ export function Navbar() {
 
             {user ? (
               <>
-                 <Link href="/dashboard">
-                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full">
-                      <Upload className="mr-2 h-4 w-4" />
-                      上传作品
-                    </Button>
-                 </Link>
-                 
-                 <DropdownMenu>
-                    <DropdownMenuTrigger className="outline-none">
-                        <Avatar className="h-8 w-8 cursor-pointer border border-white/10 hover:border-white/30 transition-colors">
-                            <AvatarImage src={user.user_metadata?.avatar_url} />
-                            <AvatarFallback>ME</AvatarFallback>
-                        </Avatar>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-[#0f172a] border-white/10 text-gray-300 w-48">
-                        <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push(`/profile/${user.id}`)}>
-                            个人主页
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/dashboard')}>
-                            作品管理
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/favorites')}>
-                            我的收藏
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="hover:bg-red-500/20 hover:text-red-400 cursor-pointer text-red-400" onClick={handleSignOut}>
-                            退出登录
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                 </DropdownMenu>
+                 <div className="flex items-center gap-4">
+                    {/* Balance Display */}
+                    <div className="hidden md:flex flex-col items-end mr-2">
+                        <span className="text-xs text-gray-400">余额</span>
+                        <span className="text-sm font-bold text-yellow-400">1,200</span>
+                    </div>
+
+                    <Link href="/dashboard">
+                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full">
+                        <Upload className="mr-2 h-4 w-4" />
+                        上传作品
+                        </Button>
+                    </Link>
+                    
+                    <DropdownMenu>
+                        <DropdownMenuTrigger className="outline-none">
+                            <Avatar className="h-9 w-9 border border-white/10 transition-transform hover:scale-105">
+                                <AvatarImage src={user.user_metadata?.avatar_url} />
+                                <AvatarFallback className="bg-blue-600 text-white">
+                                    {user.email?.[0]?.toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56 bg-[#0f172a] border-white/10 text-gray-300">
+                            <div className="px-2 py-1.5 text-sm border-b border-white/10 mb-1">
+                                <p className="font-medium text-white truncate">{user.email}</p>
+                                <p className="text-xs text-gray-500">普通会员</p>
+                            </div>
+                            <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/dashboard')}>
+                                <UserIcon className="mr-2 h-4 w-4" />
+                                个人中心
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">
+                                <Upload className="mr-2 h-4 w-4" />
+                                我的作品
+                            </DropdownMenuItem>
+                            <div className="h-px bg-white/10 my-1" />
+                            <DropdownMenuItem 
+                                className="text-red-400 hover:text-red-300 hover:bg-red-900/20 cursor-pointer"
+                                onClick={handleSignOut}
+                            >
+                                <LogOut className="mr-2 h-4 w-4" />
+                                退出登录
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                 </div>
               </>
             ) : (
-              <Link href="/auth">
-                <Button size="sm" className="bg-white text-black hover:bg-gray-200 rounded-full font-semibold">
-                  登录 / 注册
-                </Button>
-              </Link>
+                <div className="flex items-center gap-3">
+                    <Link href="/auth?tab=login">
+                        <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-white/10">
+                            登录
+                        </Button>
+                    </Link>
+                    <Link href="/auth?tab=register">
+                        <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6">
+                            注册
+                        </Button>
+                    </Link>
+                </div>
             )}
         </div>
 
