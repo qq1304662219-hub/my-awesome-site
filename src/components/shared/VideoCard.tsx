@@ -106,7 +106,7 @@ export function VideoCard({
                     <span>用户 {user_id.slice(0, 6)}...</span>
                 </Link>
             ) : (
-                 <span>{author || "Unknown Author"}</span>
+                 <span>{author || "未知作者"}</span>
             )}
           
           {views && (
@@ -116,7 +116,7 @@ export function VideoCard({
           )}
            {created_at && (
             <span className="text-xs text-gray-500">
-                {new Date(created_at).toLocaleDateString()}
+                {new Date(created_at).toLocaleDateString('zh-CN')}
             </span>
            )}
         </div>
