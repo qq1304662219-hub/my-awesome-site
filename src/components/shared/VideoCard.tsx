@@ -9,7 +9,7 @@ interface VideoCardProps {
   title: string;
   author?: string;
   user_id?: string;
-  views?: string;
+  views?: string | number;
   duration?: string;
   image?: string;
   url?: string;

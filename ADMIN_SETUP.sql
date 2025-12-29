@@ -15,12 +15,9 @@ ADD COLUMN IF NOT EXISTS role text DEFAULT 'user';
 -- 但建议在生产环境中限制只有 service_role 能修改 role。
 
 -- 3. 设置管理员
--- 请将下面的 'your_email@example.com' 替换为您要设置为管理员的用户的邮箱
--- 也可以使用用户 ID: WHERE id = 'user_uuid_here'
-
--- UPDATE public.profiles 
--- SET role = 'admin' 
--- WHERE email = 'admin@example.com';
+UPDATE public.profiles 
+SET role = 'admin' 
+WHERE email = 'qq1304662219@gmail.com';
 
 -- 示例：将所有当前用户设为 admin (仅用于开发测试！)
 -- UPDATE public.profiles SET role = 'admin';

@@ -21,6 +21,13 @@ export function Navbar() {
   const router = useRouter();
   const { user, setUser } = useAuthStore();
   const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      router.push(`/?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
   useEffect(() => {
     // Check initial user
@@ -93,6 +100,9 @@ export function Navbar() {
                 <input 
                     type="text" 
                     placeholder="搜索素材..." 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleSearch}
                     className="bg-white/5 border border-white/10 rounded-full py-1.5 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-blue-500/50 w-48 transition-all focus:w-64"
                 />
             </div>
@@ -131,7 +141,11 @@ export function Navbar() {
                                 <UserIcon className="mr-2 h-4 w-4" />
                                 个人中心
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">
+                            <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/settings')}>
+                                <UserIcon className="mr-2 h-4 w-4" />
+                                个人设置
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/dashboard')}>
                                 <Upload className="mr-2 h-4 w-4" />
                                 我的作品
                             </DropdownMenuItem>
@@ -173,24 +187,48 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full bg-[#020817] border-b border-white/10 p-4 flex flex-col gap-4 shadow-xl">
-            <Link href="/" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2">首页</Link>
-            <Link href="/help" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2">帮助中心</Link>
+        <div className="md:hidden absolute top-16 left-0 w-full bg-[#020817] border-b border-white/10 p-4 flex flex-col gap-2 shadow-xl animate-in slide-in-from-top-5 duration-200">
+            <Link href="/" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">首页</Link>
+            <Link href="/?category=All" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">视频素材</Link>
+            <Link href="/events" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">活动</Link>
+            <Link href="/classroom" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">课堂</Link>
+            <Link href="/models" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">大模型</Link>
             
             {user ? (
-                <>
-                    <Link href="/dashboard" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2">我的作品</Link>
-                    <Link href={`/profile/${user.id}`} onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2">个人主页</Link>
+                <div className="pt-4 flex flex-col gap-3">
+                    <div className="flex items-center gap-3 px-2 pb-2">
+                        <Avatar className="h-10 w-10 border border-white/10">
+                            <AvatarImage src={user.user_metadata?.avatar_url} />
+                            <AvatarFallback>{user.email?.[0]?.toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                            <span className="text-white font-medium truncate max-w-[200px]">{user.email}</span>
+                            <span className="text-xs text-yellow-400">余额: 1,200</span>
+                        </div>
+                    </div>
+                    <Link href="/dashboard" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2 px-2 hover:bg-white/5 rounded-md">
+                        <Upload className="inline w-4 h-4 mr-2" /> 上传作品
+                    </Link>
+                    <Link href={`/profile/${user.id}`} onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2 px-2 hover:bg-white/5 rounded-md">
+                        <UserIcon className="inline w-4 h-4 mr-2" /> 个人主页
+                    </Link>
                     <Button onClick={() => { handleSignOut(); closeMobileMenu(); }} variant="destructive" className="w-full mt-2">
                         退出登录
                     </Button>
-                </>
+                </div>
             ) : (
-                <Link href="/auth" onClick={closeMobileMenu}>
-                    <Button className="w-full bg-white text-black hover:bg-gray-200">
-                        登录 / 注册
-                    </Button>
-                </Link>
+                <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-white/10">
+                    <Link href="/auth?tab=login" onClick={closeMobileMenu}>
+                        <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/10">
+                            登录
+                        </Button>
+                    </Link>
+                    <Link href="/auth?tab=register" onClick={closeMobileMenu}>
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                            注册
+                        </Button>
+                    </Link>
+                </div>
             )}
         </div>
       )}

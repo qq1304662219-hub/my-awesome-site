@@ -13,6 +13,12 @@ const nextConfig = {
                 hostname: 'kzmeigukkqaqflscdcnl.supabase.co', // Allow Supabase Storage
                 port: '',
                 pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'api.dicebear.com',
+                port: '',
+                pathname: '/**',
             }
         ],
     },

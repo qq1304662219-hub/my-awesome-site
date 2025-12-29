@@ -9,6 +9,7 @@ import { ThumbsUp, MessageSquare, Share2, Download, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface Comment {
   id: string;
@@ -199,6 +200,11 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
     }
   };
 
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success("链接已复制到剪贴板");
+  };
+
   return (
     <div className="space-y-8">
       {/* Actions Bar */}
@@ -212,7 +218,11 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
             <ThumbsUp className={cn("h-4 w-4 mr-2", hasLiked && "fill-blue-400")} />
             {likes}
           </Button>
-          <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-0">
+          <Button 
+            variant="secondary" 
+            className="bg-white/10 hover:bg-white/20 text-white border-0"
+            onClick={handleShare}
+          >
             <Share2 className="h-4 w-4 mr-2" />
             分享
           </Button>
