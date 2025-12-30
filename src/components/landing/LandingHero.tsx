@@ -1,14 +1,16 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowRight, Sparkles } from "lucide-react"
 
 export function LandingHero() {
+  const router = useRouter()
+
   const handleLearnMore = () => {
-    // 触发自定义事件通知父组件显示探索区
-    window.dispatchEvent(new Event('start-explore'))
+    router.push('/explore')
   };
 
   return (
