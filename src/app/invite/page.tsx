@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabase"
 export default function InvitePage() {
   const { user } = useAuthStore()
   const [inviteLink, setInviteLink] = useState("")
+  const [username, setUsername] = useState("")
   const [stats, setStats] = useState({
     invitedCount: 0,
     rechargeCount: 0,
@@ -22,7 +23,13 @@ export default function InvitePage() {
 
   useEffect(() => {
     if (user) {
-      setInviteLink(`${window.location.origin}/auth?invite=${user.id}&tab=register`)
+      // Fetch username
+      supabase.from('profiles').select('username').eq('id', user.id).single().then(({ data }) => {
+        if (data && data.username) {
+          setUsername(data.username)
+          setInviteLink(`${window.location.origin}/auth?tab=register&ref=${data.username}`)
+        }
+      })
       fetchStats()
     } else {
       setInviteLink("请先登录获取邀请链接")
@@ -72,7 +79,7 @@ export default function InvitePage() {
                 邀请好友 共享福利
             </h1>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-10">
-                每邀请一位好友注册并完成首充，您将获得 <span className="text-yellow-400 font-bold">500积分</span> 奖励，好友将获得 <span className="text-yellow-400 font-bold">8折优惠券</span>。
+                每邀请一位好友注册，您将获得 <span className="text-yellow-400 font-bold">50 A币</span> 奖励，好友将获得 <span className="text-yellow-400 font-bold">20 A币</span> 新人礼包。
             </p>
             
             <div className="max-w-xl mx-auto bg-white/5 border border-white/10 rounded-2xl p-2 flex items-center gap-2">
@@ -104,14 +111,14 @@ export default function InvitePage() {
                           <Gift className="w-8 h-8" />
                       </div>
                       <h3 className="text-xl font-bold mb-2">2. 好友注册</h3>
-                      <p className="text-gray-400">好友通过链接注册并完成首次充值</p>
+                      <p className="text-gray-400">好友通过链接完成注册</p>
                   </div>
                   <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center relative group hover:-translate-y-2 transition-transform duration-300">
                       <div className="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center mx-auto mb-6 text-yellow-400 group-hover:scale-110 transition-transform">
                           <Coins className="w-8 h-8" />
                       </div>
                       <h3 className="text-xl font-bold mb-2">3. 获得奖励</h3>
-                      <p className="text-gray-400">奖励自动到账，可用于购买任意素材</p>
+                      <p className="text-gray-400">奖励自动到账，双方均可获得A币</p>
                   </div>
               </div>
           </div>

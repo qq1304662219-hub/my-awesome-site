@@ -109,6 +109,7 @@ export function Navbar({ simple = false }: { simple?: boolean }) {
               </DropdownMenu>
 
               <Link href="/events" className="hover:text-white transition-colors">活动</Link>
+              <Link href="/requests" className="hover:text-white transition-colors">悬赏任务</Link>
               <Link href="/classroom" className="hover:text-white transition-colors">课堂</Link>
               <Link href="/models" className="hover:text-white transition-colors">大模型</Link>
             </div>
@@ -194,6 +195,7 @@ export function Navbar({ simple = false }: { simple?: boolean }) {
         <div className="md:hidden absolute top-16 left-0 w-full bg-[#020817] border-b border-white/10 p-4 flex flex-col gap-2 shadow-xl animate-in slide-in-from-top-5 duration-200">
             <Link href="/" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">首页</Link>
             <Link href="/?category=All" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">视频素材</Link>
+            <Link href="/requests" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">悬赏任务</Link>
             <Link href="/events" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">活动</Link>
             <Link href="/classroom" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">课堂</Link>
             <Link href="/models" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">大模型</Link>

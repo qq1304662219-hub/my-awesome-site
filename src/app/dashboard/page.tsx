@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { ProfileStats } from '@/components/dashboard/ProfileStats'
+import { Share2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface VideoItem {
   id: string
@@ -19,6 +21,7 @@ interface VideoItem {
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null)
+  const [username, setUsername] = useState<string>('')
   const [videos, setVideos] = useState<VideoItem[]>([])
   const [totalIncome, setTotalIncome] = useState(0)
   const router = useRouter()
@@ -39,6 +42,17 @@ export default function Dashboard() {
   }, [router])
 
   const fetchData = async (userId: string) => {
+    // Fetch profile for username
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', userId)
+      .single()
+    
+    if (profileData) {
+      setUsername(profileData.username || '')
+    }
+
     // Fetch videos
     const { data: videosData, error: videosError } = await supabase
       .from('videos')
@@ -83,6 +97,36 @@ export default function Dashboard() {
     <div className="p-6 space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-white">创作者中心</h1>
+      </div>
+
+      {/* Referral Card */}
+      <div className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 border border-white/10 rounded-xl p-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-4 opacity-10">
+          <Share2 className="w-32 h-32 text-white" />
+        </div>
+        <div className="relative z-10">
+          <h2 className="text-xl font-bold text-white mb-2">邀请好友，赚取奖励 🎁</h2>
+          <p className="text-gray-300 mb-4 max-w-2xl">
+            每邀请一位好友注册，您将获得 <span className="text-yellow-400 font-bold">50 A币</span> 奖励，好友也将获得 <span className="text-yellow-400 font-bold">20 A币</span> 新人礼包！
+          </p>
+          
+          <div className="flex items-center gap-4 max-w-xl bg-black/40 p-2 rounded-lg border border-white/10">
+            <code className="flex-1 text-blue-400 truncate px-2 font-mono">
+              {username ? `${window.location.origin}/register?ref=${username}` : '正在加载...'}
+            </code>
+            <Button 
+              size="sm" 
+              variant="secondary"
+              onClick={() => {
+                const url = `${window.location.origin}/register?ref=${username}`;
+                navigator.clipboard.writeText(url);
+                toast.success('链接已复制');
+              }}
+            >
+              复制链接
+            </Button>
+          </div>
+        </div>
       </div>
 
       <ProfileStats user={user} stats={stats} />

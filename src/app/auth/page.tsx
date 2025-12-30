@@ -47,8 +47,8 @@ function AuthContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
-  const defaultTab = searchParams.get('tab') || 'login'
-  const inviteCode = searchParams.get('invite')
+  const defaultTab = searchParams.get('tab') || (searchParams.get('ref') || searchParams.get('invite') ? 'register' : 'login')
+  const inviteCode = searchParams.get('invite') || searchParams.get('ref')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -71,7 +71,7 @@ function AuthContent() {
       password,
       options: {
         data: {
-          invited_by: inviteCode
+          invited_by_username: inviteCode
         },
         emailRedirectTo: `${window.location.origin}/auth/callback?next=/explore`
       }
@@ -93,7 +93,7 @@ function AuthContent() {
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
-          ...(inviteCode ? { invited_by: inviteCode } : {})
+          ...(inviteCode ? { invited_by_username: inviteCode } : {})
         },
       },
     })
@@ -110,7 +110,7 @@ function AuthContent() {
       options: {
         redirectTo: `${window.location.origin}/auth/callback?next=/explore`,
         queryParams: {
-          ...(inviteCode ? { invited_by: inviteCode } : {})
+          ...(inviteCode ? { invited_by_username: inviteCode } : {})
         }
       },
     })

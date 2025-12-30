@@ -5,11 +5,12 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { ThumbsUp, MessageSquare, Share2, Download, Send } from "lucide-react";
+import { ThumbsUp, MessageSquare, Share2, Download, Send, Coffee } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
+import { TipModal } from "./TipModal";
 
 interface Comment {
   id: string;
@@ -28,10 +29,11 @@ interface VideoInteractionsProps {
   currentUser: any;
   videoUrl: string;
   downloadUrl?: string;
+  authorName?: string;
   children?: React.ReactNode;
 }
 
-export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl, downloadUrl, children }: VideoInteractionsProps) {
+export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl, downloadUrl, authorName = "作者", children }: VideoInteractionsProps) {
   const router = useRouter();
   const lastClickTime = useRef(0);
   const [likes, setLikes] = useState(initialLikes);
@@ -40,6 +42,7 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
   const [newComment, setNewComment] = useState("");
   const [loadingComments, setLoadingComments] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [isTipModalOpen, setIsTipModalOpen] = useState(false);
   
   const isMock = /^[1-4]$/.test(videoId);
 
@@ -233,8 +236,29 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
               下载
             </Button>
           </a>
+          
+          <Button 
+            className="bg-yellow-500 hover:bg-yellow-600 text-white border-0"
+            onClick={() => {
+                if (!currentUser) {
+                    router.push("/auth");
+                    return;
+                }
+                setIsTipModalOpen(true);
+            }}
+          >
+            <Coffee className="h-4 w-4 mr-2" />
+            请作者喝咖啡
+          </Button>
         </div>
       </div>
+
+      <TipModal 
+        videoId={videoId}
+        authorName={authorName}
+        isOpen={isTipModalOpen}
+        onClose={() => setIsTipModalOpen(false)}
+      />
 
       {children}
 

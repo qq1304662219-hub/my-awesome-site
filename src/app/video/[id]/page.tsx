@@ -184,6 +184,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                 currentUser={user} 
                 videoUrl={video.url}
                 downloadUrl={video.download_url}
+                authorName={authorProfile?.full_name}
               >
                 <Separator className="bg-white/10 my-6" />
 

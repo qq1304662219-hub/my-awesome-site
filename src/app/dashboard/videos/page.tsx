@@ -160,7 +160,20 @@ export default function MyVideos() {
                                         </div>
                                         <div className="max-w-xs truncate">
                                             <div className="font-medium text-white truncate" title={video.title}>{video.title}</div>
-                                            <div className="text-xs text-gray-500">{new Date(video.created_at).toLocaleDateString()}</div>
+                                            <div className="text-xs text-gray-500 flex items-center gap-2">
+                                                <span>{new Date(video.created_at).toLocaleDateString()}</span>
+                                                <span className="text-gray-600">|</span>
+                                                <button 
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(video.id);
+                                                        toast.success('ID 已复制');
+                                                    }}
+                                                    className="hover:text-blue-400 cursor-pointer flex items-center gap-1"
+                                                    title="点击复制视频 ID"
+                                                >
+                                                    ID: {video.id.slice(0, 8)}...
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
