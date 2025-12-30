@@ -16,7 +16,8 @@ function ExploreContent() {
   const filters = {
     category: searchParams.get("category"),
     style: searchParams.get("style"),
-    ratio: searchParams.get("ratio")
+    ratio: searchParams.get("ratio"),
+    query: searchParams.get("q")
   }
 
   return (

@@ -7,10 +7,13 @@ import { Video } from "@/types/video"
 import { motion, AnimatePresence } from "framer-motion"
 import { Play, Download, Eye, Clock } from "lucide-react"
 
+import Image from "next/image"
+
 interface FilterState {
   category: string | null;
   style: string | null;
   ratio: string | null;
+  query?: string | null;
 }
 
 interface VideoGridProps {
@@ -92,10 +95,12 @@ function VideoCard({ video, onClick }: { video: Video; onClick: (id: string) => 
       <div className="aspect-video relative overflow-hidden bg-gray-900">
         {/* Always show image initially or if not playing */}
         {(!isPlaying || !isVideoFile) && (
-             <img 
+             <Image 
              src={posterUrl} 
              alt={video.title} 
-             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+             fill
+             unoptimized
+             className="object-cover transition-transform duration-500 group-hover:scale-105"
            />
         )}
 
@@ -200,6 +205,9 @@ export function VideoGrid({ filters }: VideoGridProps) {
       }
       if (filters.ratio) {
         query = query.eq('ratio', filters.ratio)
+      }
+      if (filters.query) {
+        query = query.or(`title.ilike.%${filters.query}%,description.ilike.%${filters.query}%`)
       }
 
       const { data, error } = await query

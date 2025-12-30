@@ -1,15 +1,23 @@
 'use client'
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { Trash2, Search, ExternalLink, Check, AlertCircle } from "lucide-react"
+import { Trash2, Search, ExternalLink, Check, AlertCircle, XCircle } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { Video } from "@/types/video"
+import { Database } from "@/types/supabase"
+
+type Profile = Database['public']['Tables']['profiles']['Row']
+
+interface VideoWithProfile extends Video {
+  profiles?: Profile
+}
 
 export default function AdminVideos() {
-  const [videos, setVideos] = useState<any[]>([])
+  const [videos, setVideos] = useState<VideoWithProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
-  const [updating, setUpdating] = useState<string | null>(null)
+  const [updating, setUpdating] = useState<string | number | null>(null)
 
   useEffect(() => {
     fetchVideos()
@@ -41,15 +49,15 @@ export default function AdminVideos() {
       const userIds = [...new Set(videosData.map(v => v.user_id))]
       const { data: profilesData } = await supabase
         .from("profiles")
-        .select("id, full_name, email")
+        .select("*")
         .in("id", userIds)
 
       const profilesMap = (profilesData || []).reduce((acc: any, profile: any) => {
         acc[profile.id] = profile
         return acc
-      }, {} as Record<string, any>)
+      }, {} as Record<string, Profile>)
 
-      const videosWithProfiles = videosData.map(video => ({
+      const videosWithProfiles: VideoWithProfile[] = videosData.map(video => ({
         ...video,
         profiles: profilesMap[video.user_id]
       }))
@@ -63,7 +71,7 @@ export default function AdminVideos() {
     }
   }
 
-  const handlePublish = async (video: any, netdiskUrl: string) => {
+  const handlePublish = async (video: VideoWithProfile, netdiskUrl: string) => {
     if (!netdiskUrl) {
       toast.error("请输入网盘链接")
       return
@@ -89,6 +97,31 @@ export default function AdminVideos() {
     } catch (error) {
       console.error("Error publishing video:", error)
       toast.error("发布失败")
+    } finally {
+      setUpdating(null)
+    }
+  }
+
+  const handleReject = async (video: VideoWithProfile) => {
+    if (!confirm("确定要拒绝这个视频吗？")) return
+
+    setUpdating(video.id)
+    try {
+      const { error } = await supabase
+        .from("videos")
+        .update({
+          status: 'rejected'
+        })
+        .eq("id", video.id)
+
+      if (error) throw error
+
+      toast.success("视频已拒绝")
+      // Remove from list
+      setVideos(videos.filter(v => v.id !== video.id))
+    } catch (error) {
+      console.error("Error rejecting video:", error)
+      toast.error("拒绝失败")
     } finally {
       setUpdating(null)
     }
@@ -133,7 +166,13 @@ export default function AdminVideos() {
                 </tr>
               ) : (
                 videos.map((video) => (
-                  <VideoRow key={video.id} video={video} onPublish={handlePublish} updating={updating === video.id} />
+                  <VideoRow 
+                    key={video.id} 
+                    video={video} 
+                    onPublish={handlePublish} 
+                    onReject={handleReject}
+                    updating={updating === video.id} 
+                  />
                 ))
               )}
             </tbody>
@@ -144,20 +183,34 @@ export default function AdminVideos() {
   )
 }
 
-function VideoRow({ video, onPublish, updating }: { video: any, onPublish: (v: any, url: string) => void, updating: boolean }) {
+function VideoRow({ video, onPublish, onReject, updating }: { 
+  video: VideoWithProfile, 
+  onPublish: (v: VideoWithProfile, url: string) => void, 
+  onReject: (v: VideoWithProfile) => void,
+  updating: boolean 
+}) {
   const [netdiskUrl, setNetdiskUrl] = useState("")
 
   return (
     <tr className="hover:bg-white/5 transition-colors">
       <td className="p-4">
         <div className="flex gap-3">
-          <div className="w-32 h-20 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0 relative">
+          <div className="w-32 h-20 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0 relative group">
             {video.thumbnail_url || video.url ? (
-              <img 
-                src={video.thumbnail_url || video.url} 
-                className="w-full h-full object-cover" 
-                alt={video.title}
-              />
+              <>
+                <img 
+                  src={video.thumbnail_url || video.url} 
+                  className="w-full h-full object-cover" 
+                  alt={video.title}
+                />
+                {video.url && (
+                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <a href={video.url} target="_blank" rel="noopener noreferrer" className="text-white text-xs hover:underline">
+                        预览
+                      </a>
+                   </div>
+                )}
+              </>
             ) : (
               <div className="w-full h-full flex items-center justify-center text-gray-600">No Preview</div>
             )}
@@ -168,7 +221,7 @@ function VideoRow({ video, onPublish, updating }: { video: any, onPublish: (v: a
               {video.profiles?.full_name || 'Unknown User'}
             </p>
             <p className="text-gray-500 text-xs">
-              {new Date(video.created_at).toLocaleDateString()}
+              {video.created_at ? new Date(video.created_at).toLocaleDateString() : '-'}
             </p>
           </div>
         </div>
@@ -194,13 +247,25 @@ function VideoRow({ video, onPublish, updating }: { video: any, onPublish: (v: a
         />
       </td>
       <td className="p-4 text-right">
-        <button
-          onClick={() => onPublish(video, netdiskUrl)}
-          disabled={updating || !netdiskUrl}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium"
-        >
-          {updating ? '发布中...' : '发布'}
-        </button>
+        <div className="flex items-center justify-end gap-2">
+          <button
+            onClick={() => onReject(video)}
+            disabled={updating}
+            className="px-3 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium flex items-center gap-1"
+            title="拒绝"
+          >
+            <XCircle className="w-3.5 h-3.5" />
+            拒绝
+          </button>
+          <button
+            onClick={() => onPublish(video, netdiskUrl)}
+            disabled={updating || !netdiskUrl}
+            className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium flex items-center gap-1"
+          >
+            <Check className="w-3.5 h-3.5" />
+            发布
+          </button>
+        </div>
       </td>
     </tr>
   )

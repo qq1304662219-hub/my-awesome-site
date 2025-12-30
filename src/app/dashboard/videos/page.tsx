@@ -15,22 +15,13 @@ import { Search, Edit, Trash2, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
-interface VideoItem {
-  id: string
-  title: string
-  url: string
-  created_at: string
-  views: number
-  downloads: number
-  price: number
-  status: string
-}
+import { Video } from '@/types/video'
 
 export default function MyVideos() {
-  const [videos, setVideos] = useState<VideoItem[]>([])
+  const [videos, setVideos] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
-  const [editingVideo, setEditingVideo] = useState<VideoItem | null>(null)
+  const [editingVideo, setEditingVideo] = useState<Video | null>(null)
   const [isEditOpen, setIsEditOpen] = useState(false)
 
   // Edit form state
@@ -54,7 +45,7 @@ export default function MyVideos() {
       .order('created_at', { ascending: false })
     
     if (!error && data) {
-      setVideos(data as VideoItem[])
+      setVideos(data as Video[])
     }
     setLoading(false)
   }
@@ -76,7 +67,7 @@ export default function MyVideos() {
     setDeleteId(null)
   }
 
-  const openEdit = (video: VideoItem) => {
+  const openEdit = (video: Video) => {
     setEditingVideo(video)
     setEditTitle(video.title)
     setEditPrice(video.price?.toString() || '0')
@@ -155,26 +146,26 @@ export default function MyVideos() {
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-4">
                                         <div className="h-12 w-20 bg-black/50 rounded overflow-hidden flex-shrink-0 relative">
-                                            {video.url.match(/\.(mp4|webm|ogg)$/i) ? (
+                                            {video.url?.match(/\.(mp4|webm|ogg)$/i) ? (
                                                 <video src={video.url} className="w-full h-full object-cover" />
                                             ) : (
-                                                <img src={video.url} alt={video.title} className="w-full h-full object-cover" />
+                                                <img src={video.url || '/placeholder.png'} alt={video.title} className="w-full h-full object-cover" />
                                             )}
                                         </div>
                                         <div className="max-w-xs truncate">
                                             <div className="font-medium text-white truncate" title={video.title}>{video.title}</div>
                                             <div className="text-xs text-gray-500 flex items-center gap-2">
-                                                <span>{new Date(video.created_at).toLocaleDateString()}</span>
+                                                <span>{video.created_at ? new Date(video.created_at).toLocaleDateString() : '-'}</span>
                                                 <span className="text-gray-600">|</span>
                                                 <button 
                                                     onClick={() => {
-                                                        navigator.clipboard.writeText(video.id);
+                                                        navigator.clipboard.writeText(video.id.toString());
                                                         toast.success('ID 已复制');
                                                     }}
                                                     className="hover:text-blue-400 cursor-pointer flex items-center gap-1"
                                                     title="点击复制视频 ID"
                                                 >
-                                                    ID: {video.id.slice(0, 8)}...
+                                                    ID: {video.id.toString().slice(0, 8)}...
                                                 </button>
                                             </div>
                                         </div>
@@ -192,7 +183,7 @@ export default function MyVideos() {
                                     )}
                                 </td>
                                 <td className="px-6 py-4 text-white">
-                                    {video.price > 0 ? `¥${video.price}` : '免费'}
+                                    {(video.price || 0) > 0 ? `¥${video.price}` : '免费'}
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="space-y-1 text-xs">
@@ -206,7 +197,7 @@ export default function MyVideos() {
                                             <Edit className="h-4 w-4" />
                                         </Button>
                                         <button 
-                                            onClick={() => setDeleteId(video.id)}
+                                            onClick={() => setDeleteId(video.id.toString())}
                                             className="text-gray-400 hover:text-red-400 transition-colors"
                                             title="删除"
                                         >

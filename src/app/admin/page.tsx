@@ -5,13 +5,21 @@ import { supabase } from "@/lib/supabase"
 import { Video, Users, Activity, Film } from "lucide-react"
 import Link from "next/link"
 
+interface DashboardVideo {
+  id: string
+  title: string
+  created_at: string
+  thumbnail_url: string | null
+  category: string | null
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     users: 0,
     videos: 0,
     likes: 0
   })
-  const [recentVideos, setRecentVideos] = useState<any[]>([])
+  const [recentVideos, setRecentVideos] = useState<DashboardVideo[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -47,7 +55,7 @@ export default function AdminDashboard() {
         .order("created_at", { ascending: false })
         .limit(5)
       
-      setRecentVideos(videos || [])
+      setRecentVideos(videos as DashboardVideo[] || [])
 
     } catch (error) {
       console.error("Error fetching admin stats:", error)

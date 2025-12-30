@@ -182,7 +182,7 @@ export default function AdminUsers() {
   )
 }
 
-function RoleBadge({ role }: { role: string }) {
+function RoleBadge({ role }: { role: string | null }) {
   switch (role) {
     case 'super_admin':
       return (
