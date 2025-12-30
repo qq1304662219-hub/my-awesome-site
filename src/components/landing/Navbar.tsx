@@ -19,15 +19,27 @@ import {
 
 import { UserHoverMenu } from "@/components/landing/UserHoverMenu";
 
-export function Navbar() {
+export function Navbar({ simple = false }: { simple?: boolean }) {
   const router = useRouter();
-  const { user, setUser } = useAuthStore();
+  const { user, setUser, profile, setProfile } = useAuthStore();
   const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      router.push(`/?q=${encodeURIComponent(searchQuery)}`);
+      router.push(`/explore?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const fetchProfile = async (userId: string) => {
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    
+    if (data) {
+        setProfile(data);
     }
   };
 
@@ -37,12 +49,19 @@ export function Navbar() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       console.log('Navbar: 用户状态 (getUser):', user)
       setUser(user);
+      if (user) fetchProfile(user.id);
     });
 
     // Listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Navbar: Auth state change:', event, session?.user)
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
+      }
+      
       if (event === 'SIGNED_OUT') {
         router.refresh()
       }
@@ -69,61 +88,79 @@ export function Navbar() {
             </span>
           </Link>
           
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-300">
-            <Link href="/" className="hover:text-white transition-colors font-semibold text-white">首页</Link>
-            
-            <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-1 hover:text-white transition-colors outline-none">
-                    视频素材 <ChevronDown className="w-4 h-4" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-[#0f172a] border-white/10 text-gray-300">
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">自然风光</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">城市建筑</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">科技未来</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">人物生活</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">抽象艺术</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">动物世界</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">情感表达</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer">商业职场</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+          {/* Desktop Nav - Only show if not simple mode */}
+          {!simple && (
+            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-300">
+              <Link href="/explore" className="hover:text-white transition-colors font-semibold text-white">发现</Link>
+              
+              <DropdownMenu>
+                  <DropdownMenuTrigger className="flex items-center gap-1 hover:text-white transition-colors outline-none">
+                      视频素材 <ChevronDown className="w-4 h-4" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-[#0f172a] border-white/10 text-gray-300">
+                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Nature')}>自然风光</DropdownMenuItem>
+                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Urban')}>城市建筑</DropdownMenuItem>
+                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Technology')}>科技未来</DropdownMenuItem>
+                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=People')}>人物生活</DropdownMenuItem>
+                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Abstract')}>抽象艺术</DropdownMenuItem>
+                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Animals')}>动物世界</DropdownMenuItem>
+                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Other')}>其他</DropdownMenuItem>
+                  </DropdownMenuContent>
+              </DropdownMenu>
 
-            <Link href="/events" className="hover:text-white transition-colors">活动</Link>
-            <Link href="/classroom" className="hover:text-white transition-colors">课堂</Link>
-            <Link href="/models" className="hover:text-white transition-colors">大模型</Link>
-          </div>
+              <Link href="/events" className="hover:text-white transition-colors">活动</Link>
+              <Link href="/classroom" className="hover:text-white transition-colors">课堂</Link>
+              <Link href="/models" className="hover:text-white transition-colors">大模型</Link>
+            </div>
+          )}
         </div>
         
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
-            <div className="relative group hidden lg:block">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input 
-                    type="text" 
-                    placeholder="搜索素材..." 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={handleSearch}
-                    className="bg-white/5 border border-white/10 rounded-full py-1.5 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-blue-500/50 w-48 transition-all focus:w-64"
-                />
-            </div>
+            {!simple && (
+              <div className="relative group hidden lg:block">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                  <input 
+                      type="text" 
+                      placeholder="搜索素材..." 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={handleSearch}
+                      className="bg-white/5 border border-white/10 rounded-full py-1.5 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-blue-500/50 w-48 transition-all focus:w-64"
+                  />
+              </div>
+            )}
 
             {user ? (
               <>
                  <div className="flex items-center gap-4">
                     {/* Balance Display */}
-                    <div className="hidden md:flex flex-col items-end mr-2">
-                        <span className="text-xs text-gray-400">余额</span>
-                        <span className="text-sm font-bold text-yellow-400">1,200</span>
-                    </div>
+                    {!simple && (
+                      <div className="hidden md:flex flex-col items-end mr-2">
+                          <span className="text-xs text-gray-400">余额</span>
+                          <span className="text-sm font-bold text-yellow-400">
+                            {profile?.balance ? `¥${profile.balance}` : "¥0"}
+                          </span>
+                      </div>
+                    )}
 
-                    <Link href="/dashboard">
-                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full">
-                        <Upload className="mr-2 h-4 w-4" />
-                        上传作品
+                    {!simple && (
+                      <Link href="/dashboard">
+                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full">
+                          <Upload className="mr-2 h-4 w-4" />
+                          上传作品
+                          </Button>
+                      </Link>
+                    )}
+
+                    {profile?.role === 'admin' && (
+                      <Link href="/admin/videos">
+                        <Button size="sm" variant="destructive" className="hidden md:flex">
+                          <span className="mr-2">🛡️</span>
+                          管理后台
                         </Button>
-                    </Link>
+                      </Link>
+                    )}
                     
                     <UserHoverMenu user={user} onSignOut={handleSignOut} />
                  </div>
@@ -170,12 +207,17 @@ export function Navbar() {
                         </Avatar>
                         <div className="flex flex-col">
                             <span className="text-white font-medium truncate max-w-[200px]">{user.email}</span>
-                            <span className="text-xs text-yellow-400">余额: 1,200</span>
+                            <span className="text-xs text-yellow-400">余额: {profile?.balance ? `¥${profile.balance}` : "¥0"}</span>
                         </div>
                     </div>
                     <Link href="/dashboard" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2 px-2 hover:bg-white/5 rounded-md">
                         <Upload className="inline w-4 h-4 mr-2" /> 上传作品
                     </Link>
+                    {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
+                        <Link href="/admin/videos" onClick={closeMobileMenu} className="text-red-400 hover:text-red-300 py-2 px-2 hover:bg-white/5 rounded-md">
+                            <span className="inline-block w-4 h-4 mr-2 text-center">🛡️</span> 管理后台
+                        </Link>
+                    )}
                     <Link href={`/profile/${user.id}`} onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2 px-2 hover:bg-white/5 rounded-md">
                         <UserIcon className="inline w-4 h-4 mr-2" /> 个人主页
                     </Link>

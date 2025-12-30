@@ -9,7 +9,7 @@ import { SidebarFilters } from "@/components/landing/SidebarFilters"
 import { motion, AnimatePresence } from "framer-motion"
 
 function ExploreContent() {
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false)
+  const [isFiltersOpen, setIsFiltersOpen] = useState(true)
 
   return (
     <>

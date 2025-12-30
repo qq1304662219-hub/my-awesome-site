@@ -1,7 +1,9 @@
 
+"use client"
+
 import Link from "next/link";
 import Image from "next/image";
-import { Play, Heart, Clock, MoreHorizontal } from "lucide-react";
+import { Play, Heart, Clock, MoreHorizontal, ShoppingCart, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useState } from "react";
+import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface VideoCardProps {
   id: string | number;
@@ -25,6 +31,7 @@ interface VideoCardProps {
   rank?: number;
   created_at?: string;
   showRank?: boolean;
+  price?: number;
 }
 
 export function VideoCard({
@@ -40,9 +47,46 @@ export function VideoCard({
   rank,
   created_at,
   showRank = false,
+  price = 0,
 }: VideoCardProps) {
   const isVideoUrl = url?.match(/\.(mp4|webm|mov)$/i);
   const displayImage = image || url; // Fallback to url if image is missing (for image/video mix)
+  const [addingToCart, setAddingToCart] = useState(false);
+  const { user } = useAuthStore();
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+        toast.error("请先登录");
+        return;
+    }
+
+    setAddingToCart(true);
+    try {
+        const { error } = await supabase.from('cart_items').insert({
+            user_id: user.id,
+            video_id: id,
+            license_type: 'personal'
+        });
+
+        if (error) {
+            if (error.code === '23505') { // Unique violation
+                toast.warning("该视频已在购物车中");
+            } else {
+                throw error;
+            }
+        } else {
+            toast.success("已加入购物车");
+        }
+    } catch (error) {
+        console.error(error);
+        toast.error("加入购物车失败");
+    } finally {
+        setAddingToCart(false);
+    }
+  };
 
   return (
     <div className="group relative bg-[#0f172a] rounded-xl overflow-hidden border border-white/5 hover:border-white/20 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
@@ -69,6 +113,19 @@ export function VideoCard({
               />
             </div>
           )}
+
+          {/* Add to Cart Button (Hover) */}
+          <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+             <Button 
+                size="icon" 
+                variant="secondary" 
+                className="h-8 w-8 rounded-full bg-white/10 hover:bg-blue-600 text-white backdrop-blur-sm border border-white/20"
+                onClick={handleAddToCart}
+                disabled={addingToCart}
+             >
+                {addingToCart ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
+             </Button>
+          </div>
 
           {/* Rank Badge */}
           {showRank && rank && (

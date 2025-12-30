@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Search, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ const CATEGORIES = [
 export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const initialQuery = searchParams.get("q") || "";
   const initialCategory = searchParams.get("category") || "All";
 
@@ -57,12 +58,12 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
         // Only push if the query actually changed relative to the URL
         const currentQ = searchParams.get("q") || "";
         if (currentQ !== searchQuery.trim()) {
-            router.push(`/?${params.toString()}`);
+            router.push(`${pathname}?${params.toString()}`);
         }
     }, 500); // 500ms debounce
 
     return () => clearTimeout(timer);
-  }, [searchQuery, router, searchParams]);
+  }, [searchQuery, router, searchParams, pathname]);
 
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
@@ -72,7 +73,7 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
     } else {
       params.delete("category");
     }
-    router.push(`/?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (

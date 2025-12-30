@@ -9,10 +9,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Loader2, ShieldCheck, Ticket, Wallet } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
+import { supabase } from "@/lib/supabase"
+import { useAuthStore } from "@/store/useAuthStore"
 
 function CheckoutContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const { user, profile, setProfile } = useAuthStore()
   
   const videoId = searchParams.get("videoId")
   const title = searchParams.get("title")
@@ -20,19 +23,10 @@ function CheckoutContent() {
   const license = searchParams.get("license")
   const price = parseFloat(searchParams.get("price") || "0")
   
-  // Mock balance (In real app, fetch from DB)
-  // Retrieve simulated balance from localStorage or default to 0
-  const [balance, setBalance] = useState(0)
   const [loading, setLoading] = useState(false)
   const [agreed, setAgreed] = useState(false)
 
-  useEffect(() => {
-    // Simulate fetching balance
-    const storedBalance = localStorage.getItem("user_balance")
-    if (storedBalance) {
-        setBalance(parseFloat(storedBalance))
-    }
-  }, [])
+  const balance = profile?.balance || 0
 
   const licenseLabels: Record<string, string> = {
     personal: "个人授权",
@@ -46,23 +40,49 @@ function CheckoutContent() {
     router.push(`/recharge?returnUrl=${returnUrl}`)
   }
 
-  const handlePay = () => {
+  const handlePay = async () => {
+    if (!user) {
+        toast.error("请先登录")
+        router.push("/auth?tab=login")
+        return
+    }
+
     if (!agreed) {
         toast.error("请先阅读并同意授权协议")
         return
     }
 
+    if (balance < price) {
+        toast.error("余额不足，请充值")
+        return
+    }
+
     setLoading(true)
-    setTimeout(() => {
-        // Simulate payment
-        const newBalance = balance - price
-        localStorage.setItem("user_balance", newBalance.toString())
-        setBalance(newBalance)
-        setLoading(false)
+    try {
+        const { data: orderId, error } = await supabase.rpc('handle_purchase', {
+            p_user_id: user.id,
+            p_total_amount: price,
+            p_video_ids: [videoId],
+            p_prices: [price],
+            p_license_types: [license || 'personal']
+        });
+
+        if (error) throw error;
+
+        // Refresh profile balance locally
+        if (profile) {
+             setProfile({ ...profile, balance: balance - price })
+        }
+
         toast.success("支付成功！")
         // Redirect to success page or dashboard
         router.push("/dashboard")
-    }, 1500)
+    } catch (error: any) {
+        console.error("Payment error:", error)
+        toast.error(error.message || "支付失败，请重试")
+    } finally {
+        setLoading(false)
+    }
   }
 
   if (!videoId) return <div>Invalid Order</div>

@@ -66,12 +66,14 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           title: title || file.name,
           url: publicUrl,
           user_id: userId,
-          category: category
+          category: category,
+          status: 'pending', // 默认待审核
+          download_url: ''   // 默认空下载链接
         })
 
       if (dbError) throw dbError
 
-      setMessage({ type: 'success', text: '上传成功！您的作品已发布到首页。' })
+      setMessage({ type: 'success', text: '上传成功！您的作品正在审核中，审核通过后将发布。' })
       setFile(null)
       setTitle('')
       setCategory('Other')

@@ -88,14 +88,17 @@ export function UserHoverMenu({ user, onSignOut }: UserHoverMenuProps) {
             {/* Menu List */}
             <div className="space-y-1 mb-6">
                 <Link href="/settings" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors group/item">
-                    <span>账号</span>
+                    <span>账号设置</span>
                 </Link>
-                <div className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
-                    <span>充值与发票</span>
-                </div>
-                <div className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
-                    <span>购买记录</span>
-                </div>
+                <Link href="/recharge" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
+                    <span>充值中心</span>
+                </Link>
+                <Link href="/checkout" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
+                    <span>我的购物车</span>
+                </Link>
+                <Link href="/invite" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
+                    <span className="text-yellow-400 font-medium">邀请有礼</span>
+                </Link>
                 <Link href="/dashboard" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors group/item">
                     <span>作品管理</span>
                 </Link>

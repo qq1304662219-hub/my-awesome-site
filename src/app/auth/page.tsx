@@ -1,11 +1,11 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Video } from 'lucide-react'
 import Link from 'next/link'
@@ -40,11 +40,15 @@ const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 )
 
-export default function AuthPage() {
+function AuthContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  const defaultTab = searchParams.get('tab') || 'login'
+  const inviteCode = searchParams.get('invite')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,7 +57,7 @@ export default function AuthPage() {
     if (error) {
       alert(error.message)
     } else {
-      router.push('/')
+      router.push('/explore')
       router.refresh()
     }
     setLoading(false)
@@ -62,7 +66,16 @@ export default function AuthPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: {
+        data: {
+          invited_by: inviteCode
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/explore`
+      }
+    })
     if (error) {
       alert(error.message)
     } else {
@@ -76,10 +89,11 @@ export default function AuthPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/explore`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
+          ...(inviteCode ? { invited_by: inviteCode } : {})
         },
       },
     })
@@ -94,7 +108,10 @@ export default function AuthPage() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/explore`,
+        queryParams: {
+          ...(inviteCode ? { invited_by: inviteCode } : {})
+        }
       },
     })
     if (error) {
@@ -121,7 +138,7 @@ export default function AuthPage() {
           <p className="text-gray-400 mt-2">登录您的账户以管理您的创意作品</p>
         </div>
 
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-white/5 border border-white/10">
             <TabsTrigger value="login" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400">登录</TabsTrigger>
             <TabsTrigger value="register" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400">注册</TabsTrigger>
@@ -205,7 +222,7 @@ export default function AuthPage() {
               <CardHeader>
                 <CardTitle className="text-white">创建账户</CardTitle>
                 <CardDescription className="text-gray-400">
-                  选择注册方式
+                  {inviteCode ? '通过邀请链接注册' : '注册一个新的账户'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -247,7 +264,7 @@ export default function AuthPage() {
                     <Input 
                       id="email-register" 
                       type="email" 
-                      placeholder="name@example.com"
+                      placeholder="name@example.com" 
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-blue-500"
@@ -275,5 +292,13 @@ export default function AuthPage() {
         </Tabs>
       </div>
     </div>
+  )
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthContent />
+    </Suspense>
   )
 }

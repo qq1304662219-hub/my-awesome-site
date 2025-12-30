@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { useCallback } from "react"
+import { motion } from "framer-motion"
 
 export function SidebarFilters() {
     const router = useRouter()
@@ -11,22 +12,13 @@ export function SidebarFilters() {
     const createQueryString = useCallback(
         (name: string, value: string) => {
             const params = new URLSearchParams(searchParams.toString())
-            const current = params.get(name)?.split(',').filter(Boolean) || []
-            let newValues = []
-            
-            // Toggle logic
-            if (current.includes(value)) {
-                newValues = current.filter(v => v !== value)
-            } else {
-                newValues = [...current, value]
-            }
-            
-            if (newValues.length > 0) {
-                params.set(name, newValues.join(','))
-            } else {
+            // Single select per group: replace the value
+            if (params.get(name) === value) {
+                // If clicking the same value, clear it (toggle off)
                 params.delete(name)
+            } else {
+                params.set(name, value)
             }
-            
             return params.toString()
         },
         [searchParams]
@@ -37,66 +29,90 @@ export function SidebarFilters() {
     }
 
     const isChecked = (name: string, value: string) => {
-        const current = searchParams.get(name)?.split(',') || []
-        return current.includes(value)
+        return searchParams.get(name) === value
     }
 
     const clearFilters = () => {
         router.push(pathname)
     }
 
-    const FilterTag = ({ name, value, label }: { name: string, value: string, label: string }) => {
-        const active = isChecked(name, value)
-        return (
-            <button
-                onClick={() => toggleFilter(name, value)}
-                className={`
-                    px-3 py-1.5 rounded-lg text-xs font-medium transition-all
-                    ${active 
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
-                        : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-transparent hover:border-white/10'}
-                `}
-            >
-                {label}
-            </button>
-        )
-    }
+    const FilterGroup = ({ title, icon, items, paramName }: { title: string, icon: string, items: { label: string, value: string }[], paramName: string }) => (
+        <div className="mb-8">
+            <h3 className="flex items-center gap-2 font-bold text-white text-base mb-4 px-2">
+                <span>{icon}</span>
+                <span>{title}</span>
+            </h3>
+            <div className="space-y-1">
+                {items.map((item) => {
+                    const active = isChecked(paramName, item.value)
+                    return (
+                        <button
+                            key={item.value}
+                            onClick={() => toggleFilter(paramName, item.value)}
+                            className={`
+                                w-full text-left px-4 py-2.5 rounded-lg text-sm transition-all duration-200
+                                ${active 
+                                    ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-blue-400 border-l-2 border-blue-500' 
+                                    : 'text-gray-400 hover:bg-white/5 hover:text-white border-l-2 border-transparent'}
+                            `}
+                        >
+                            <div className="flex justify-between items-center">
+                                <span>{item.label}</span>
+                                {active && <motion.div layoutId="active-dot" className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+                            </div>
+                        </button>
+                    )
+                })}
+            </div>
+        </div>
+    )
 
     return (
-        <div className="space-y-8 pr-6">
-            <div className="flex items-center justify-between">
-                <h3 className="font-bold text-white text-lg">筛选</h3>
-                <button onClick={clearFilters} className="text-xs text-blue-400 hover:text-blue-300">重置</button>
+        <div className="space-y-2 pr-4 pb-20">
+            <div className="flex items-center justify-between mb-6 px-2">
+                <h2 className="font-bold text-white text-lg tracking-tight">筛选分类</h2>
+                <button 
+                    onClick={clearFilters} 
+                    className="text-xs text-gray-500 hover:text-white transition-colors px-2 py-1 rounded hover:bg-white/10"
+                >
+                    重置全部
+                </button>
             </div>
 
-            {/* Resolution */}
-            <div>
-                <h3 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider text-gray-500">分辨率</h3>
-                <div className="flex flex-wrap gap-2">
-                    <FilterTag name="resolution" value="4k" label="4K 超高清" />
-                    <FilterTag name="resolution" value="1080p" label="1080P 全高清" />
-                    <FilterTag name="resolution" value="720p" label="720P 高清" />
-                </div>
-            </div>
-            
-            {/* Duration */}
-            <div>
-                <h3 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider text-gray-500">时长</h3>
-                <div className="flex flex-wrap gap-2">
-                    <FilterTag name="duration" value="short" label="0-10 秒" />
-                    <FilterTag name="duration" value="medium" label="10-30 秒" />
-                    <FilterTag name="duration" value="long" label="30 秒以上" />
-                </div>
-            </div>
+            <FilterGroup 
+                title="场景用途" 
+                icon="📂" 
+                paramName="category"
+                items={[
+                    { label: "直播背景 (Live)", value: "Live" },
+                    { label: "电商短视频 (Commerce)", value: "Commerce" },
+                    { label: "游戏/CG (Game)", value: "Game" },
+                    { label: "动态壁纸 (Wallpaper)", value: "Wallpaper" },
+                ]} 
+            />
 
-            {/* Format */}
-            <div>
-                <h3 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider text-gray-500">格式</h3>
-                <div className="flex flex-wrap gap-2">
-                    <FilterTag name="format" value="mp4" label="MP4" />
-                    <FilterTag name="format" value="mov" label="MOV" />
-                </div>
-            </div>
+            <FilterGroup 
+                title="视觉风格" 
+                icon="🎨" 
+                paramName="style"
+                items={[
+                    { label: "赛博/科幻 (Sci-Fi)", value: "Sci-Fi" },
+                    { label: "国潮/古风 (Chinese)", value: "Chinese" },
+                    { label: "二次元/动漫 (Anime)", value: "Anime" },
+                    { label: "超写实 (Realistic)", value: "Realistic" },
+                    { label: "粒子/抽象 (Abstract)", value: "Abstract" },
+                ]} 
+            />
+
+            <FilterGroup 
+                title="视频比例" 
+                icon="📐" 
+                paramName="ratio"
+                items={[
+                    { label: "横屏 16:9", value: "16:9" },
+                    { label: "竖屏 9:16", value: "9:16" },
+                ]} 
+            />
         </div>
     )
 }

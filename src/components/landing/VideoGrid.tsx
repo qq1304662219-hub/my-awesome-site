@@ -18,6 +18,8 @@ export function VideoGrid() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
   const category = searchParams.get("category");
+  const style = searchParams.get("style");
+  const ratio = searchParams.get("ratio");
   const { handleError } = useErrorHandler();
   
   const [latestVideos, setLatestVideos] = useState<Video[]>([]);
@@ -46,6 +48,7 @@ export function VideoGrid() {
               avatar_url
             )
           `)
+          .eq('status', 'published') // Only show published videos
           .order('created_at', { ascending: false })
           .range(pageToFetch * 12, (pageToFetch + 1) * 12 - 1);
 
@@ -55,6 +58,14 @@ export function VideoGrid() {
 
       if (category && category !== "All" && category !== "全部") {
           latestQuery = latestQuery.eq('category', category);
+      }
+
+      if (style) {
+          latestQuery = latestQuery.eq('style', style);
+      }
+
+      if (ratio) {
+          latestQuery = latestQuery.eq('ratio', ratio);
       }
 
       const { data: latestData, error: latestError } = await latestQuery;
@@ -81,6 +92,7 @@ export function VideoGrid() {
               avatar_url
             )
           `)
+          .eq('status', 'published') // Only show published videos
           .limit(8); 
           
         if (!hotError) {
@@ -104,7 +116,7 @@ export function VideoGrid() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [query, category, handleError]);
+  }, [query, category, style, ratio, handleError]);
 
   useEffect(() => {
     setHasMore(true);
@@ -190,57 +202,22 @@ export function VideoGrid() {
               <p>暂无相关视频</p>
             </div>
         )}
-
-        {/* Load More Button */}
-        {!loading && latestVideos.length > 0 && hasMore && (
-           <div className="mt-12 flex justify-center">
-             <Button 
-                variant="outline" 
-                className="rounded-full px-12 py-6 text-base border-white/10 hover:bg-white/10 hover:text-white bg-white/5 transition-all hover:scale-105"
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-             >
-                {loadingMore ? (
-                    <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        加载中...
-                    </>
-                ) : (
-                    "查看更多"
-                )}
-             </Button>
+        
+        {/* Load More Trigger */}
+        {latestVideos.length > 0 && hasMore && (
+           <div ref={ref} className="mt-10 flex justify-center">
+             {loadingMore ? (
+               <div className="flex items-center gap-2 text-gray-400">
+                 <Loader2 className="w-5 h-5 animate-spin" />
+                 加载更多...
+               </div>
+             ) : (
+               <div className="h-10" /> 
+             )}
            </div>
         )}
       </div>
 
-      {/* Hot Videos Section */}
-      {hotVideos.length > 0 && (
-        <div className="mb-16">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2">
-              <Flame className="w-5 h-5 text-orange-500" /> 热门推荐
-            </h3>
-          </div>
-          
-          <motion.div 
-            variants={container}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
-            {hotVideos.map((video, index) => (
-              <motion.div key={`hot-${video.id}`} variants={item}>
-                  <VideoCard 
-                      {...video}
-                      rank={index + 1}
-                      showRank={index < 3}
-                  />
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 }

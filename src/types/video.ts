@@ -9,6 +9,10 @@ export interface Video {
   views?: string | number;
   duration?: string;
   category?: string;
+  style?: string;
+  ratio?: string;
+  status?: 'pending' | 'published' | 'rejected';
+  download_url?: string;
   tags?: string[];
   rank?: number;
   created_at?: string;

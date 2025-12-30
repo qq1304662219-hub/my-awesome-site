@@ -183,6 +183,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                 initialLikes={initialLikes || 0} 
                 currentUser={user} 
                 videoUrl={video.url}
+                downloadUrl={video.download_url}
               >
                 <Separator className="bg-white/10 my-6" />
 

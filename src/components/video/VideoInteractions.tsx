@@ -27,10 +27,11 @@ interface VideoInteractionsProps {
   initialLikes: number;
   currentUser: any;
   videoUrl: string;
+  downloadUrl?: string;
   children?: React.ReactNode;
 }
 
-export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl, children }: VideoInteractionsProps) {
+export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl, downloadUrl, children }: VideoInteractionsProps) {
   const router = useRouter();
   const lastClickTime = useRef(0);
   const [likes, setLikes] = useState(initialLikes);
@@ -226,7 +227,7 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
             <Share2 className="h-4 w-4 mr-2" />
             分享
           </Button>
-          <a href={videoUrl} download target="_blank">
+          <a href={downloadUrl || videoUrl} download target="_blank" rel="noopener noreferrer">
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">
               <Download className="h-4 w-4 mr-2" />
               下载

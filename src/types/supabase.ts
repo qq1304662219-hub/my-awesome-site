@@ -17,6 +17,9 @@ export interface Database {
           full_name: string | null
           avatar_url: string | null
           website: string | null
+          role: string | null
+          invited_by: string | null
+          balance: number | null
         }
         Insert: {
           id: string
@@ -25,6 +28,9 @@ export interface Database {
           full_name?: string | null
           avatar_url?: string | null
           website?: string | null
+          role?: string | null
+          invited_by?: string | null
+          balance?: number | null
         }
         Update: {
           id?: string
@@ -33,6 +39,9 @@ export interface Database {
           full_name?: string | null
           avatar_url?: string | null
           website?: string | null
+          role?: string | null
+          invited_by?: string | null
+          balance?: number | null
         }
         Relationships: [
           {
@@ -40,6 +49,13 @@ export interface Database {
             columns: ["id"]
             isOneToOne: true
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
         ]
@@ -59,6 +75,11 @@ export interface Database {
           views: number | null
           likes: number | null
           price: number | null
+          category: string | null
+          style: string | null
+          ratio: string | null
+          status: string | null
+          download_url: string | null
         }
         Insert: {
           id?: string
@@ -74,6 +95,11 @@ export interface Database {
           views?: number | null
           likes?: number | null
           price?: number | null
+          category?: string | null
+          style?: string | null
+          ratio?: string | null
+          status?: string | null
+          download_url?: string | null
         }
         Update: {
           id?: string
@@ -89,6 +115,11 @@ export interface Database {
           views?: number | null
           likes?: number | null
           price?: number | null
+          category?: string | null
+          style?: string | null
+          ratio?: string | null
+          status?: string | null
+          download_url?: string | null
         }
         Relationships: [
           {

@@ -112,13 +112,15 @@ export function DragDropUpload({ onUploadComplete }: { onUploadComplete: () => v
           format: fileExt,
           duration: metadata.duration,
           width: metadata.width,
-          height: metadata.height
+          height: metadata.height,
+          status: 'pending',
+          download_url: ''
         })
 
       if (dbError) throw dbError
 
       setProgress(100)
-      toast.success("上传成功！")
+      toast.success("上传成功！视频已进入人工审核队列，请耐心等待。")
       onUploadComplete()
     } catch (error: any) {
       console.error(error)

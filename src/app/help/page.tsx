@@ -1,11 +1,57 @@
+"use client"
+
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, HelpCircle, Mail, MessageCircle } from "lucide-react";
+import { Search, HelpCircle, Mail, MessageCircle, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { useState } from "react"
+import { supabase } from "@/lib/supabase"
+import { toast } from "sonner"
+import { useAuthStore } from "@/store/useAuthStore"
 
 export default function HelpPage() {
+  const [isTicketOpen, setIsTicketOpen] = useState(false)
+  const [ticketSubject, setTicketSubject] = useState("")
+  const [ticketMessage, setTicketMessage] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { user } = useAuthStore()
+
+  const handleSubmitTicket = async () => {
+    if (!user) {
+        toast.error("请先登录")
+        return
+    }
+    if (!ticketSubject.trim() || !ticketMessage.trim()) {
+        toast.error("请填写完整信息")
+        return
+    }
+
+    setIsSubmitting(true)
+    try {
+        const { error } = await supabase.from('tickets').insert({
+            user_id: user.id,
+            subject: ticketSubject,
+            message: ticketMessage,
+            status: 'open'
+        })
+        if (error) throw error
+        toast.success("工单提交成功，我们会尽快联系您")
+        setIsTicketOpen(false)
+        setTicketSubject("")
+        setTicketMessage("")
+    } catch (e) {
+        console.error(e)
+        toast.error("提交失败")
+    } finally {
+        setIsSubmitting(false)
+    }
+  }
+
   const faqs = [
     {
       question: "如何下载视频素材？",
@@ -83,10 +129,52 @@ export default function HelpPage() {
               <Mail className="mr-2 h-4 w-4" />
               发送邮件
             </Button>
-            <Button variant="outline" className="border-white/10 hover:bg-white/10 text-white h-12 px-8">
-              <MessageCircle className="mr-2 h-4 w-4" />
-              在线客服
-            </Button>
+            
+            <Dialog open={isTicketOpen} onOpenChange={setIsTicketOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="border-white/10 hover:bg-white/10 text-white h-12 px-8">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  在线客服 / 提交工单
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-[#0f172a] border-white/10 text-white sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>提交工单</DialogTitle>
+                  <DialogDescription className="text-gray-400">
+                    请详细描述您遇到的问题，我们会尽快回复。
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="subject">主题</Label>
+                    <Input 
+                      id="subject" 
+                      placeholder="简要描述问题..." 
+                      className="bg-white/5 border-white/10 text-white"
+                      value={ticketSubject}
+                      onChange={(e) => setTicketSubject(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="message">详细描述</Label>
+                    <Textarea 
+                      id="message" 
+                      placeholder="请提供更多细节..." 
+                      className="bg-white/5 border-white/10 text-white min-h-[150px]"
+                      value={ticketMessage}
+                      onChange={(e) => setTicketMessage(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="ghost" onClick={() => setIsTicketOpen(false)} className="text-gray-400 hover:text-white">取消</Button>
+                  <Button onClick={handleSubmitTicket} disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700 text-white">
+                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    提交
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>

@@ -1,17 +1,60 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Copy, Gift, Users, Coins } from "lucide-react"
 import { toast } from "sonner"
+import { useAuthStore } from "@/store/useAuthStore"
+import { supabase } from "@/lib/supabase"
 
 export default function InvitePage() {
-  const [inviteLink, setInviteLink] = useState("https://aivision.com/invite/u/888888") // Mock link
+  const { user } = useAuthStore()
+  const [inviteLink, setInviteLink] = useState("")
+  const [stats, setStats] = useState({
+    invitedCount: 0,
+    rechargeCount: 0,
+    earnings: 0,
+    pending: 0
+  })
+
+  useEffect(() => {
+    if (user) {
+      setInviteLink(`${window.location.origin}/auth?invite=${user.id}&tab=register`)
+      fetchStats()
+    } else {
+      setInviteLink("请先登录获取邀请链接")
+    }
+  }, [user])
+
+  const fetchStats = async () => {
+    if (!user) return
+
+    try {
+      // Get invited users count
+      const { count, error } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('invited_by', user.id)
+
+      if (error) throw error
+
+      setStats(prev => ({
+        ...prev,
+        invitedCount: count || 0
+      }))
+    } catch (error) {
+      console.error('Error fetching invite stats:', error)
+    }
+  }
 
   const handleCopy = () => {
+    if (!user) {
+      toast.error("请先登录")
+      return
+    }
     navigator.clipboard.writeText(inviteLink)
     toast.success("邀请链接已复制")
   }
@@ -81,19 +124,19 @@ export default function InvitePage() {
                   <h2 className="text-3xl font-bold mb-8">我的邀请记录</h2>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
                       <div>
-                          <div className="text-4xl font-bold text-white mb-2">0</div>
+                          <div className="text-4xl font-bold text-white mb-2">{stats.invitedCount}</div>
                           <div className="text-gray-400 text-sm">已邀请好友</div>
                       </div>
                       <div>
-                          <div className="text-4xl font-bold text-white mb-2">0</div>
+                          <div className="text-4xl font-bold text-white mb-2">{stats.rechargeCount}</div>
                           <div className="text-gray-400 text-sm">成功充值</div>
                       </div>
                       <div>
-                          <div className="text-4xl font-bold text-yellow-400 mb-2">0</div>
+                          <div className="text-4xl font-bold text-yellow-400 mb-2">{stats.earnings}</div>
                           <div className="text-gray-400 text-sm">累计获得积分</div>
                       </div>
                       <div>
-                          <div className="text-4xl font-bold text-yellow-400 mb-2">0</div>
+                          <div className="text-4xl font-bold text-yellow-400 mb-2">{stats.pending}</div>
                           <div className="text-gray-400 text-sm">待领取奖励</div>
                       </div>
                   </div>

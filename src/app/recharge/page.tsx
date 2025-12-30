@@ -7,33 +7,59 @@ import { Footer } from "@/components/landing/Footer"
 import { Button } from "@/components/ui/button"
 import { Loader2, QrCode } from "lucide-react"
 import { toast } from "sonner"
+import { supabase } from "@/lib/supabase"
+import { useAuthStore } from "@/store/useAuthStore"
 
 function RechargeContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const returnUrl = searchParams.get("returnUrl") || "/dashboard"
+  const { user, profile, setProfile } = useAuthStore()
   
   const [selectedAmount, setSelectedAmount] = useState(100)
   const [loading, setLoading] = useState(false)
 
   const amounts = [50, 100, 200, 500, 1000, 2000, 5000, 10000]
 
-  const handleRecharge = () => {
+  const handleRecharge = async () => {
+    if (!user) {
+        toast.error("请先登录")
+        router.push("/auth?tab=login")
+        return
+    }
+
     setLoading(true)
     
     // Simulate API call and Payment process
-    setTimeout(() => {
-        // Update mock balance
-        const currentBalance = parseFloat(localStorage.getItem("user_balance") || "0")
-        const newBalance = currentBalance + selectedAmount
-        localStorage.setItem("user_balance", newBalance.toString())
-        
-        setLoading(false)
+    try {
+        // 模拟支付延迟
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Call backend RPC to update balance and record transaction
+        const { error } = await supabase.rpc('handle_balance_update', {
+            p_user_id: user.id,
+            p_amount: selectedAmount,
+            p_type: 'recharge',
+            p_description: `充值 ¥${selectedAmount}`
+        });
+
+        if (error) throw error;
+
+        // Update local store
+        if (profile) {
+             setProfile({ ...profile, balance: (profile.balance || 0) + selectedAmount })
+        }
+
         toast.success(`成功充值 ¥${selectedAmount}`)
         
         // Redirect back
         router.push(decodeURIComponent(returnUrl))
-    }, 2000)
+    } catch (error) {
+        console.error("Recharge error:", error)
+        toast.error("充值失败，请联系客服")
+    } finally {
+        setLoading(false)
+    }
   }
 
   return (
