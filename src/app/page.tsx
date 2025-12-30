@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { Navbar } from "@/components/landing/Navbar"
 import { LandingHero } from "@/components/landing/LandingHero"
+import { LandingFeatures } from "@/components/landing/LandingFeatures"
 import { FunctionalSidebar } from "@/components/landing/FunctionalSidebar"
 import { VideoGrid } from "@/components/landing/VideoGrid"
 
