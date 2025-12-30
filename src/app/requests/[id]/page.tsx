@@ -14,6 +14,7 @@ import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function RequestDetailPage() {
   const { id } = useParams();
@@ -130,8 +131,28 @@ export default function RequestDetailPage() {
 
   if (loading) {
     return (
-        <div className="min-h-screen bg-[#020817] flex items-center justify-center">
-            <div className="text-white">加载中...</div>
+        <div className="min-h-screen bg-[#020817] flex flex-col">
+            <Navbar />
+            <div className="flex-1 container mx-auto px-4 py-24">
+                <div className="mb-6">
+                    <Skeleton className="h-6 w-32 bg-white/10" />
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 space-y-8">
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-8">
+                             <Skeleton className="h-10 w-3/4 mb-4 bg-white/10" />
+                             <div className="flex gap-4 mb-8">
+                                 <Skeleton className="h-4 w-24 bg-white/10" />
+                                 <Skeleton className="h-4 w-24 bg-white/10" />
+                             </div>
+                             <Skeleton className="h-32 w-full bg-white/10" />
+                        </div>
+                    </div>
+                    <div className="space-y-6">
+                        <Skeleton className="h-64 w-full rounded-xl bg-white/10" />
+                    </div>
+                </div>
+            </div>
         </div>
     );
   }

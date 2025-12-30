@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Video } from 'lucide-react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" {...props}>
@@ -77,9 +78,9 @@ function AuthContent() {
       }
     })
     if (error) {
-      alert(error.message)
+      toast.error(error.message)
     } else {
-      alert('注册成功！请检查您的邮箱进行验证。')
+      toast.success('注册成功！请检查您的邮箱进行验证。')
     }
     setLoading(false)
   }
@@ -98,7 +99,7 @@ function AuthContent() {
       },
     })
     if (error) {
-      alert(error.message)
+      toast.error(error.message)
       setLoading(false)
     }
   }
@@ -115,7 +116,7 @@ function AuthContent() {
       },
     })
     if (error) {
-      alert(error.message)
+      toast.error(error.message)
       setLoading(false)
     }
   }

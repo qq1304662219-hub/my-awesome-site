@@ -26,7 +26,11 @@ export default function UploadPage() {
     </div>
   )
 
-  if (!user) return null
+  if (!user) return (
+    <div className="flex flex-col items-center justify-center h-96 space-y-4">
+        <p className="text-gray-400">请先登录后再上传作品</p>
+    </div>
+  )
 
   return (
     <div className="max-w-2xl mx-auto py-8">

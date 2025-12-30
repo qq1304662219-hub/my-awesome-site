@@ -37,6 +37,8 @@ export default function MyVideos() {
   const [editTitle, setEditTitle] = useState('')
   const [editPrice, setEditPrice] = useState('0')
 
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+
   useEffect(() => {
     fetchVideos()
   }, [])
@@ -52,25 +54,26 @@ export default function MyVideos() {
       .order('created_at', { ascending: false })
     
     if (!error && data) {
-      setVideos(data as any[])
+      setVideos(data as VideoItem[])
     }
     setLoading(false)
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('确定要删除这个作品吗？此操作无法撤销。')) return
+  const handleDelete = async () => {
+    if (!deleteId) return
 
     const { error } = await supabase
       .from('videos')
       .delete()
-      .eq('id', id)
+      .eq('id', deleteId)
 
     if (error) {
       toast.error('删除失败: ' + error.message)
     } else {
       toast.success('作品已删除')
-      setVideos(videos.filter(v => v.id !== id))
+      setVideos(videos.filter(v => v.id !== deleteId))
     }
+    setDeleteId(null)
   }
 
   const openEdit = (video: VideoItem) => {
@@ -202,9 +205,13 @@ export default function MyVideos() {
                                         <Button variant="ghost" size="icon" onClick={() => openEdit(video)} className="h-8 w-8 hover:bg-blue-500/20 hover:text-blue-400">
                                             <Edit className="h-4 w-4" />
                                         </Button>
-                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(video.id)} className="h-8 w-8 hover:bg-red-500/20 hover:text-red-400">
+                                        <button 
+                                            onClick={() => setDeleteId(video.id)}
+                                            className="text-gray-400 hover:text-red-400 transition-colors"
+                                            title="删除"
+                                        >
                                             <Trash2 className="h-4 w-4" />
-                                        </Button>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -212,7 +219,7 @@ export default function MyVideos() {
                     ) : (
                         <tr>
                             <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                                没有找到相关作品
+                                暂无作品
                             </td>
                         </tr>
                     )}
@@ -221,37 +228,54 @@ export default function MyVideos() {
         </div>
       </div>
 
+      {/* Edit Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="bg-[#1a202c] border-white/10 text-white">
+        <DialogContent className="bg-[#1a1f2e] border-white/10 text-white sm:max-w-[425px]">
             <DialogHeader>
                 <DialogTitle>编辑作品信息</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                    <Label htmlFor="title">作品标题</Label>
-                    <Input 
-                        id="title" 
-                        value={editTitle} 
+            <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                    <Label htmlFor="title">标题</Label>
+                    <Input
+                        id="title"
+                        value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
-                        className="bg-black/20 border-white/10"
+                        className="bg-white/5 border-white/10 text-white"
                     />
                 </div>
-                <div className="space-y-2">
+                <div className="grid gap-2">
                     <Label htmlFor="price">价格 (元)</Label>
-                    <Input 
-                        id="price" 
-                        type="number" 
+                    <Input
+                        id="price"
+                        type="number"
                         min="0"
-                        step="0.1"
-                        value={editPrice} 
+                        step="0.01"
+                        value={editPrice}
                         onChange={(e) => setEditPrice(e.target.value)}
-                        className="bg-black/20 border-white/10"
+                        className="bg-white/5 border-white/10 text-white"
                     />
                 </div>
             </div>
             <DialogFooter>
-                <Button variant="outline" onClick={() => setIsEditOpen(false)} className="border-white/10 hover:bg-white/10 text-white">取消</Button>
-                <Button onClick={handleUpdate} className="bg-blue-600 hover:bg-blue-700">保存更改</Button>
+                <Button variant="outline" onClick={() => setIsEditOpen(false)} className="border-white/10 text-gray-300 hover:bg-white/5 hover:text-white">取消</Button>
+                <Button onClick={handleUpdate} className="bg-blue-600 hover:bg-blue-700">保存修改</Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <DialogContent className="bg-[#1a1f2e] border-white/10 text-white sm:max-w-[425px]">
+            <DialogHeader>
+                <DialogTitle>确认删除</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 text-gray-400">
+                确定要删除这个作品吗？此操作无法撤销。
+            </div>
+            <DialogFooter>
+                <Button variant="outline" onClick={() => setDeleteId(null)} className="border-white/10 text-gray-300 hover:bg-white/5 hover:text-white">取消</Button>
+                <Button onClick={handleDelete} variant="destructive" className="bg-red-600 hover:bg-red-700">确认删除</Button>
             </DialogFooter>
         </DialogContent>
       </Dialog>

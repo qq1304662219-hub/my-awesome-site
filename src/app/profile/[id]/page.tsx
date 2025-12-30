@@ -3,6 +3,27 @@ import { Footer } from "@/components/landing/Footer";
 import { supabase } from "@/lib/supabase";
 import { ProfileView } from "@/components/profile/ProfileView";
 
+interface VideoWithProfile {
+  id: string
+  title: string
+  url: string
+  thumbnail_url?: string
+  views?: number
+  downloads?: number
+  price?: number
+  user_id: string
+  created_at: string
+  profiles?: {
+    full_name?: string
+    avatar_url?: string
+  }
+}
+
+interface LikeData {
+  video_id: string
+  videos: VideoWithProfile
+}
+
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
@@ -37,7 +58,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     .eq('user_id', id)
     .order('created_at', { ascending: false });
 
-  const likedVideos = likedData?.map((item: any) => {
+  const likedVideos = (likedData as unknown as LikeData[])?.map((item) => {
       const video = item.videos;
       if (!video) return null;
       return {
@@ -45,10 +66,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
           author: video.profiles?.full_name || `User ${video.user_id?.slice(0, 6)}`,
           user_avatar: video.profiles?.avatar_url
       };
-  }).filter(Boolean) || [];
+  }).filter((v): v is NonNullable<typeof v> => v !== null) || [];
 
   // Format user's videos
-  const formattedVideos = (videos || []).map((video: any) => ({
+  const formattedVideos = (videos || []).map((video) => ({
     ...video,
     author: profile?.full_name || `User ${id.slice(0, 6)}`,
     user_avatar: profile?.avatar_url

@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { PlayCircle, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 export function Hero() {
   return (
@@ -26,14 +27,18 @@ export function Hero() {
                   百万精选 AI 视频素材，助力您的创意项目，高效产出专业级作品
                 </p>
                 <div className="flex items-center justify-center gap-4">
-                  <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8" onClick={() => console.log('Explore')}>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    立即探索
-                  </Button>
-                  <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 bg-black/20 backdrop-blur-sm rounded-full px-8" onClick={() => console.log('Demo')}>
-                    <PlayCircle className="mr-2 h-4 w-4" />
-                    观看演示
-                  </Button>
+                  <Link href="/explore">
+                    <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8">
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      立即探索
+                    </Button>
+                  </Link>
+                  <Link href="/#features">
+                    <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 bg-black/20 backdrop-blur-sm rounded-full px-8">
+                      <PlayCircle className="mr-2 h-4 w-4" />
+                      了解更多
+                    </Button>
+                  </Link>
                 </div>
              </div>
           </div>
