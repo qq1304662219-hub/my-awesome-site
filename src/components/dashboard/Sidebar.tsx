@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { useEffect } from "react"
 import { useAuthStore } from "@/store/useAuthStore"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { supabase } from "@/lib/supabase"
@@ -21,7 +22,31 @@ import { toast } from "sonner"
 export function DashboardSidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, profile } = useAuthStore()
+  const { user, profile, setProfile } = useAuthStore()
+
+  // Double check role using RPC to bypass RLS cache issues
+  useEffect(() => {
+    const checkRole = async () => {
+        if (!user) return
+        const { data: realRole, error } = await supabase.rpc('get_my_role')
+        
+        if (realRole && realRole !== profile?.role) {
+            console.log("Fixing role mismatch:", realRole)
+            // If profile exists, update it. If not, fetch it first? 
+            // If profile is null, we can't just set role.
+            if (profile) {
+                setProfile({ ...profile, role: realRole })
+            } else {
+                // Profile missing but role exists? Fetch full profile
+                const { data: fullProfile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+                if (fullProfile) {
+                    setProfile({ ...fullProfile, role: realRole })
+                }
+            }
+        }
+    }
+    checkRole()
+  }, [user, profile?.role]) // Check whenever user or perceived role changes
 
   const menuItems = [
     { id: 'overview', label: '仪表盘', icon: LayoutDashboard, href: '/dashboard' },
