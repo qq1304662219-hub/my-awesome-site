@@ -14,11 +14,12 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/useAuthStore"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { supabase } from "@/lib/supabase"
 
 export function DashboardSidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, profile, signOut } = useAuthStore()
+  const { user, profile } = useAuthStore()
 
   const menuItems = [
     { id: 'overview', label: '仪表盘', icon: LayoutDashboard, href: '/dashboard' },
@@ -28,7 +29,7 @@ export function DashboardSidebar() {
   ]
 
   const handleSignOut = async () => {
-    await signOut()
+    await supabase.auth.signOut()
     router.push('/')
   }
 

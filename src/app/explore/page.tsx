@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
 import { VideoGrid } from "@/components/landing/VideoGrid"
@@ -10,6 +11,13 @@ import { motion, AnimatePresence } from "framer-motion"
 
 function ExploreContent() {
   const [isFiltersOpen, setIsFiltersOpen] = useState(true)
+  const searchParams = useSearchParams()
+
+  const filters = {
+    category: searchParams.get("category"),
+    style: searchParams.get("style"),
+    ratio: searchParams.get("ratio")
+  }
 
   return (
     <>
@@ -37,7 +45,7 @@ function ExploreContent() {
                 {/* Main Content */}
                 <div className="flex-1 min-w-0">
                     <SearchFilter onOpenFilters={() => setIsFiltersOpen(!isFiltersOpen)} />
-                    <VideoGrid />
+                    <VideoGrid filters={filters} />
                 </div>
             </div>
           </div>
