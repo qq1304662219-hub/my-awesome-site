@@ -77,7 +77,12 @@ export default function AdminUsers() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">团队管理</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold">团队管理</h1>
+            <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 text-sm font-medium border border-blue-500/20">
+              {users.length} 成员
+            </span>
+          </div>
           <p className="text-gray-400 mt-1">仅超级管理员可见</p>
         </div>
         <div className="relative">

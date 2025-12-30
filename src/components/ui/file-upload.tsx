@@ -10,8 +10,26 @@ import Link from 'next/link'
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-const CATEGORIES = [
-  "Nature", "Abstract", "Technology", "People", "Animals", "Urban", "Other"
+const SCENARIOS = [
+  { value: "Live", label: "直播背景" },
+  { value: "Commerce", label: "电商短视频" },
+  { value: "Game", label: "游戏/CG" },
+  { value: "Wallpaper", label: "动态壁纸" },
+  { value: "Other", label: "其他" }
+]
+
+const STYLES = [
+  { value: "Sci-Fi", label: "赛博/科幻" },
+  { value: "Chinese", label: "国潮/古风" },
+  { value: "Anime", label: "二次元/动漫" },
+  { value: "Realistic", label: "超写实/实拍感" },
+  { value: "Abstract", label: "粒子/抽象" },
+  { value: "Other", label: "其他" }
+]
+
+const RATIOS = [
+  { value: "16:9", label: "横屏 16:9" },
+  { value: "9:16", label: "竖屏 9:16 (手机专用)" }
 ]
 
 interface FileUploadProps {
@@ -22,7 +40,9 @@ interface FileUploadProps {
 export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
   const [file, setFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
-  const [category, setCategory] = useState('Other')
+  const [category, setCategory] = useState('Live')
+  const [style, setStyle] = useState('Sci-Fi')
+  const [ratio, setRatio] = useState('16:9')
   const [uploading, setUploading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
@@ -67,6 +87,8 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           url: publicUrl,
           user_id: userId,
           category: category,
+          style: style,
+          ratio: ratio,
           status: 'pending', // 默认待审核
           download_url: ''   // 默认空下载链接
         })
@@ -76,7 +98,6 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
       setMessage({ type: 'success', text: '上传成功！您的作品正在审核中，审核通过后将发布。' })
       setFile(null)
       setTitle('')
-      setCategory('Other')
       // Reset file input value
       const fileInput = document.getElementById('picture') as HTMLInputElement
       if (fileInput) fileInput.value = ''
@@ -106,8 +127,8 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
 
             <div className="flex flex-col gap-3">
                 <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 h-11 text-base">
-                    <Link href="/">
-                        返回首页查看
+                    <Link href="/dashboard/videos">
+                        查看我的作品
                     </Link>
                 </Button>
                 <Button 
@@ -135,17 +156,47 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
         />
       </div>
 
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+            <Label htmlFor="category" className="text-gray-300 font-medium">场景用途</Label>
+            <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger className="bg-black/20 border-white/10 text-white h-11 focus:ring-blue-500/50">
+                <SelectValue placeholder="选择场景" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#1e293b] border-white/10 text-white">
+                {SCENARIOS.map(item => (
+                <SelectItem key={item.value} value={item.value} className="focus:bg-blue-600 focus:text-white cursor-pointer">{item.label}</SelectItem>
+                ))}
+            </SelectContent>
+            </Select>
+        </div>
+
+        <div className="space-y-2">
+            <Label htmlFor="style" className="text-gray-300 font-medium">视觉风格</Label>
+            <Select value={style} onValueChange={setStyle}>
+            <SelectTrigger className="bg-black/20 border-white/10 text-white h-11 focus:ring-blue-500/50">
+                <SelectValue placeholder="选择风格" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#1e293b] border-white/10 text-white">
+                {STYLES.map(item => (
+                <SelectItem key={item.value} value={item.value} className="focus:bg-blue-600 focus:text-white cursor-pointer">{item.label}</SelectItem>
+                ))}
+            </SelectContent>
+            </Select>
+        </div>
+      </div>
+
       <div className="space-y-2">
-        <Label htmlFor="category" className="text-gray-300 font-medium">作品分类</Label>
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="bg-black/20 border-white/10 text-white h-11 focus:ring-blue-500/50">
-            <SelectValue placeholder="选择分类" />
-          </SelectTrigger>
-          <SelectContent className="bg-[#1e293b] border-white/10 text-white">
-            {CATEGORIES.map(cat => (
-              <SelectItem key={cat} value={cat} className="focus:bg-blue-600 focus:text-white cursor-pointer">{cat}</SelectItem>
+        <Label htmlFor="ratio" className="text-gray-300 font-medium">视频比例</Label>
+        <Select value={ratio} onValueChange={setRatio}>
+        <SelectTrigger className="bg-black/20 border-white/10 text-white h-11 focus:ring-blue-500/50">
+            <SelectValue placeholder="选择比例" />
+        </SelectTrigger>
+        <SelectContent className="bg-[#1e293b] border-white/10 text-white">
+            {RATIOS.map(item => (
+            <SelectItem key={item.value} value={item.value} className="focus:bg-blue-600 focus:text-white cursor-pointer">{item.label}</SelectItem>
             ))}
-          </SelectContent>
+        </SelectContent>
         </Select>
       </div>
       

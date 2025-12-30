@@ -102,20 +102,13 @@ export function LandingHero() {
             transition={{ delay: 0.3, duration: 0.8 }}
             className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8"
           >
-            <Link href="/explore">
-            <Button size="lg" className="h-14 px-10 text-lg rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-500 hover:to-purple-500 transition-all shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] border border-white/10 group">
-              立即开始探索
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </Link>
-            
             <Button 
                 size="lg" 
-                variant="outline" 
-                className="h-14 px-10 text-lg rounded-full border-white/10 hover:bg-white/5 hover:border-white/30 bg-white/5 backdrop-blur-md text-white transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                className="h-12 px-8 text-base rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-500 hover:to-purple-500 transition-all shadow-lg shadow-blue-900/20"
                 onClick={handleLearnMore}
             >
-                了解更多
+              开始探索
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </motion.div>
         </motion.div>

@@ -5,123 +5,98 @@ import { Button } from "@/components/ui/button"
 import { 
   LayoutDashboard, 
   Film, 
-  Heart, 
+  Wallet, 
   Settings, 
-  PlusCircle, 
-  Clock, 
-  MessageSquare,
-  FileText,
-  Package,
-  Wallet
+  Plus, 
+  LogOut 
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { useAuthStore } from "@/store/useAuthStore"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-interface SidebarProps {
-  currentView?: string
-  onChangeView?: (view: string) => void
-  className?: string
-}
-
-export function DashboardSidebar({ currentView, onChangeView, className }: SidebarProps) {
+export function DashboardSidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const { user, profile, signOut } = useAuthStore()
 
   const menuItems = [
-    { id: 'overview', label: '个人中心', icon: LayoutDashboard, href: '/dashboard' },
-    { id: 'videos', label: '我的作品', icon: Film, href: '/dashboard?view=videos' },
-    { id: 'upload', label: '发布作品', icon: PlusCircle, href: '/dashboard?view=upload' },
-    { id: 'favorites', label: '我的收藏', icon: Heart, href: '/dashboard?view=favorites' },
-    { id: 'history', label: '浏览记录', icon: Clock, href: '/dashboard?view=history' },
-    { id: 'messages', label: '消息通知', icon: MessageSquare, href: '/dashboard?view=messages' },
+    { id: 'overview', label: '仪表盘', icon: LayoutDashboard, href: '/dashboard' },
+    { id: 'videos', label: '作品管理', icon: Film, href: '/dashboard/videos' },
+    { id: 'finance', label: '财务中心', icon: Wallet, href: '/dashboard/finance' },
+    { id: 'settings', label: '账号设置', icon: Settings, href: '/dashboard/settings' },
   ]
 
-  const financeItems = [
-    { id: 'orders', label: '我的订单', icon: Package, href: '/dashboard/orders' },
-    { id: 'transactions', label: '交易记录', icon: Wallet, href: '/dashboard/transactions' },
-    { id: 'tickets', label: '工单系统', icon: FileText, href: '/dashboard/tickets' },
-  ]
-
-  const handleNavigation = (item: any) => {
-    // If we are on the dashboard page and have onChangeView (SPA mode)
-    if (pathname === '/dashboard' && onChangeView && !item.href.startsWith('/dashboard/')) {
-        // Parse view from href or use id
-        const view = item.href.split('=')[1] || item.id
-        if (view === 'dashboard') onChangeView('overview')
-        else onChangeView(view)
-    } else {
-        // Direct navigation
-        router.push(item.href)
-    }
+  const handleSignOut = async () => {
+    await signOut()
+    router.push('/')
   }
 
-  // Determine active state
-  const isActive = (item: any) => {
-    if (currentView) return currentView === item.id
-    if (pathname === item.href) return true
-    if (pathname === '/dashboard' && item.id === 'overview') return true
-    return false
+  const isActive = (href: string) => {
+      if (href === '/dashboard' && pathname === '/dashboard') return true
+      if (href !== '/dashboard' && pathname.startsWith(href)) return true
+      return false
   }
 
   return (
-    <div className={cn("pb-12 w-64 border-r border-white/10 bg-[#020817]/50 hidden lg:block h-full", className)}>
-      <div className="space-y-4 py-4">
-        <div className="px-3 py-2">
-          <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight text-white">
-            创作者中心
-          </h2>
-          <div className="space-y-1">
-            {menuItems.map((item) => (
-              <Button
-                key={item.id}
-                variant={isActive(item) ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full justify-start",
-                  isActive(item)
-                    ? "bg-white/10 text-white hover:bg-white/20" 
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                )}
-                onClick={() => handleNavigation(item)}
-              >
-                <item.icon className="mr-2 h-4 w-4" />
-                {item.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-        
-        <div className="px-3 py-2">
-            <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight text-white">
-                财务与服务
-            </h2>
-             <div className="space-y-1">
-                {financeItems.map((item) => (
-                  <Button
-                    key={item.id}
-                    variant={isActive(item) ? "secondary" : "ghost"}
-                    className={cn(
-                      "w-full justify-start",
-                      isActive(item)
-                        ? "bg-white/10 text-white hover:bg-white/20" 
-                        : "text-gray-400 hover:text-white hover:bg-white/5"
-                    )}
-                    onClick={() => router.push(item.href)}
-                  >
-                    <item.icon className="mr-2 h-4 w-4" />
-                    {item.label}
-                  </Button>
-                ))}
-                
-                <Button 
-                   variant="ghost" 
-                   className="w-full justify-start text-gray-400 hover:text-white hover:bg-white/5"
-                   onClick={() => router.push('/dashboard?view=settings')}
-                >
-                    <Settings className="mr-2 h-4 w-4" />
-                    账号设置
-                </Button>
-             </div>
-        </div>
+    <div className="flex flex-col h-full w-64 bg-[#050B14] border-r border-white/5">
+      {/* User Info */}
+      <div className="p-6 flex flex-col items-center border-b border-white/5">
+        <Avatar className="h-20 w-20 mb-4 border-2 border-blue-500/20">
+          <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url} />
+          <AvatarFallback className="bg-blue-600 text-xl">
+            {profile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <h3 className="font-semibold text-white truncate max-w-full">
+          {profile?.full_name || user?.email?.split('@')[0]}
+        </h3>
+        <p className="text-xs text-gray-500 mt-1">
+          {profile?.role === 'super_admin' ? '👑 超级管理员' : 
+           profile?.role === 'admin' ? '🛡️ 管理员' : '✨ 创作者'}
+        </p>
+      </div>
+
+      {/* Upload Button */}
+      <div className="p-4">
+        <Link href="/dashboard/upload">
+          <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-900/20">
+            <Plus className="mr-2 h-4 w-4" />
+            上传新作品
+          </Button>
+        </Link>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-2 space-y-1 py-4">
+        {menuItems.map((item) => (
+          <Link key={item.id} href={item.href}>
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-full justify-start relative overflow-hidden",
+                isActive(item.href)
+                  ? "bg-white/5 text-blue-400 after:absolute after:left-0 after:top-0 after:h-full after:w-1 after:bg-blue-500" 
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+              )}
+            >
+              <item.icon className={cn("mr-3 h-4 w-4", isActive(item.href) ? "text-blue-400" : "text-gray-500")} />
+              {item.label}
+            </Button>
+          </Link>
+        ))}
+      </nav>
+
+      {/* Logout */}
+      <div className="p-4 border-t border-white/5">
+        <Button 
+          variant="ghost" 
+          className="w-full justify-start text-gray-500 hover:text-red-400 hover:bg-red-500/5"
+          onClick={handleSignOut}
+        >
+          <LogOut className="mr-3 h-4 w-4" />
+          退出登录
+        </Button>
       </div>
     </div>
   )

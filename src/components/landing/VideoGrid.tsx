@@ -1,223 +1,173 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
-import { Play, Heart, Download, Flame, Clock, ThumbsUp, Loader2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
-import { VideoCard } from "@/components/shared/VideoCard";
-import { useErrorHandler } from "@/hooks/useErrorHandler";
-import { Video } from "@/types/video";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
+import { Video } from "@/types/video"
+import { motion, AnimatePresence } from "framer-motion"
+import { Play, Download, Eye, Clock } from "lucide-react"
 
-export function VideoGrid() {
-  const searchParams = useSearchParams();
-  const query = searchParams.get("q");
-  const category = searchParams.get("category");
-  const style = searchParams.get("style");
-  const ratio = searchParams.get("ratio");
-  const { handleError } = useErrorHandler();
-  
-  const [latestVideos, setLatestVideos] = useState<Video[]>([]);
-  const [hotVideos, setHotVideos] = useState<Video[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const { ref, inView } = useInView();
+interface FilterState {
+  category: string | null;
+  style: string | null;
+  ratio: string | null;
+}
 
-  const fetchVideos = useCallback(async (pageToFetch: number = 0) => {
-    if (pageToFetch === 0) {
-      setLoading(true);
-    } else {
-      setLoadingMore(true);
-    }
+interface VideoGridProps {
+  filters: FilterState;
+}
 
-    try {
-      // Fetch Latest Videos
-      let latestQuery = supabase
-          .from('videos')
-          .select(`
-            *,
-            profiles:user_id (
-              full_name,
-              avatar_url
-            )
-          `)
-          .eq('status', 'published') // Only show published videos
-          .order('created_at', { ascending: false })
-          .range(pageToFetch * 12, (pageToFetch + 1) * 12 - 1);
-
-      if (query) {
-          latestQuery = latestQuery.ilike('title', `%${query}%`);
-      }
-
-      if (category && category !== "All" && category !== "全部") {
-          latestQuery = latestQuery.eq('category', category);
-      }
-
-      if (style) {
-          latestQuery = latestQuery.eq('style', style);
-      }
-
-      if (ratio) {
-          latestQuery = latestQuery.eq('ratio', ratio);
-      }
-
-      const { data: latestData, error: latestError } = await latestQuery;
-      if (latestError) throw latestError;
-
-      const formatVideo = (v: any) => ({
-        ...v,
-        author: v.profiles?.full_name || `用户 ${v.user_id?.slice(0, 6)}`,
-        user_avatar: v.profiles?.avatar_url
-      });
-
-      const formattedVideos = (latestData || []).map(formatVideo);
-
-      if (pageToFetch === 0) {
-        setLatestVideos(formattedVideos);
-        
-        // Fetch Hot Videos only on initial load
-        const { data: hotData, error: hotError } = await supabase
-          .from('videos')
-          .select(`
-            *,
-            profiles:user_id (
-              full_name,
-              avatar_url
-            )
-          `)
-          .eq('status', 'published') // Only show published videos
-          .limit(8); 
-          
-        if (!hotError) {
-          setHotVideos((hotData || []).map(formatVideo));
-        }
-      } else {
-        setLatestVideos(prev => [...prev, ...formattedVideos]);
-      }
-
-      if (formattedVideos.length < 12) {
-        setHasMore(false);
-      } else {
-        setHasMore(true);
-      }
-      
-      setPage(pageToFetch);
-
-    } catch (error) {
-      handleError(error, "获取视频列表失败");
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [query, category, style, ratio, handleError]);
+export function VideoGrid({ filters }: VideoGridProps) {
+  const [videos, setVideos] = useState<Video[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setHasMore(true);
-    fetchVideos(0);
-  }, [fetchVideos]);
+    fetchVideos()
+  }, [filters])
 
-  const handleLoadMore = () => {
-    fetchVideos(page + 1);
-  };
+  const fetchVideos = async () => {
+    setLoading(true)
+    try {
+      let query = supabase
+        .from('videos')
+        .select('*')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
 
-  const VideoSkeleton = () => (
-    <div className="bg-[#0f172a] rounded-xl overflow-hidden border border-white/5">
-      {/* Thumbnail */}
-      <Skeleton className="aspect-video w-full bg-white/5" />
-      
-      {/* Content */}
-      <div className="p-3.5">
-        <div className="flex gap-3 items-start">
-          {/* Avatar */}
-          <Skeleton className="h-8 w-8 rounded-full bg-white/5 flex-shrink-0" />
-          
-          {/* Text Content */}
-          <div className="flex-1 space-y-2">
-            {/* Title */}
-            <Skeleton className="h-4 w-3/4 bg-white/5" />
-            
-            {/* Author/Meta */}
-            <div className="flex justify-between items-center pt-1">
-               <Skeleton className="h-3 w-1/3 bg-white/5" />
-               <Skeleton className="h-3 w-12 bg-white/5" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
+      if (filters.category) {
+        query = query.eq('category', filters.category)
       }
-    }
-  };
+      if (filters.style) {
+        query = query.eq('style', filters.style)
+      }
+      if (filters.ratio) {
+        query = query.eq('ratio', filters.ratio)
+      }
 
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
-  };
+      const { data, error } = await query
+
+      if (error) {
+        console.error('Error fetching videos:', error)
+      } else {
+        setVideos(data || [])
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="aspect-video bg-white/5 rounded-lg animate-pulse" />
+        ))}
+      </div>
+    )
+  }
+
+  if (videos.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-400">
+        <div className="text-4xl mb-4">🔍</div>
+        <p className="text-lg">没有找到符合条件的视频</p>
+        <p className="text-sm mt-2">试试其他筛选条件吧</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="container mx-auto px-4 mb-20" id="videos">
-      
-      {/* Latest Uploads Section */}
-      <div className="mb-16">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <Clock className="w-5 h-5 text-green-500" /> 最新发布
-          </h3>
-        </div>
-        
-        {loading ? (
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-             {[...Array(8)].map((_, i) => <VideoSkeleton key={i} />)}
-           </div>
-        ) : latestVideos.length > 0 ? (
-            <motion.div 
-                variants={container}
-                initial="hidden"
-                animate="show"
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+    <div className="p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <AnimatePresence mode="popLayout">
+          {videos.map((video) => (
+            <motion.div
+              key={video.id}
+              layout
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+              className="group relative bg-[#0f172a] rounded-xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-900/20"
             >
-                {latestVideos.map((video) => (
-                    <motion.div key={video.id} variants={item}>
-                        <VideoCard {...video} />
-                    </motion.div>
-                ))}
-            </motion.div>
-        ) : (
-            <div className="text-gray-500 text-center py-20 bg-white/5 rounded-xl border border-white/10">
-              <p>暂无相关视频</p>
-            </div>
-        )}
-        
-        {/* Load More Trigger */}
-        {latestVideos.length > 0 && hasMore && (
-           <div ref={ref} className="mt-10 flex justify-center">
-             {loadingMore ? (
-               <div className="flex items-center gap-2 text-gray-400">
-                 <Loader2 className="w-5 h-5 animate-spin" />
-                 加载更多...
-               </div>
-             ) : (
-               <div className="h-10" /> 
-             )}
-           </div>
-        )}
-      </div>
+              {/* Thumbnail */}
+              <div className="aspect-video relative overflow-hidden">
+                 {video.url && video.url.match(/\.(mp4|webm|ogg)$/i) ? (
+                    <video 
+                        src={video.url} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        muted
+                        loop
+                        playsInline
+                        onMouseOver={e => e.currentTarget.play()}
+                        onMouseOut={e => {
+                            e.currentTarget.pause();
+                            e.currentTarget.currentTime = 0;
+                        }}
+                    />
+                 ) : (
+                    <img 
+                        src={video.url || video.image} 
+                        alt={video.title} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                 )}
+                
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                  <div className="bg-white/10 backdrop-blur-sm p-3 rounded-full">
+                    <Play className="h-6 w-6 text-white fill-white" />
+                  </div>
+                </div>
 
+                {/* Duration Badge */}
+                {video.duration && (
+                    <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/60 text-[10px] text-white font-medium flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {video.duration}
+                    </div>
+                )}
+              </div>
+
+              {/* Info */}
+              <div className="p-4 space-y-2">
+                <h3 className="font-medium text-white truncate" title={video.title}>
+                  {video.title}
+                </h3>
+                
+                <div className="flex items-center justify-between text-xs text-gray-400">
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1">
+                      <Eye className="h-3 w-3" /> {video.views || 0}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Download className="h-3 w-3" /> {video.downloads || 0}
+                    </span>
+                  </div>
+                  <span className="text-blue-400 font-medium">
+                    {video.price && video.price > 0 ? `¥${video.price}` : '免费'}
+                  </span>
+                </div>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1 pt-2">
+                    {video.category && (
+                        <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 text-[10px] border border-blue-500/20">
+                            {video.category}
+                        </span>
+                    )}
+                    {video.ratio && (
+                        <span className="px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 text-[10px] border border-purple-500/20">
+                            {video.ratio}
+                        </span>
+                    )}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
     </div>
-  );
+  )
 }

@@ -6,7 +6,9 @@ export interface Video {
   image?: string;
   author?: string;
   user_id?: string;
-  views?: string | number;
+  views?: number;
+  downloads?: number;
+  price?: number;
   duration?: string;
   category?: string;
   style?: string;

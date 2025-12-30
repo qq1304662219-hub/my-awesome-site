@@ -3,18 +3,28 @@
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { LandingHero } from "@/components/landing/LandingHero"
+import { FunctionalSidebar } from "@/components/landing/FunctionalSidebar"
+import { VideoGrid } from "@/components/landing/VideoGrid"
+
+interface FilterState {
+  category: string | null;
+  style: string | null;
+  ratio: string | null;
+}
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [filters, setFilters] = useState<FilterState>({
+    category: null,
+    style: null,
+    ratio: null
+  })
 
   useEffect(() => {
     const checkUser = async () => {
-      console.log('Home: 检查用户...')
       const { data: { user } } = await supabase.auth.getUser()
-      console.log('Home: 用户状态 (getUser):', user)
       setUser(user)
       setLoading(false)
     }
@@ -22,12 +32,15 @@ export default function Home() {
     checkUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Home: Auth state change:', event, session?.user)
       setUser(session?.user ?? null)
     })
 
     return () => subscription.unsubscribe()
   }, [])
+
+  const handleFilterChange = (key: keyof FilterState, value: string | null) => {
+    setFilters(prev => ({ ...prev, [key]: value }))
+  }
 
   if (loading) {
     return (
@@ -42,6 +55,17 @@ export default function Home() {
       <Navbar simple={true} />
       
       <LandingHero />
+
+      <div id="explore-content" className="flex border-t border-white/5 relative">
+        <FunctionalSidebar 
+          filters={filters} 
+          onFilterChange={handleFilterChange} 
+          className="hidden lg:block sticky top-0 h-screen"
+        />
+        <div className="flex-1 min-h-screen bg-[#020817]">
+            <VideoGrid filters={filters} />
+        </div>
+      </div>
     </main>
   )
 }

@@ -12,8 +12,8 @@ interface ProfileStatsProps {
   stats: {
     videoCount: number
     totalViews: number
-    followersCount?: number
-    followingCount?: number
+    totalDownloads: number
+    totalIncome: number
   }
 }
 
@@ -32,7 +32,7 @@ export function ProfileStats({ user, stats }: ProfileStatsProps) {
               <Avatar className="h-24 w-24 border-2 border-blue-500/50">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
                 <AvatarFallback className="text-2xl bg-blue-600">
-                  {user?.email?.[0].toUpperCase()}
+                  {user?.email?.[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               
@@ -42,7 +42,8 @@ export function ProfileStats({ user, stats }: ProfileStatsProps) {
                     {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
                   </h1>
                   <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 border-blue-500/20">
-                    创作者
+                    {user?.role === 'super_admin' ? '超级管理员' : 
+                     user?.role === 'admin' ? '管理员' : '创作者'}
                   </Badge>
                 </div>
                 
@@ -62,13 +63,13 @@ export function ProfileStats({ user, stats }: ProfileStatsProps) {
             </div>
 
             <div className="flex gap-3">
-               <Link href="/settings" className="text-blue-400 text-sm hover:underline">
-                  在线记录 {daysJoined}
+               <Link href="/dashboard/settings" className="text-blue-400 text-sm hover:underline">
+                  编辑资料
                </Link>
             </div>
           </div>
 
-          {/* Stats Row - Styled like the reference image "Balance" section */}
+          {/* Stats Row */}
           <div className="mt-8 pt-8 border-t border-white/10">
             <div className="flex flex-wrap items-center justify-between gap-8">
                 <div className="flex gap-12">
@@ -81,18 +82,26 @@ export function ProfileStats({ user, stats }: ProfileStatsProps) {
                         <p className="text-sm text-gray-400">获得浏览 (次)</p>
                     </div>
                     <div className="space-y-1">
-                        <p className="text-3xl font-bold text-white">0.0</p>
+                        <p className="text-3xl font-bold text-white">{stats.totalDownloads}</p>
+                        <p className="text-sm text-gray-400">总下载量 (次)</p>
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-3xl font-bold text-white">{stats.totalIncome.toFixed(2)}</p>
                         <p className="text-sm text-gray-400">创作收益 (元)</p>
                     </div>
                 </div>
                 
                 <div className="flex gap-3">
-                    <Button variant="outline" className="border-white/10 hover:bg-white/10 text-white">
-                        收益明细
-                    </Button>
-                    <Button className="bg-white text-black hover:bg-gray-200">
-                        提现
-                    </Button>
+                    <Link href="/dashboard/finance">
+                        <Button variant="outline" className="border-white/10 hover:bg-white/10 text-white">
+                            收益明细
+                        </Button>
+                    </Link>
+                    <Link href="/dashboard/finance">
+                        <Button className="bg-white text-black hover:bg-gray-200">
+                            提现
+                        </Button>
+                    </Link>
                 </div>
             </div>
           </div>
