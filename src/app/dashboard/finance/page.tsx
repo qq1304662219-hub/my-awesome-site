@@ -30,6 +30,11 @@ export default function Finance() {
   const [loading, setLoading] = useState(true)
   const [balance, setBalance] = useState(0)
   
+  // Recharge state
+  const [isRechargeOpen, setIsRechargeOpen] = useState(false)
+  const [rechargeAmount, setRechargeAmount] = useState('')
+  const [rechargeSubmitting, setRechargeSubmitting] = useState(false)
+
   // Withdrawal state
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
   const [withdrawAmount, setWithdrawAmount] = useState('')
@@ -116,6 +121,58 @@ export default function Finance() {
         }
     }
     setSubmitting(false)
+  }
+
+  const handleRecharge = async () => {
+    if (!rechargeAmount) {
+      toast.error('请输入充值金额')
+      return
+    }
+
+    const amount = parseFloat(rechargeAmount)
+    if (isNaN(amount) || amount <= 0) {
+      toast.error('请输入有效的金额')
+      return
+    }
+
+    setRechargeSubmitting(true)
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (user) {
+        // 1. Add transaction record
+        const { error: transactionError } = await supabase
+        .from('transactions')
+        .insert({
+            user_id: user.id,
+            amount: amount,
+            type: 'recharge',
+            description: `充值 ¥${amount}`
+        })
+
+        if (transactionError) {
+            toast.error('充值失败')
+            setRechargeSubmitting(false)
+            return
+        }
+
+        // 2. Update balance
+        const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ balance: balance + amount })
+        .eq('id', user.id)
+
+        if (updateError) {
+            toast.error('余额更新失败')
+            setRechargeSubmitting(false)
+            return
+        }
+
+        toast.success(`成功充值 ¥${amount}`)
+        setIsRechargeOpen(false)
+        setRechargeAmount('')
+        fetchData()
+    }
+    setRechargeSubmitting(false)
   }
 
   const getTypeLabel = (type: string) => {
@@ -270,6 +327,61 @@ export default function Finance() {
                     {submitting ? '提交中...' : '确认提现'}
                 </Button>
             </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isRechargeOpen} onOpenChange={setIsRechargeOpen}>
+        <DialogContent className="bg-[#1a202c] border-white/10 text-white sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>账户充值</DialogTitle>
+            <DialogDescription className="text-gray-400">
+              充值金额将立即到账，可用于购买视频素材或打赏。
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="recharge-amount">充值金额 (元)</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-2.5 text-gray-400">¥</span>
+                <Input
+                  id="recharge-amount"
+                  type="number"
+                  min="1"
+                  value={rechargeAmount}
+                  onChange={(e) => setRechargeAmount(e.target.value)}
+                  className="bg-black/20 border-white/10 pl-7 text-white"
+                  placeholder="请输入充值金额"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+                {[10, 50, 100, 500].map((amt) => (
+                    <Button
+                        key={amt}
+                        variant="outline"
+                        onClick={() => setRechargeAmount(amt.toString())}
+                        className={`border-white/10 ${rechargeAmount === amt.toString() ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                    >
+                        ¥{amt}
+                    </Button>
+                ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+                variant="outline" 
+                onClick={() => setIsRechargeOpen(false)}
+                className="border-white/10 text-gray-400 hover:bg-white/5 hover:text-white"
+            >
+                取消
+            </Button>
+            <Button 
+                onClick={handleRecharge} 
+                disabled={rechargeSubmitting}
+                className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              {rechargeSubmitting ? '充值中...' : '确认充值'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

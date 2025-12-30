@@ -98,16 +98,24 @@ export function Navbar({ simple = false }: { simple?: boolean }) {
               
               <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center gap-1 hover:text-white transition-colors outline-none">
-                      视频素材 <ChevronDown className="w-4 h-4" />
+                    视频分类 <ChevronDown className="h-4 w-4" />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-[#0f172a] border-white/10 text-gray-300">
-                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Nature')}>自然风光</DropdownMenuItem>
-                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Urban')}>城市建筑</DropdownMenuItem>
-                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Technology')}>科技未来</DropdownMenuItem>
-                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=People')}>人物生活</DropdownMenuItem>
-                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Abstract')}>抽象艺术</DropdownMenuItem>
-                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Animals')}>动物世界</DropdownMenuItem>
-                      <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Other')}>其他</DropdownMenuItem>
+                  <DropdownMenuContent align="end" className="w-48 bg-[#1a1f2e] border-white/10 text-gray-300">
+                    <div className="px-2 py-1.5 text-xs font-semibold text-gray-500">场景用途</div>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Live')}>直播背景</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=E-commerce')}>电商短视频</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Game')}>游戏/CG</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Wallpaper')}>动态壁纸</DropdownMenuItem>
+                    
+                    <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 border-t border-white/10 mt-1 pt-2">视觉风格</div>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Cyberpunk')}>赛博/科幻</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Chinese')}>国潮/古风</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Anime')}>二次元/动漫</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Realistic')}>超写实</DropdownMenuItem>
+
+                    <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 border-t border-white/10 mt-1 pt-2">视频比例</div>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?ratio=16:9')}>横屏 16:9</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?ratio=9:16')}>竖屏 9:16</DropdownMenuItem>
                   </DropdownMenuContent>
               </DropdownMenu>
 
