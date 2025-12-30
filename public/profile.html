@@ -38,16 +38,16 @@
 
             <!-- 导航菜单 -->
             <nav class="px-2 space-y-1">
-                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="nav-item w-full text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition flex items-center gap-3 bg-brand/10 text-brand">
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" data-tab="dashboard" class="nav-item w-full text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition flex items-center gap-3 bg-brand/10 text-brand">
                     <i class="fa-solid fa-chart-pie w-5 text-center"></i> 仪表盘
                 </button>
-                <button onclick="switchTab('videos')" id="btn-videos" class="nav-item w-full text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition flex items-center gap-3">
+                <button onclick="switchTab('videos')" id="btn-videos" data-tab="videos" class="nav-item w-full text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition flex items-center gap-3">
                     <i class="fa-solid fa-video w-5 text-center"></i> 作品管理
                 </button>
-                <button onclick="switchTab('finance')" id="btn-finance" class="nav-item w-full text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition flex items-center gap-3">
+                <button onclick="switchTab('finance')" id="btn-finance" data-tab="finance" class="nav-item w-full text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition flex items-center gap-3">
                     <i class="fa-solid fa-wallet w-5 text-center"></i> 财务中心
                 </button>
-                <button onclick="switchTab('settings')" id="btn-settings" class="nav-item w-full text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition flex items-center gap-3">
+                <button onclick="switchTab('settings')" id="btn-settings" data-tab="settings" class="nav-item w-full text-left px-4 py-3 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition flex items-center gap-3">
                     <i class="fa-solid fa-gear w-5 text-center"></i> 账号设置
                 </button>
             </nav>
@@ -69,7 +69,7 @@
             <h1 class="text-3xl font-bold text-white mb-6">欢迎回来, <span id="u-name">...</span> 👋</h1>
             
             <!-- 资产卡片 (点击跳转财务) -->
-            <div onclick="switchTab('finance')" class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 mb-8 shadow-2xl relative overflow-hidden cursor-pointer hover:scale-[1.01] transition group">
+            <div id="balance-card" class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 mb-8 shadow-2xl relative overflow-hidden cursor-pointer hover:scale-[1.01] transition group">
                 <div class="relative z-10 flex justify-between items-center">
                     <div>
                         <p class="text-indigo-200 text-sm mb-1 group-hover:text-white transition">当前余额 (点击管理)</p>
@@ -128,13 +128,13 @@
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-white">财务中心</h2>
                 <div class="flex gap-3">
-                    <!-- 充值按钮 -->
-                    <button onclick="alert('充值通道正在维护，请联系管理员手动充值')" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-bold transition shadow-lg shadow-green-900/20 flex items-center gap-2">
-                        <i class="fa-solid fa-plus-circle"></i> 充值
+                    <!-- 充值按钮 (绿色) -->
+                    <button onclick="showRechargeModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold transition flex items-center">
+                        <i class="fa-solid fa-plus-circle mr-2"></i>  充值
                     </button>
-                    <!-- 提现按钮 -->
-                    <button onclick="alert('提现申请已提交')" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-bold transition shadow-lg shadow-red-900/20 flex items-center gap-2">
-                        <i class="fa-solid fa-money-bill-transfer"></i> 提现
+                    <!-- 提现按钮 (红色，文案已改为“提现”) -->
+                    <button onclick="showWithdrawModal()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition flex items-center">
+                        <i class="fa-solid fa-money-bill-transfer mr-2"></i>  提现
                     </button>
                 </div>
             </div>
@@ -203,6 +203,16 @@
 
             // 4. 加载视频列表
             loadMyVideos();
+
+            // 5. 强制绑定点击事件 (修复跳转逻辑)
+            const balanceCard = document.getElementById('balance-card');
+            if (balanceCard) {
+                balanceCard.onclick = function() {
+                    // 模拟点击侧边栏的“财务中心”按钮，触发切换
+                    const financeBtn = document.querySelector('[data-tab="finance"]');
+                    if (financeBtn) financeBtn.click();
+                };
+            }
         });
 
         // 切换 Tab 逻辑
@@ -222,7 +232,8 @@
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-            document.getElementById(`tab-${tabName}`).classList.add('active');
+            const targetTab = document.getElementById(`tab-${tabName}`);
+            if (targetTab) targetTab.classList.add('active');
         }
 
         // 加载我的视频
@@ -268,6 +279,15 @@
         function logout() {
             localStorage.removeItem('currentUser');
             window.location.href = 'index.html';
+        }
+
+        // 确保 JS 函数存在 (修复要求 3)
+        window.showRechargeModal = function() {
+            alert('充值功能开发中');
+        }
+
+        window.showWithdrawModal = function() {
+            alert('提现功能开发中');
         }
     </script>
 </body>
