@@ -56,7 +56,7 @@ export default function Home() {
       
       <LandingHero />
 
-      <div className="h-24" /> {/* Spacer */}
+      <LandingFeatures />
 
       <div id="explore-content" className="flex border-t border-white/5 relative">
         <FunctionalSidebar 
