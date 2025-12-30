@@ -109,7 +109,7 @@ export function VideoGrid({ filters }: VideoGridProps) {
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.2 }}
               className="group relative bg-[#0f172a] rounded-xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-900/20 cursor-pointer"
-              onClick={() => handleVideoClick(video.id)}
+              onClick={() => handleVideoClick(String(video.id))}
             >
               {/* Thumbnail */}
               <div className="aspect-video relative overflow-hidden">

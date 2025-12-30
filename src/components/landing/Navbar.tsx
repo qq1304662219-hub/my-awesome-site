@@ -157,7 +157,7 @@ export function Navbar({ simple = false }: { simple?: boolean }) {
                       </Link>
                     )}
 
-                    {profile?.role === 'admin' && (
+                    {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
                       <Link href="/admin/videos">
                         <Button size="sm" variant="destructive" className="hidden md:flex">
                           <span className="mr-2">🛡️</span>
@@ -166,7 +166,7 @@ export function Navbar({ simple = false }: { simple?: boolean }) {
                       </Link>
                     )}
                     
-                    <UserHoverMenu user={user} onSignOut={handleSignOut} />
+                    <UserHoverMenu user={user} profile={profile} onSignOut={handleSignOut} />
                  </div>
               </>
             ) : (
