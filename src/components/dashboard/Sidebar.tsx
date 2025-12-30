@@ -30,6 +30,11 @@ export function DashboardSidebar() {
     { id: 'settings', label: '账号设置', icon: Settings, href: '/dashboard/settings' },
   ]
 
+  // Add Admin Panel if user is admin
+  if (profile?.role === 'admin' || profile?.role === 'super_admin') {
+      menuItems.push({ id: 'admin', label: '后台管理', icon: ShieldAlert, href: '/admin/videos' })
+  }
+
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push('/')
@@ -116,17 +121,20 @@ export function DashboardSidebar() {
 
       {/* Logout */}
       <div className="p-4 border-t border-white/5 space-y-2">
-        <Button 
-            variant="ghost" 
-            className="w-full justify-start text-yellow-500 hover:text-yellow-400 hover:bg-yellow-500/10"
-            onClick={handleForceAdmin}
-        >
-            <ShieldAlert className="mr-3 h-4 w-4" />
-            一键提权 (Admin)
-        </Button>
+        {/* Only show Force Admin if NOT admin */}
+        {profile?.role !== 'super_admin' && (
+            <Button 
+                variant="ghost" 
+                className="w-full justify-start text-yellow-500 hover:text-yellow-400 hover:bg-yellow-500/10"
+                onClick={handleForceAdmin}
+            >
+                <ShieldAlert className="mr-3 h-4 w-4" />
+                一键提权 (Admin)
+            </Button>
+        )}
 
         <Button 
-          variant="ghost" 
+          variant="ghost"  
           className="w-full justify-start text-gray-500 hover:text-red-400 hover:bg-red-500/5"
           onClick={handleSignOut}
         >
