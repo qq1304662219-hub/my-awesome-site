@@ -19,10 +19,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { supabase } from "@/lib/supabase"
 import { toast } from "sonner"
 
+import { useUIStore } from "@/store/useUIStore"
+
 export function DashboardSidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, profile, setProfile } = useAuthStore()
+  const { isMobileMenuOpen, closeMobileMenu } = useUIStore()
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    closeMobileMenu()
+  }, [pathname])
 
   // Double check role using RPC to bypass RLS cache issues
   useEffect(() => {
@@ -96,7 +104,21 @@ export function DashboardSidebar() {
   }
 
   return (
-    <div className="flex flex-col h-full w-64 bg-[#050B14] border-r border-white/5">
+    <>
+        {/* Mobile Overlay */}
+        {isMobileMenuOpen && (
+            <div 
+                className="fixed inset-0 bg-black/50 z-30 md:hidden"
+                onClick={closeMobileMenu}
+            />
+        )}
+        
+        <div className={cn(
+            "fixed inset-y-0 left-0 z-40 w-64 bg-[#050B14] border-r border-white/5 transition-transform duration-300 md:relative md:translate-x-0 flex flex-col",
+            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
+            // Adjust top position for mobile to account for navbar if needed, or z-index above it
+            "top-16 md:top-0 h-[calc(100vh-4rem)] md:h-full"
+        )}>
       {/* User Info */}
       <div className="p-6 flex flex-col items-center border-b border-white/5">
         <Avatar className="h-20 w-20 mb-4 border-2 border-blue-500/20">
@@ -168,5 +190,6 @@ export function DashboardSidebar() {
         </Button>
       </div>
     </div>
+    </>
   )
 }
