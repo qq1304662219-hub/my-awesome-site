@@ -140,12 +140,12 @@ export function Navbar({ simple = false }: { simple?: boolean }) {
                  <div className="flex items-center gap-4">
                     {/* Balance Display */}
                     {!simple && (
-                      <div className="hidden md:flex flex-col items-end mr-2">
+                      <Link href="/dashboard" className="hidden md:flex flex-col items-end mr-2 cursor-pointer hover:opacity-80 transition-opacity">
                           <span className="text-xs text-gray-400">余额</span>
                           <span className="text-sm font-bold text-yellow-400">
                             {profile?.balance ? `¥${profile.balance}` : "¥0"}
                           </span>
-                      </div>
+                      </Link>
                     )}
 
                     {!simple && (

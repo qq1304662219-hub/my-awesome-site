@@ -79,7 +79,7 @@ export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) 
                         <span className="text-sm font-medium text-white block">创作者中心</span>
                     </div>
                 </Link>
-                <Link href="/dashboard" className="block group/btn">
+                <Link href="/dashboard/videos" className="block group/btn">
                     <div className="bg-white/5 hover:bg-white/10 transition-colors rounded-lg py-3 px-2 text-center border border-white/5 group-hover/btn:border-white/20">
                          <span className="text-sm font-medium text-white block">我的作品</span>
                     </div>
