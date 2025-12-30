@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { Video } from "@/types/video"
 import { motion, AnimatePresence } from "framer-motion"
@@ -17,20 +18,26 @@ interface VideoGridProps {
 }
 
 export function VideoGrid({ filters }: VideoGridProps) {
+  const router = useRouter()
   const [videos, setVideos] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchVideos()
+    
+    // 调试用：将核心函数挂载到 window
+    // @ts-ignore
+    window.fetchVideos = fetchVideos;
   }, [filters])
 
   const fetchVideos = async () => {
     setLoading(true)
     try {
+      console.log('开始获取视频列表...')
       let query = supabase
         .from('videos')
         .select('*')
-        .eq('status', 'published')
+        // .eq('status', 'published') // 暂时移除状态过滤，确保数据能显示
         .order('created_at', { ascending: false })
 
       if (filters.category) {
@@ -48,6 +55,7 @@ export function VideoGrid({ filters }: VideoGridProps) {
       if (error) {
         console.error('Error fetching videos:', error)
       } else {
+        console.log('API返回数据:', data)
         setVideos(data || [])
       }
     } catch (err) {
@@ -56,6 +64,17 @@ export function VideoGrid({ filters }: VideoGridProps) {
       setLoading(false)
     }
   }
+
+  const handleVideoClick = (videoId: string) => {
+    console.log('点击视频:', videoId);
+    router.push(`/video/${videoId}`);
+  }
+
+  // 挂载跳转函数供全局调用
+  useEffect(() => {
+     // @ts-ignore
+     window.handleVideoClick = handleVideoClick;
+  }, [router])
 
   if (loading) {
     return (
@@ -89,7 +108,8 @@ export function VideoGrid({ filters }: VideoGridProps) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.2 }}
-              className="group relative bg-[#0f172a] rounded-xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-900/20"
+              className="group relative bg-[#0f172a] rounded-xl overflow-hidden border border-white/5 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-900/20 cursor-pointer"
+              onClick={() => handleVideoClick(video.id)}
             >
               {/* Thumbnail */}
               <div className="aspect-video relative overflow-hidden">
