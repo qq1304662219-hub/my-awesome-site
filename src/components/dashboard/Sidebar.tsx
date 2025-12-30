@@ -8,13 +8,15 @@ import {
   Wallet, 
   Settings, 
   Plus, 
-  LogOut 
+  LogOut,
+  ShieldAlert
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuthStore } from "@/store/useAuthStore"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { supabase } from "@/lib/supabase"
+import { toast } from "sonner"
 
 export function DashboardSidebar() {
   const pathname = usePathname()
@@ -31,6 +33,30 @@ export function DashboardSidebar() {
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push('/')
+  }
+
+  const handleForceAdmin = async () => {
+      if (!user) return
+      
+      const confirm = window.confirm('⚠️ 确定要强制将当前账户提升为超级管理员吗？')
+      if (!confirm) return
+
+      try {
+          const { error } = await supabase
+              .from('profiles')
+              .update({ role: 'super_admin' }) // Ensure super_admin
+              .eq('id', user.id)
+
+          if (error) throw error
+
+          toast.success("提权成功！正在刷新页面...")
+          setTimeout(() => {
+              window.location.reload()
+          }, 1500)
+      } catch (e: any) {
+          toast.error("提权失败: " + e.message)
+          console.error(e)
+      }
   }
 
   const isActive = (href: string) => {
@@ -89,7 +115,16 @@ export function DashboardSidebar() {
       </nav>
 
       {/* Logout */}
-      <div className="p-4 border-t border-white/5">
+      <div className="p-4 border-t border-white/5 space-y-2">
+        <Button 
+            variant="ghost" 
+            className="w-full justify-start text-yellow-500 hover:text-yellow-400 hover:bg-yellow-500/10"
+            onClick={handleForceAdmin}
+        >
+            <ShieldAlert className="mr-3 h-4 w-4" />
+            一键提权 (Admin)
+        </Button>
+
         <Button 
           variant="ghost" 
           className="w-full justify-start text-gray-500 hover:text-red-400 hover:bg-red-500/5"

@@ -3,7 +3,7 @@ export interface Video {
   title: string;
   description?: string;
   url?: string;
-  image?: string;
+  thumbnail_url?: string;
   author?: string;
   user_id?: string;
   views?: number;

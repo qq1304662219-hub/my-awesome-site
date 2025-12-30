@@ -72,7 +72,7 @@ function VideoCard({ video, onClick }: { video: Video; onClick: (id: string) => 
   }
 
   // Use image as poster, fallback to a default placeholder if neither image nor url is good
-  const posterUrl = video.image || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop";
+  const posterUrl = video.thumbnail_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop";
   const isVideoFile = video.url && video.url.match(/\.(mp4|webm|ogg)$/i);
 
   return (

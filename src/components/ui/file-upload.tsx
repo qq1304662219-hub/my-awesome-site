@@ -126,7 +126,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           title: title || file.name,
           description: description,
           url: publicUrl,
-          image: coverStoragePath, // Save generated cover
+          thumbnail_url: coverStoragePath, // Save generated cover
           user_id: userId,
           category: category,
           style: style,

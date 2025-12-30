@@ -47,31 +47,34 @@ export default function Finance() {
   }, [])
 
   const fetchData = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
 
-    // Fetch profile for balance
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('balance')
-      .eq('id', user.id)
-      .single()
-    
-    if (profile) {
-      setBalance(profile.balance || 0)
-    }
+      // Fetch profile for balance
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('balance')
+        .eq('id', user.id)
+        .single()
+      
+      if (profile) {
+        setBalance(profile.balance || 0)
+      }
 
-    // Fetch transactions
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-    
-    if (!error && data) {
-      setTransactions(data as any[])
+      // Fetch transactions
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+      
+      if (!error && data) {
+        setTransactions(data as any[])
+      }
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const handleWithdraw = async () => {
