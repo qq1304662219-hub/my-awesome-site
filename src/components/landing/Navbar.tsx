@@ -20,6 +20,9 @@ import {
 import { UserHoverMenu } from "@/components/landing/UserHoverMenu";
 
 export function Navbar({ simple = false }: { simple?: boolean }) {
+  // 强制关闭 simple 模式，确保导航栏始终显示完整功能
+  simple = false; 
+
   const router = useRouter();
   const { user, setUser, profile, setProfile } = useAuthStore();
   const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();

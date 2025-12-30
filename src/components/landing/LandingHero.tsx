@@ -7,10 +7,8 @@ import { ArrowRight, Sparkles } from "lucide-react"
 
 export function LandingHero() {
   const handleLearnMore = () => {
-    const element = document.getElementById('explore-content');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    // 触发自定义事件通知父组件显示探索区
+    window.dispatchEvent(new Event('start-explore'))
   };
 
   return (

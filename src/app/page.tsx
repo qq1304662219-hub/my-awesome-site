@@ -17,11 +17,26 @@ interface FilterState {
 export default function Home() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [showExplore, setShowExplore] = useState(false)
   const [filters, setFilters] = useState<FilterState>({
     category: null,
     style: null,
     ratio: null
   })
+
+  // 监听来自 LandingHero 的“开始探索”点击事件
+  useEffect(() => {
+    const handleStartExplore = () => {
+        setShowExplore(true)
+        // 延时滚动，等待 DOM 渲染
+        setTimeout(() => {
+            document.getElementById('explore-content')?.scrollIntoView({ behavior: 'smooth' })
+        }, 100)
+    }
+
+    window.addEventListener('start-explore', handleStartExplore)
+    return () => window.removeEventListener('start-explore', handleStartExplore)
+  }, [])
 
   useEffect(() => {
     const checkUser = async () => {
@@ -57,18 +72,18 @@ export default function Home() {
       
       <LandingHero />
 
-      <LandingFeatures />
-
-      <div id="explore-content" className="flex border-t border-white/5 relative">
-        <FunctionalSidebar 
-          filters={filters} 
-          onFilterChange={handleFilterChange} 
-          className="hidden lg:block sticky top-0 h-screen"
-        />
-        <div className="flex-1 min-h-screen bg-[#020817]">
-            <VideoGrid filters={filters} />
+      {showExplore && (
+        <div id="explore-content" className="flex border-t border-white/5 relative min-h-screen animate-in fade-in zoom-in duration-500">
+            <FunctionalSidebar 
+            filters={filters} 
+            onFilterChange={handleFilterChange} 
+            className="hidden lg:block sticky top-0 h-screen"
+            />
+            <div className="flex-1 min-h-screen bg-[#020817]">
+                <VideoGrid filters={filters} />
+            </div>
         </div>
-      </div>
+      )}
     </main>
   )
 }
