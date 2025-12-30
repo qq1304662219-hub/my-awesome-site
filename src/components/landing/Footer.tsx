@@ -22,7 +22,7 @@ export function Footer() {
                 <Link href="/" className="hover:text-white transition-colors">首页</Link>
                 <Link href="/?category=All" className="hover:text-white transition-colors">浏览素材</Link>
                 <Link href="/dashboard" className="hover:text-white transition-colors">上传作品</Link>
-                <Link href="/about" className="hover:text-white transition-colors">关于我们</Link>
+                <Link href="/legal?tab=about" className="hover:text-white transition-colors">关于我们</Link>
             </ul>
           </div>
 
@@ -30,9 +30,9 @@ export function Footer() {
             <h4 className="font-bold text-white mb-4">支持</h4>
             <ul className="space-y-2 text-sm text-gray-400 flex flex-col">
                 <Link href="/help" className="hover:text-white transition-colors">帮助中心</Link>
-                <Link href="/terms" className="hover:text-white transition-colors">用户协议</Link>
-                <Link href="/privacy" className="hover:text-white transition-colors">隐私政策</Link>
-                <Link href="/copyright" className="hover:text-white transition-colors">版权声明</Link>
+                <Link href="/legal?tab=terms" className="hover:text-white transition-colors">用户协议</Link>
+                <Link href="/legal?tab=privacy" className="hover:text-white transition-colors">隐私政策</Link>
+                <Link href="/legal?tab=copyright" className="hover:text-white transition-colors">版权声明</Link>
             </ul>
           </div>
 
@@ -54,9 +54,9 @@ export function Footer() {
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
             <p>© 2024 AI Vision. 保留所有权利。</p>
             <div className="flex gap-4">
-                <Link href="/terms" className="hover:text-white transition-colors">使用条款</Link>
-                <Link href="/privacy" className="hover:text-white transition-colors">Cookie 政策</Link>
-                <Link href="/contact" className="hover:text-white transition-colors">商务合作</Link>
+                <Link href="/legal?tab=terms" className="hover:text-white transition-colors">使用条款</Link>
+                <Link href="/legal?tab=privacy" className="hover:text-white transition-colors">Cookie 政策</Link>
+                <Link href="/legal?tab=contact" className="hover:text-white transition-colors">商务合作</Link>
             </div>
         </div>
       </div>
