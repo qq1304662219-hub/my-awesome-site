@@ -26,8 +26,10 @@ export default function Dashboard() {
   const [totalIncome, setTotalIncome] = useState(0)
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [origin, setOrigin] = useState('')
 
   useEffect(() => {
+    setOrigin(window.location.origin)
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
@@ -112,13 +114,13 @@ export default function Dashboard() {
           
           <div className="flex items-center gap-4 max-w-xl bg-black/40 p-2 rounded-lg border border-white/10">
             <code className="flex-1 text-blue-400 truncate px-2 font-mono">
-              {username ? `${window.location.origin}/register?ref=${username}` : '正在加载...'}
+              {username && origin ? `${origin}/register?ref=${username}` : '正在加载...'}
             </code>
             <Button 
               size="sm" 
               variant="secondary"
               onClick={() => {
-                const url = `${window.location.origin}/register?ref=${username}`;
+                const url = `${origin}/register?ref=${username}`;
                 navigator.clipboard.writeText(url);
                 toast.success('链接已复制');
               }}

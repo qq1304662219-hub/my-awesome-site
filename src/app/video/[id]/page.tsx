@@ -7,66 +7,68 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { VideoInteractions } from "@/components/video/VideoInteractions";
+import { VideoPlayer } from "@/components/video/VideoPlayer";
 import { LicenseSelector } from "@/components/video/LicenseSelector";
+import { getStoragePathFromUrl } from "@/lib/utils";
+import type { Metadata, ResolvingMetadata } from 'next';
+
+type Props = {
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { id } = await params
+  
+  // Fetch video data
+  const { data: video } = await supabase
+    .from('videos')
+    .select('title, description, thumbnail_url, user_id')
+    .eq('id', id)
+    .single();
+
+  if (!video) {
+    return {
+      title: '视频未找到',
+    }
+  }
+
+  // Optionally fetch author name
+  let authorName = 'AI Vision Creator';
+  if (video.user_id) {
+     const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', video.user_id)
+        .single();
+     if (profile?.full_name) authorName = profile.full_name;
+  }
+
+  const previousImages = (await parent).openGraph?.images || []
+
+  return {
+    title: video.title,
+    description: video.description || `观看由 ${authorName} 创作的精彩 AI 视频`,
+    openGraph: {
+      title: video.title,
+      description: video.description || `观看由 ${authorName} 创作的精彩 AI 视频`,
+      images: video.thumbnail_url ? [video.thumbnail_url, ...previousImages] : previousImages,
+    },
+  }
+}
 
 export default async function VideoDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   
-  // 1. Fetch Video
-  let video: any = null;
-  let error: any = null;
-
-  // Handle mock IDs (1-4)
-  if (['1', '2', '3', '4'].includes(id)) {
-      const mockVideos: Record<string, any> = {
-          '1': {
-              id: '1',
-              title: "AI生成的未来太空城市",
-              url: "https://videos.pexels.com/video-files/3129957/3129957-hd_1920_1080_25fps.mp4", // Mock video URL
-              user_id: "mock_user_1",
-              created_at: new Date().toISOString(),
-              description: "这是一段由 DeepMind 生成的未来太空城市概念视频。",
-              width: 1920, height: 1080, duration: 15, format: 'mp4'
-          },
-          '2': {
-              id: '2',
-              title: "赛博朋克城市夜景",
-              url: "https://videos.pexels.com/video-files/2887463/2887463-hd_1920_1080_30fps.mp4",
-              user_id: "mock_user_2",
-              created_at: new Date().toISOString(),
-              description: "赛博朋克风格的霓虹灯夜景，使用 Unreal Engine 5 渲染。",
-              width: 1920, height: 1080, duration: 22, format: 'mp4'
-          },
-          '3': {
-              id: '3',
-              title: "未来科技数据流",
-              url: "https://videos.pexels.com/video-files/852421/852421-hd_1920_1080_30fps.mp4",
-              user_id: "mock_user_3",
-              created_at: new Date().toISOString(),
-              description: "抽象的数据流可视化，展示 AI 处理大数据的过程。",
-              width: 1920, height: 1080, duration: 10, format: 'mp4'
-          },
-          '4': {
-              id: '4',
-              title: "海底生物与光影",
-              url: "https://videos.pexels.com/video-files/856973/856973-hd_1920_1080_24fps.mp4",
-              user_id: "mock_user_4",
-              created_at: new Date().toISOString(),
-              description: "由 AI 生成的深海生物发光效果模拟。",
-              width: 1920, height: 1080, duration: 18, format: 'mp4'
-          }
-      };
-      video = mockVideos[id];
-  } else {
-      // Fetch real video from Supabase
-      const { data, error: dbError } = await supabase
-        .from('videos')
-        .select('*')
-        .eq('id', id)
-        .single();
-      video = data;
-      error = dbError;
-  }
+  // 1. Fetch Video (Real data only)
+  const { data: video, error } = await supabase
+    .from('videos')
+    .select('*')
+    .eq('id', id)
+    .single();
 
   if (error || !video) {
     return (
@@ -86,7 +88,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
 
   // 2. Fetch Author Profile
   let authorProfile = null;
-  if (video.user_id && !video.user_id.startsWith("mock_")) {
+  if (video.user_id) {
       const { data } = await supabase
         .from('profiles')
         .select('*')
@@ -96,29 +98,36 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
   }
 
   // 3. Fetch Initial Likes
-  let initialLikes = 0;
-  if (!video.id.toString().match(/^[1-4]$/)) { // Only fetch real likes for non-mock videos
-      const { count } = await supabase
-        .from('likes')
-        .select('*', { count: 'exact', head: true })
-        .eq('video_id', id);
-      initialLikes = count || 0;
-  } else {
-      initialLikes = Math.floor(Math.random() * 500) + 100; // Mock likes
-  }
+  const { count: initialLikes } = await supabase
+    .from('likes')
+    .select('*', { count: 'exact', head: true })
+    .eq('video_id', id);
 
   // 4. Fetch Current User
   const { data: { user } } = await supabase.auth.getUser();
 
-  // 5. Fetch Related Videos (Real data)
+  // 5. Generate Signed URL (Security)
+  let videoUrl = video.url;
+  const storagePath = getStoragePathFromUrl(video.url);
+  if (storagePath) {
+      const { data: signedData } = await supabase
+          .storage
+          .from('uploads')
+          .createSignedUrl(storagePath, 60 * 60 * 2); // 2 hours validity
+      if (signedData) {
+          videoUrl = signedData.signedUrl;
+      }
+  }
+
+  // 6. Fetch Related Videos (Real data)
   const { data: relatedVideos } = await supabase
     .from('videos')
     .select('id, title, url, thumbnail_url, user_id, created_at')
     .neq('id', id)
     .limit(5);
 
-  // Mock data for missing fields
-  const views = Math.floor(Math.random() * 10000) + 500;
+  // Data fallback for display
+  const views = video.views || 0;
   const date = new Date(video.created_at).toLocaleDateString('zh-CN');
 
   // JSON-LD Structured Data
@@ -158,15 +167,11 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Video Player */}
-            <div className="rounded-xl overflow-hidden bg-black aspect-video border border-white/10 shadow-2xl relative group">
-              <video 
-                src={video.url} 
-                controls 
-                autoPlay 
-                className="w-full h-full object-contain"
-                poster={video.thumbnail_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop"}
-              />
-            </div>
+            <VideoPlayer 
+              src={video.url} 
+              poster={video.thumbnail_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop"}
+              autoPlay={true}
+            />
 
             {/* Video Info */}
             <div>
@@ -278,22 +283,9 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                     </Link>
                   ))
               ) : (
-                  // Fallback to static if no related videos found
-                  [1, 2, 3].map((i) => (
-                    <div key={i} className="flex gap-3 group cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors">
-                    <div className="w-40 h-24 bg-gray-800 rounded-md overflow-hidden relative flex-shrink-0">
-                        <img 
-                            src={`https://images.unsplash.com/photo-${i % 2 === 0 ? '1614728853911-04285d8e7c16' : '1555680202-c86f0e12f086'}?q=80&w=300&auto=format&fit=crop`} 
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
-                            alt="Related" 
-                        />
-                    </div>
-                    <div className="flex flex-col justify-center">
-                        <h4 className="text-sm font-medium text-white line-clamp-2 group-hover:text-blue-400 transition-colors">推荐视频示例 {i}</h4>
-                        <span className="text-xs text-gray-500 mt-1">系统推荐</span>
-                    </div>
-                    </div>
-                  ))
+                <div className="text-gray-500 text-sm py-4">
+                  暂无相关视频推荐
+                </div>
               )}
             </div>
           </div>

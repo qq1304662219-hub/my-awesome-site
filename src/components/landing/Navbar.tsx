@@ -20,9 +20,6 @@ import {
 import { UserHoverMenu } from "@/components/landing/UserHoverMenu";
 
 export function Navbar({ simple = false }: { simple?: boolean }) {
-  // 强制关闭 simple 模式，确保导航栏始终显示完整功能
-  simple = false; 
-
   const router = useRouter();
   const { user, setUser, profile, setProfile } = useAuthStore();
   const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
@@ -48,16 +45,13 @@ export function Navbar({ simple = false }: { simple?: boolean }) {
 
   useEffect(() => {
     // Check initial user
-    console.log('Navbar: 检查用户...')
     supabase.auth.getUser().then(({ data: { user } }) => {
-      console.log('Navbar: 用户状态 (getUser):', user)
       setUser(user);
       if (user) fetchProfile(user.id);
     });
 
     // Listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Navbar: Auth state change:', event, session?.user)
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchProfile(session.user.id);
@@ -148,12 +142,12 @@ export function Navbar({ simple = false }: { simple?: boolean }) {
                  <div className="flex items-center gap-4">
                     {/* Balance Display */}
                     {!simple && (
-                      <Link href="/dashboard" className="hidden md:flex flex-col items-end mr-2 cursor-pointer hover:opacity-80 transition-opacity">
-                          <span className="text-xs text-gray-400">余额</span>
-                          <span className="text-sm font-bold text-yellow-400">
-                            {profile?.balance ? `¥${profile.balance}` : "¥0"}
-                          </span>
-                      </Link>
+                      <Link id="u-balance" href="/dashboard/wallet-final" className="hidden md:flex flex-col items-end mr-2 cursor-pointer hover:opacity-80 transition-opacity">
+                <span className="text-xs text-gray-400">余额</span>
+                <span className="text-sm font-bold text-yellow-400">
+                  {profile?.balance ? `¥${profile.balance}` : "¥0"}
+                </span>
+              </Link>
                     )}
 
                     {!simple && (

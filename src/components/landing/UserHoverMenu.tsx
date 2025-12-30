@@ -1,32 +1,17 @@
 "use client"
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { 
-    LogOut, 
-    User, 
-    Settings, 
-    CreditCard, 
-    ShoppingBag, 
-    Film, 
-    DollarSign, 
-    Wallet, 
-    FileText, 
-    LayoutDashboard, 
-    Upload,
-    Bell
-} from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Bell } from "lucide-react";
+import { User } from "@supabase/supabase-js";
+import { UserProfile } from "@/store/useAuthStore";
 
 interface UserHoverMenuProps {
-  user: any;
-  profile?: any;
+  user: User;
+  profile?: UserProfile | null;
   onSignOut: () => void;
 }
 
 export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) {
-  const router = useRouter();
-
   return (
     <div className="relative group h-full flex items-center px-2">
       {/* Trigger Area - Avatar */}
@@ -56,18 +41,16 @@ export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) 
                             {user.user_metadata?.full_name || user.email?.split('@')[0]}
                         </h3>
                         <div className="flex items-center gap-1">
-                             {/* Hexagon icon replacement for reference image */}
-                            <div className="w-4 h-4 bg-yellow-500/20 rounded flex items-center justify-center">
-                                <span className="text-[10px] text-yellow-500 font-bold">V</span>
-                            </div>
-                            <span className="bg-white/10 text-[10px] px-1.5 py-0.5 rounded text-gray-300 border border-white/5">
-                                创作者
+                            <span className="bg-blue-500/20 text-[10px] px-1.5 py-0.5 rounded text-blue-300 border border-blue-500/10">
+                                {profile?.role === 'admin' || profile?.role === 'super_admin' ? '管理员' : '创作者'}
                             </span>
                         </div>
                     </div>
-                    <p className="text-xs text-gray-400">
-                        近30天收入 <span className="text-white font-medium ml-1">0.0元</span>
+                    <Link href="/dashboard/wallet-final" className="block hover:opacity-80 transition-opacity">
+                    <p className="text-xs text-gray-400 cursor-pointer">
+                        账户余额 <span className="text-white font-medium ml-1">¥{profile?.balance?.toFixed(2) || '0.00'}</span>
                     </p>
+                </Link>
                 </div>
                 <Bell className="h-5 w-5 text-gray-400 hover:text-white cursor-pointer absolute top-1 right-0" />
             </div>
@@ -96,7 +79,7 @@ export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) 
                 <Link href="/settings" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors group/item">
                     <span>账号设置</span>
                 </Link>
-                <Link href="/recharge" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
+                <Link href="/dashboard/wallet-final" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
                     <span>充值中心</span>
                 </Link>
                 <Link href="/checkout" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
@@ -105,21 +88,13 @@ export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) 
                 <Link href="/invite" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
                     <span className="text-yellow-400 font-medium">邀请有礼</span>
                 </Link>
-                <Link href="/dashboard" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors group/item">
-                    <span>作品管理</span>
+                <Link href="/dashboard/wallet-final" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
+                    <span>财务管理 (提现)</span>
                 </Link>
-                 <div className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
-                    <span>销售记录</span>
-                </div>
-                 <div className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
-                    <span>提现</span>
-                </div>
             </div>
 
             {/* Footer */}
             <div className="pt-4 border-t border-white/10 flex justify-end items-center text-xs text-gray-500 gap-4">
-                <span className="hover:text-gray-300 cursor-pointer transition-colors">菜单自定义</span>
-                <div className="h-3 w-px bg-white/10"></div>
                 <button onClick={onSignOut} className="hover:text-white transition-colors">
                     退出登录
                 </button>

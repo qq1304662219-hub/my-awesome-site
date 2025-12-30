@@ -42,6 +42,7 @@ export default function Finance() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
+    console.log('Finance Page v2.0 Rendering')
     fetchData()
   }, [])
 
@@ -107,13 +108,6 @@ export default function Finance() {
         if (withdrawError) {
             toast.error('申请提交失败: ' + withdrawError.message)
         } else {
-            // 2. Create transaction record (deduct balance visual only? Or should trigger handle this?)
-            // Ideally backend trigger handles balance update. For now we just record it.
-            // If we don't have a trigger, we might need to manually update profile balance.
-            // Let's assume we need to manually update for this MVP or just log it.
-            // Actually, let's just log the transaction as 'withdrawal' (pending).
-            
-            // For now, just close and show success. Real app needs DB transaction.
             toast.success('提现申请已提交，等待审核')
             setIsWithdrawOpen(false)
             setWithdrawAmount('')
@@ -195,10 +189,15 @@ export default function Finance() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">财务中心</h1>
-        <Button onClick={() => setIsWithdrawOpen(true)} className="bg-blue-600 hover:bg-blue-700">
-          <Wallet className="h-4 w-4 mr-2" />
-          申请提现
-        </Button>
+        <div className="flex gap-3">
+            <Button onClick={() => setIsRechargeOpen(true)} className="bg-green-600 hover:bg-green-700 text-white shadow-[0_0_15px_rgba(22,163,74,0.5)]">
+                充值
+            </Button>
+            <Button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600 hover:bg-red-700 text-white">
+                <Wallet className="h-4 w-4 mr-2" />
+                提现
+            </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -288,7 +287,7 @@ export default function Finance() {
       <Dialog open={isWithdrawOpen} onOpenChange={setIsWithdrawOpen}>
         <DialogContent className="bg-[#1a202c] border-white/10 text-white">
             <DialogHeader>
-                <DialogTitle>申请提现</DialogTitle>
+                <DialogTitle>提现</DialogTitle>
                 <DialogDescription className="text-gray-400">
                     提现金额将转入您指定的支付宝账户，预计 1-3 个工作日到账。
                 </DialogDescription>
@@ -323,7 +322,7 @@ export default function Finance() {
             </div>
             <DialogFooter>
                 <Button variant="outline" onClick={() => setIsWithdrawOpen(false)} className="border-white/10 hover:bg-white/10 text-white">取消</Button>
-                <Button onClick={handleWithdraw} disabled={submitting} className="bg-blue-600 hover:bg-blue-700">
+                <Button onClick={handleWithdraw} disabled={submitting} className="bg-red-600 hover:bg-red-700 text-white">
                     {submitting ? '提交中...' : '确认提现'}
                 </Button>
             </DialogFooter>
