@@ -71,7 +71,7 @@ export function VideoCard({
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        setIsHovering(entry.isIntersecting);
+        setIsHovered(entry.isIntersecting);
       });
     }, { threshold: 0.6 });
 
