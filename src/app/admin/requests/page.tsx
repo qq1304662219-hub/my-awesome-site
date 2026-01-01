@@ -40,11 +40,11 @@ export default function AdminRequests() {
       const res = await fetch(`/api/admin/requests?${params}`)
       const data = await res.json()
 
-      if (!res.ok) throw new Error(data.error)
+      if (!res.ok) throw new Error(data.error || "Failed to fetch requests")
       setRequests(data.requests || [])
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching requests:", error)
-      toast.error("加载悬赏列表失败")
+      toast.error(error.message || "加载悬赏列表失败")
     } finally {
       setLoading(false)
     }

@@ -40,11 +40,6 @@ export async function middleware(request: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL('/auth', request.url))
     }
-    
-    // Optional: Check for admin role here if you have custom claims or a way to check without DB call
-    // Ideally, for role checks, it's better to do it in the layout/page or use custom claims
-    // For now, we rely on the client-side AuthGuard and Layout checks for role, 
-    // but middleware ensures at least authentication.
   }
 
   // Protect Dashboard Routes
@@ -52,6 +47,13 @@ export async function middleware(request: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL('/auth', request.url))
     }
+  }
+
+  // Protect API Routes (Return 401 JSON instead of redirect)
+  if (request.nextUrl.pathname.startsWith('/api/admin') || request.nextUrl.pathname.startsWith('/api/dashboard')) {
+     if (!user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+     }
   }
 
   return response

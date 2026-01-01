@@ -212,6 +212,9 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
                     <Link href="/dashboard" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2 px-2 hover:bg-white/5 rounded-md">
                         <Upload className="inline w-4 h-4 mr-2" /> 上传作品
                     </Link>
+                    <Link href="/cart" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2 px-2 hover:bg-white/5 rounded-md">
+                        <ShoppingCart className="inline w-4 h-4 mr-2" /> 购物车
+                    </Link>
                     {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
                         <Link href="/admin/videos" onClick={closeMobileMenu} className="text-red-400 hover:text-red-300 py-2 px-2 hover:bg-white/5 rounded-md">
                             <span className="inline-block w-4 h-4 mr-2 text-center">🛡️</span> 管理后台

@@ -28,11 +28,11 @@ export default function AdminReportsPage() {
       const res = await fetch('/api/admin/reports')
       const data = await res.json()
 
-      if (!res.ok) throw new Error(data.error)
+      if (!res.ok) throw new Error(data.error || "Failed to fetch reports")
       setReports(data.reports || [])
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching reports:", error)
-      toast.error("加载举报列表失败")
+      toast.error(error.message || "加载举报列表失败")
     } finally {
       setLoading(false)
     }

@@ -45,12 +45,12 @@ export default function UsersPage() {
       const res = await fetch(`/api/admin/users?${params}`)
       const data = await res.json()
       
-      if (!res.ok) throw new Error(data.error)
-      
-      setUsers(data.users)
-      setTotalPages(data.totalPages)
+      if (!res.ok) throw new Error(data.error || "Failed to fetch users")
+      setUsers(data.users || [])
+      setTotalPages(data.totalPages || 1)
     } catch (error: any) {
-      toast.error("加载用户失败: " + error.message)
+      console.error("Error fetching users:", error)
+      toast.error(error.message || "加载用户列表失败")
     } finally {
       setLoading(false)
     }

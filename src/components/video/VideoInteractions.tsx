@@ -11,6 +11,7 @@ import { TipModal } from "./TipModal";
 import { AddToCollectionModal } from "./AddToCollectionModal";
 import { ReportModal } from "./ReportModal";
 import { SocialShare } from "./SocialShare";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface VideoInteractionsProps {
   videoId: string;
@@ -26,6 +27,9 @@ interface VideoInteractionsProps {
 
 export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl, videoTitle, downloadUrl, authorId, authorName = "作者", children }: VideoInteractionsProps) {
   const router = useRouter();
+  const { user, isLoading } = useAuthStore();
+  const effectiveUser = user || currentUser;
+  
   const lastClickTime = useRef(0);
   const [likes, setLikes] = useState(initialLikes);
   const [hasLiked, setHasLiked] = useState(false);
@@ -34,26 +38,27 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
   
   useEffect(() => {
     checkLikeStatus();
-  }, [videoId]);
+  }, [videoId, effectiveUser]);
 
   const checkLikeStatus = async () => {
-    if (!currentUser) return;
+    if (!effectiveUser) return;
     const { data } = await supabase
       .from("likes")
       .select("*")
       .eq("video_id", videoId)
-      .eq("user_id", currentUser.id)
+      .eq("user_id", effectiveUser.id)
       .single();
     
     if (data) setHasLiked(true);
   };
 
   const handleLike = async () => {
+    if (isLoading) return;
     const now = Date.now();
     if (now - lastClickTime.current < 1000) return; // Simple 1s throttle
     lastClickTime.current = now;
 
-    if (!currentUser) {
+    if (!effectiveUser) {
       toast.error("请先登录后操作")
       router.push("/auth");
       return;
@@ -70,13 +75,13 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
             .from("likes")
             .delete()
             .eq("video_id", videoId)
-            .eq("user_id", currentUser.id);
+            .eq("user_id", effectiveUser.id);
       } else {
         await supabase
             .from("likes")
             .insert({
             video_id: videoId,
-            user_id: currentUser.id
+            user_id: effectiveUser.id
             });
       }
     } catch (error) {
@@ -93,9 +98,9 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
         await supabase.rpc('increment_downloads', { video_id: videoId });
 
         // 2. Record history if logged in
-        if (currentUser) {
+        if (effectiveUser) {
             const { error } = await supabase.from('user_downloads').insert({
-                user_id: currentUser.id,
+                user_id: effectiveUser.id,
                 video_id: videoId
             });
             if (error) console.error("Error recording download history:", error);
@@ -115,6 +120,7 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
             variant="secondary" 
             className={cn("bg-white/10 hover:bg-white/20 border-0 text-white", hasLiked && "text-blue-400 bg-blue-500/10")}
             onClick={handleLike}
+            disabled={isLoading}
           >
             <ThumbsUp className={cn("h-4 w-4 mr-2", hasLiked && "fill-blue-400")} />
             {likes}
@@ -125,7 +131,7 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
           <SocialShare url={typeof window !== 'undefined' ? window.location.href : videoUrl} title={videoTitle} />
           
           <a href={downloadUrl || videoUrl} download target="_blank" rel="noopener noreferrer" onClick={handleDownload}>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white" disabled={isLoading}>
               <Download className="h-4 w-4 mr-2" />
               下载
             </Button>
@@ -133,8 +139,10 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
           
           <Button 
             className="bg-yellow-500 hover:bg-yellow-600 text-white border-0"
+            disabled={isLoading}
             onClick={() => {
-                if (!currentUser) {
+                if (isLoading) return;
+                if (!effectiveUser) {
                     toast.error("请先登录后打赏")
                     router.push("/auth");
                     return;
