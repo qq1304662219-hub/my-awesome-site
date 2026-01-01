@@ -50,7 +50,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Initialize session
     const initAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        // Check for placeholder config
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+        if (!supabaseUrl || supabaseUrl.includes('placeholder')) {
+            console.warn('Supabase URL is missing or placeholder')
+            if (mounted.current) setLoading(false)
+            return
+        }
+
+        // Add timeout to getSession
+        const sessionPromise = supabase.auth.getSession()
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Auth timeout')), 5000))
+        
+        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any
+
         if (session?.user) {
             if (mounted.current) setUser(session.user)
             await syncUserProfile(session.user)
@@ -62,6 +75,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (e) {
         console.error("Auth init error:", e)
+        // Even on error, we must stop loading to allow app to function (as guest)
+        if (mounted.current) {
+            setUser(null)
+            setProfile(null)
+        }
       } finally {
         if (mounted.current) setLoading(false)
       }

@@ -81,12 +81,6 @@ export default function Dashboard() {
     }
   }
 
-  if (authLoading) return (
-    <div className="min-h-screen bg-[#020817] flex items-center justify-center text-white">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-    </div>
-  )
-
   if (!user) return null
 
   // Calculate stats

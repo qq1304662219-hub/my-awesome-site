@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/store/useAuthStore'
 import { supabase } from '@/lib/supabase'
+import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 
 export function AuthGuard({ children, requireAdmin = false }: { children: React.ReactNode, requireAdmin?: boolean }) {
@@ -21,6 +22,8 @@ export function AuthGuard({ children, requireAdmin = false }: { children: React.
 
     return () => clearTimeout(timer)
   }, [isAuthLoading, isChecking])
+
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     // Wait for global auth loading to finish
@@ -46,46 +49,71 @@ export function AuthGuard({ children, requireAdmin = false }: { children: React.
             }
 
             if (currentRole !== 'admin' && currentRole !== 'super_admin') {
-                router.push('/')
+                setError('您没有权限访问此页面 (需要管理员权限)')
                 return
             }
         }
         // Auth check passed
         setIsChecking(false)
-      } catch (error) {
+      } catch (error: any) {
         console.error('AuthGuard error:', error)
-        // If error occurs during admin check, deny access
-        if (requireAdmin) {
-             router.push('/')
-        } else {
-             // For normal users, if error (e.g. network), we might still want to show content or error
-             // But safest is to allow if user exists (handled above)
-             setIsChecking(false)
-        }
+        setError(error.message || "验证过程发生错误")
       }
     }
 
     checkAuth()
   }, [router, user, profile, requireAdmin, isAuthLoading])
 
+  if (error) {
+    return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#020817] gap-4 text-white p-4 text-center">
+            <div className="text-red-400 text-xl font-bold">访问被拒绝</div>
+            <p className="text-gray-400">{error}</p>
+            <Button onClick={() => router.push('/')} variant="outline">
+                返回首页
+            </Button>
+        </div>
+    )
+  }
+
   if (isTimeout) {
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-[#020817] gap-4 text-white">
-            <div className="text-red-400">验证超时，请检查网络连接</div>
-            <button 
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 transition-colors"
-            >
-                刷新页面
-            </button>
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#020817] gap-4 text-white p-4 text-center">
+            <div className="text-red-400 text-xl font-bold">验证超时</div>
+            <div className="text-gray-400 text-sm max-w-md">
+                <p>系统无法在规定时间内完成身份验证。</p>
+                <div className="mt-2 p-2 bg-gray-900 rounded text-xs font-mono text-left">
+                    <p>Auth Loading: {isAuthLoading ? 'Yes' : 'No'}</p>
+                    <p>Checking: {isChecking ? 'Yes' : 'No'}</p>
+                    <p>User: {user ? 'Found' : 'Missing'}</p>
+                    <p>Profile: {profile ? 'Found' : 'Missing'}</p>
+                </div>
+            </div>
+            <div className="flex gap-4">
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 transition-colors"
+                >
+                    刷新页面
+                </button>
+                <button 
+                    onClick={() => router.push('/')}
+                    className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors"
+                >
+                    返回首页
+                </button>
+            </div>
         </div>
       )
   }
 
   if (isAuthLoading || isChecking) {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#020817]">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#020817] gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <p className="text-gray-400 text-sm animate-pulse">
+                {isAuthLoading ? '正在连接认证服务...' : '正在验证用户权限...'}
+            </p>
         </div>
     )
   }
