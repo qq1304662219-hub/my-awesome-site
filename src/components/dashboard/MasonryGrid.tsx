@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, D
 import { Button } from "@/components/ui/button"
 import { Trash2, ExternalLink, Play, MoreVertical, X } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { deleteVideoWithStorage } from "@/lib/storage-utils"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -25,12 +26,7 @@ export function MasonryGrid({ videos, onVideoDeleted }: { videos: Video[], onVid
 
     setIsDeleting(true)
     try {
-      const { error } = await supabase
-        .from("videos")
-        .delete()
-        .eq("id", video.id)
-
-      if (error) throw error
+      await deleteVideoWithStorage(supabase, video.id)
       
       toast.success("删除成功")
       setSelectedVideo(null)

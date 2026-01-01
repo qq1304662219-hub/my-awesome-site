@@ -9,7 +9,9 @@ import {
   Settings, 
   Plus, 
   LogOut,
-  ShieldAlert
+  ShieldAlert,
+  FolderPlus,
+  MessageSquare
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -59,7 +61,9 @@ export function DashboardSidebar() {
   const menuItems = [
     { id: 'overview', label: '仪表盘', icon: LayoutDashboard, href: '/dashboard' },
     { id: 'videos', label: '作品管理', icon: Film, href: '/dashboard/videos' },
-    { id: 'finance', label: '财务中心', icon: Wallet, href: '/dashboard/wallet-final' },
+    { id: 'collections', label: '我的收藏', icon: FolderPlus, href: '/dashboard/collections' },
+    { id: 'messages', label: '我的私信', icon: MessageSquare, href: '/dashboard/messages' },
+    { id: 'finance', label: '财务中心', icon: Wallet, href: '/dashboard/wallet' },
     { id: 'settings', label: '账号设置', icon: Settings, href: '/dashboard/settings' },
   ]
 

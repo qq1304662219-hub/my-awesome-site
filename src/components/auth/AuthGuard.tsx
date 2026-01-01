@@ -8,41 +8,48 @@ import { Loader2 } from 'lucide-react'
 
 export function AuthGuard({ children, requireAdmin = false }: { children: React.ReactNode, requireAdmin?: boolean }) {
   const router = useRouter()
-  const { user, profile } = useAuthStore()
-  const [loading, setLoading] = useState(true)
+  const { user, profile, isLoading: isAuthLoading } = useAuthStore()
+  const [isChecking, setIsChecking] = useState(true)
 
   useEffect(() => {
+    // Wait for global auth loading to finish
+    if (isAuthLoading) return
+
     const checkAuth = async () => {
-      // 1. Check if user is logged in
-      const { data: { user: currentUser } } = await supabase.auth.getUser()
-      
-      if (!currentUser) {
-        router.push('/auth?tab=login')
-        return
-      }
-
-      // 2. Check admin if required
-      if (requireAdmin) {
-        // If profile is not yet loaded in store, fetch it
-        let currentRole = profile?.role
-        if (!currentRole) {
-             const { data } = await supabase.from('profiles').select('role').eq('id', currentUser.id).single()
-             currentRole = data?.role
-        }
-
-        if (currentRole !== 'admin' && currentRole !== 'super_admin') {
-            router.push('/')
+      try {
+        // 1. Check if user is logged in (from store)
+        if (!user) {
+            router.push('/auth?tab=login')
             return
         }
-      }
 
-      setLoading(false)
+        // 2. Check admin if required
+        if (requireAdmin) {
+            // If profile is not yet loaded in store (should be loaded by AuthProvider), try to fetch
+            let currentRole = profile?.role
+            
+            if (!currentRole) {
+                const { data, error } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+                if (error) throw error
+                currentRole = data?.role
+            }
+
+            if (currentRole !== 'admin' && currentRole !== 'super_admin') {
+                router.push('/')
+                return
+            }
+        }
+      } catch (error) {
+        console.error('AuthGuard error:', error)
+      } finally {
+        setIsChecking(false)
+      }
     }
 
     checkAuth()
-  }, [router, profile, requireAdmin])
+  }, [router, user, profile, requireAdmin, isAuthLoading])
 
-  if (loading) {
+  if (isAuthLoading || isChecking) {
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#020817]">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />

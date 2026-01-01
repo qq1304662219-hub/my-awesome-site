@@ -17,6 +17,7 @@ function ExploreContent() {
     category: searchParams.get("category"),
     style: searchParams.get("style"),
     ratio: searchParams.get("ratio"),
+    model: searchParams.get("model"),
     query: searchParams.get("q")
   }
 

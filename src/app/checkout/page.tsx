@@ -59,15 +59,27 @@ function CheckoutContent() {
 
     setLoading(true)
     try {
-        const { data: orderId, error } = await supabase.rpc('handle_purchase', {
-            p_user_id: user.id,
-            p_total_amount: price,
-            p_video_ids: [videoId],
-            p_prices: [price],
-            p_license_types: [license || 'personal']
+        // Use server-side API for purchase
+        const { data: { session } } = await supabase.auth.getSession()
+        
+        const response = await fetch('/api/purchase', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session?.access_token}`
+            },
+            body: JSON.stringify({
+                videoId,
+                price,
+                license
+            })
         });
 
-        if (error) throw error;
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Purchase failed');
+        }
 
         // Refresh profile balance locally
         if (profile) {

@@ -46,7 +46,7 @@ export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) 
                             </span>
                         </div>
                     </div>
-                    <Link href="/dashboard/wallet-final" className="block hover:opacity-80 transition-opacity">
+                    <Link href="/dashboard/wallet" className="block hover:opacity-80 transition-opacity">
                     <p className="text-xs text-gray-400 cursor-pointer">
                         账户余额 <span className="text-white font-medium ml-1">¥{profile?.balance?.toFixed(2) || '0.00'}</span>
                     </p>
@@ -79,7 +79,7 @@ export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) 
                 <Link href="/settings" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors group/item">
                     <span>账号设置</span>
                 </Link>
-                <Link href="/dashboard/wallet-final" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
+                <Link href="/dashboard/wallet" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
                     <span>充值中心</span>
                 </Link>
                 <Link href="/checkout" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
@@ -88,7 +88,7 @@ export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) 
                 <Link href="/invite" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
                     <span className="text-yellow-400 font-medium">邀请有礼</span>
                 </Link>
-                <Link href="/dashboard/wallet-final" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
+                <Link href="/dashboard/wallet" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
                     <span>财务管理 (提现)</span>
                 </Link>
             </div>

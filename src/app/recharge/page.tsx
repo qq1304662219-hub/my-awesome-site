@@ -32,31 +32,32 @@ function RechargeContent() {
     
     // Simulate API call and Payment process
     try {
-        // 模拟支付延迟
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Call backend RPC to update balance and record transaction
-        const { error } = await supabase.rpc('handle_balance_update', {
-            p_user_id: user.id,
-            p_amount: selectedAmount,
-            p_type: 'recharge',
-            p_description: `充值 ¥${selectedAmount}`
+        // Create a pending transaction
+        const response = await fetch('/api/recharge', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+                amount: selectedAmount,
+                type: 'manual_qrcode', // New type
+                description: `用户扫码充值 ¥${selectedAmount}`
+            })
         });
 
-        if (error) throw error;
+        const data = await response.json();
 
-        // Update local store
-        if (profile) {
-             setProfile({ ...profile, balance: (profile.balance || 0) + selectedAmount })
+        if (!response.ok) {
+            throw new Error(data.error || 'Recharge request failed');
         }
 
-        toast.success(`成功充值 ¥${selectedAmount}`)
+        toast.success(`充值申请已提交，请等待管理员确认`)
         
-        // Redirect back
-        router.push(decodeURIComponent(returnUrl))
-    } catch (error) {
+        // Redirect back or to transactions history
+        router.push('/dashboard/transactions')
+    } catch (error: any) {
         console.error("Recharge error:", error)
-        toast.error("充值失败，请联系客服")
+        toast.error(error.message || "充值申请失败，请联系客服")
     } finally {
         setLoading(false)
     }
@@ -106,33 +107,53 @@ function RechargeContent() {
 
                 {/* Right: Payment Preview */}
                 <div className="bg-white rounded-2xl p-8 text-black">
-                    <div className="text-center mb-8">
+                    <div className="text-center mb-6">
                         <p className="text-gray-500 mb-2">应付金额</p>
                         <div className="text-5xl font-bold text-black">
                             ¥{selectedAmount}.00
                         </div>
                     </div>
 
-                    <div className="flex justify-center mb-8">
-                        <div className="w-48 h-48 bg-white border-2 border-gray-100 rounded-xl p-2 shadow-inner flex items-center justify-center relative group cursor-pointer" onClick={handleRecharge}>
-                             {/* Simulated QR Code */}
-                             <QrCode className="w-32 h-32 text-gray-800" />
-                             <div className="absolute inset-0 bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <span className="text-sm font-medium text-blue-600">点击模拟支付成功</span>
-                             </div>
+                    {/* Payment Method Tabs */}
+                    <div className="flex p-1 bg-gray-100 rounded-lg mb-6">
+                        <button 
+                            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${paymentMethod === 'wechat' ? 'bg-white shadow text-green-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            onClick={() => setPaymentMethod('wechat')}
+                        >
+                            微信支付
+                        </button>
+                        <button 
+                            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${paymentMethod === 'alipay' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            onClick={() => setPaymentMethod('alipay')}
+                        >
+                            支付宝
+                        </button>
+                    </div>
+
+                    <div className="flex flex-col items-center mb-8">
+                        <div className="w-48 h-48 bg-white border-2 border-gray-100 rounded-xl p-2 shadow-inner flex items-center justify-center overflow-hidden">
+                             {/* QR Code Image */}
+                             <img 
+                                src={paymentMethod === 'wechat' ? '/images/wechat-pay.jpg' : '/images/alipay-pay.jpg'} 
+                                alt={paymentMethod === 'wechat' ? 'WeChat Pay' : 'Alipay'}
+                                className="w-full h-full object-contain"
+                             />
                         </div>
+                        <p className="text-xs text-gray-400 mt-2">
+                            请使用{paymentMethod === 'wechat' ? '微信' : '支付宝'}扫码支付
+                        </p>
                     </div>
 
                     <div className="space-y-4">
                         <Button 
-                            className="w-full h-12 text-lg font-bold rounded-full bg-blue-600 hover:bg-blue-700 text-white"
+                            className={`w-full h-12 text-lg font-bold rounded-full text-white ${paymentMethod === 'wechat' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
                             onClick={handleRecharge}
                             disabled={loading}
                         >
-                            {loading ? <Loader2 className="animate-spin mr-2" /> : "立即支付"}
+                            {loading ? <Loader2 className="animate-spin mr-2" /> : "我已支付，提交审核"}
                         </Button>
                         <p className="text-center text-xs text-gray-400">
-                            支持微信 / 支付宝 / 银联支付
+                            支付成功后请务必点击上方按钮提交申请
                         </p>
                     </div>
                 </div>

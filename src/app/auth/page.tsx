@@ -209,6 +209,11 @@ function AuthContent() {
                       className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-blue-500"
                       required
                     />
+                    <div className="text-right">
+                      <Link href="/auth/forgot-password" className="text-xs text-blue-500 hover:text-blue-400">
+                        忘记密码？
+                      </Link>
+                    </div>
                   </div>
                   <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
                     {loading ? '登录中...' : '立即登录'}

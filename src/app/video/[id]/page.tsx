@@ -12,6 +12,7 @@ import { LicenseSelector } from "@/components/video/LicenseSelector";
 import { CopyButton } from "@/components/shared/CopyButton";
 import { getStoragePathFromUrl } from "@/lib/utils";
 import type { Metadata, ResolvingMetadata } from 'next';
+import { SITE_CONFIG } from "@/lib/constants";
 
 type Props = {
   params: Promise<{ id: string }>
@@ -56,8 +57,17 @@ export async function generateMetadata(
     openGraph: {
       title: video.title,
       description: video.description || `观看由 ${authorName} 创作的精彩 AI 视频`,
+      url: `${SITE_CONFIG.url}/video/${id}`,
+      type: 'video.other',
       images: video.thumbnail_url ? [video.thumbnail_url, ...previousImages] : previousImages,
+      siteName: SITE_CONFIG.name,
     },
+    twitter: {
+      card: "summary_large_image",
+      title: video.title,
+      description: video.description || `观看由 ${authorName} 创作的精彩 AI 视频`,
+      images: video.thumbnail_url ? [video.thumbnail_url] : [],
+    }
   }
 }
 
@@ -169,8 +179,8 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
           <div className="lg:col-span-2 space-y-6">
             {/* Video Player */}
             <VideoPlayer 
-              src={video.url} 
-              poster={video.thumbnail_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop"}
+              src={videoUrl} 
+              poster={thumbnailUrl || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop"}
               autoPlay={true}
             />
 
@@ -196,9 +206,11 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                     {video.ai_model && (
                         <div className="mb-3">
                             <span className="text-xs text-gray-500 uppercase tracking-wider block mb-1">Model (模型)</span>
-                            <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                                {video.ai_model}
-                            </div>
+                            <Link href={`/explore?model=${encodeURIComponent(video.ai_model)}`}>
+                                <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 transition-colors cursor-pointer">
+                                    {video.ai_model}
+                                </div>
+                            </Link>
                         </div>
                     )}
 
@@ -216,9 +228,11 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                             <span className="text-xs text-gray-500 uppercase tracking-wider block mb-1">Tags (标签)</span>
                             <div className="flex flex-wrap gap-2">
                                 {video.tags.map((tag: string, index: number) => (
-                                    <span key={index} className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded hover:bg-white/10 cursor-pointer transition-colors">
-                                        #{tag}
-                                    </span>
+                                    <Link key={index} href={`/explore?q=${encodeURIComponent(tag)}`}>
+                                        <span className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded hover:bg-white/10 cursor-pointer transition-colors">
+                                            #{tag}
+                                        </span>
+                                    </Link>
                                 ))}
                             </div>
                         </div>
@@ -230,8 +244,10 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                 videoId={video.id} 
                 initialLikes={initialLikes || 0} 
                 currentUser={user} 
-                videoUrl={video.url}
-                downloadUrl={video.download_url}
+                videoUrl={videoUrl}
+                videoTitle={video.title}
+                downloadUrl={videoUrl} // Use signed URL for download as well
+                authorId={video.user_id}
                 authorName={authorProfile?.full_name}
               >
                 <Separator className="bg-white/10 my-6" />

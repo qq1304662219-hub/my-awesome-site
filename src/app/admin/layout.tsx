@@ -3,7 +3,7 @@
 import { useAuthStore } from "@/store/useAuthStore"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Users, Video, LogOut, FileQuestion } from "lucide-react"
+import { Users, Video, LogOut, FileQuestion, GraduationCap, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AuthGuard } from "@/components/auth/AuthGuard"
@@ -28,6 +28,12 @@ function AdminContent({ children }: { children: React.ReactNode }) {
       show: true // Everyone (admins) can see
     },
     {
+      name: "举报处理",
+      href: "/admin/reports",
+      icon: AlertTriangle,
+      show: true
+    },
+    {
       name: "悬赏管理",
       href: "/admin/requests",
       icon: FileQuestion,
@@ -43,7 +49,7 @@ function AdminContent({ children }: { children: React.ReactNode }) {
       name: "团队管理",
       href: "/admin/users",
       icon: Users,
-      show: profile?.role === 'super_admin' // Only Super Admin
+      show: true // Everyone (admins) can see
     }
   ]
 

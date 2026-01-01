@@ -6,8 +6,11 @@ import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { VideoCard } from "@/components/shared/VideoCard"
-import { Loader2, Video, Heart, Download, User } from "lucide-react"
+import { Loader2, Video, Heart, Download, User, Folder, MessageSquare } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 
 interface ProfilePageProps {
@@ -18,7 +21,9 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ params }: ProfilePageProps) {
   const [profile, setProfile] = useState<any>(null)
+  const [currentUser, setCurrentUser] = useState<any>(null)
   const [videos, setVideos] = useState<any[]>([])
+  const [collections, setCollections] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
     totalVideos: 0,
@@ -27,6 +32,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   })
 
   useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setCurrentUser(user))
     fetchProfileAndVideos()
   }, [])
 
@@ -111,6 +117,15 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     </Badge>
                 )}
 
+                {currentUser && currentUser.id !== profile.id && (
+                    <Link href={`/dashboard/messages/${profile.id}`} className="w-full">
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 mb-4">
+                            <MessageSquare className="w-4 h-4 mr-2" />
+                            发私信
+                        </Button>
+                    </Link>
+                )}
+
                 <div className="grid grid-cols-3 gap-4 w-full border-t border-white/10 pt-4 mt-2">
                     <div>
                         <div className="text-lg font-bold text-white">{stats.totalVideos}</div>
@@ -130,29 +145,66 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 
           {/* Main Content */}
           <div className="flex-1 w-full">
-             <div className="mb-6">
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                    <Video className="w-5 h-5 text-blue-500" />
-                    发布的作品
-                </h2>
-             </div>
+            <Tabs defaultValue="videos" className="w-full">
+                <TabsList className="mb-6 bg-white/5 border border-white/10 p-1">
+                    <TabsTrigger value="videos" className="data-[state=active]:bg-blue-600">
+                        <Video className="w-4 h-4 mr-2" />
+                        发布的作品
+                    </TabsTrigger>
+                    <TabsTrigger value="collections" className="data-[state=active]:bg-blue-600">
+                        <Folder className="w-4 h-4 mr-2" />
+                        公开收藏夹
+                    </TabsTrigger>
+                </TabsList>
 
-             {videos.length > 0 ? (
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {videos.map((video) => (
-                        <VideoCard
-                            key={video.id}
-                            {...video}
-                            user_avatar={profile.avatar_url}
-                            author={profile.username}
-                        />
-                    ))}
-                 </div>
-             ) : (
-                 <div className="text-center py-20 bg-[#0B1120] rounded-xl border border-white/5">
-                     <p className="text-gray-400">该用户暂未发布任何作品</p>
-                 </div>
-             )}
+                <TabsContent value="videos" className="mt-0">
+                    {videos.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {videos.map((video) => (
+                                <VideoCard
+                                    key={video.id}
+                                    {...video}
+                                    user_avatar={profile.avatar_url}
+                                    author={profile.username}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-20 bg-[#0B1120] rounded-xl border border-white/5">
+                            <p className="text-gray-400">该用户暂未发布任何作品</p>
+                        </div>
+                    )}
+                </TabsContent>
+
+                <TabsContent value="collections" className="mt-0">
+                     {collections.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {collections.map((collection) => (
+                                <Link href={`/dashboard/collections/${collection.id}`} key={collection.id}>
+                                    <div className="bg-[#0B1120] border border-white/10 rounded-xl p-6 hover:border-blue-500/50 transition-colors cursor-pointer group">
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+                                                <Folder className="h-5 w-5 text-blue-500" />
+                                            </div>
+                                            <Badge variant="secondary" className="bg-white/5 text-gray-400">
+                                                {collection.collection_items?.[0]?.count || 0} 个内容
+                                            </Badge>
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">{collection.name}</h3>
+                                        <p className="text-sm text-gray-400">
+                                            创建于 {new Date(collection.created_at).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                     ) : (
+                        <div className="text-center py-20 bg-[#0B1120] rounded-xl border border-white/5">
+                            <p className="text-gray-400">该用户暂无公开收藏夹</p>
+                        </div>
+                     )}
+                </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>

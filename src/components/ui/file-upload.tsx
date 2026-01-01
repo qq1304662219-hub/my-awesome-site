@@ -4,9 +4,12 @@ import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Upload, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { Upload, Loader2, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Link from 'next/link'
+import { Progress } from "@/components/ui/progress"
+import { toast } from "sonner"
+import { useAuthStore } from "@/store/useAuthStore"
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
@@ -32,12 +35,23 @@ const RATIOS = [
   { value: "9:16", label: "竖屏 9:16 (手机专用)" }
 ]
 
+const AI_MODELS = [
+  { value: "Sora", label: "Sora" },
+  { value: "Runway Gen-2", label: "Runway Gen-2" },
+  { value: "Pika Labs", label: "Pika Labs" },
+  { value: "Stable Video Diffusion", label: "Stable Video Diffusion" },
+  { value: "Midjourney", label: "Midjourney" },
+  { value: "DALL-E 3", label: "DALL-E 3" },
+  { value: "Other", label: "其他" }
+]
+
 interface FileUploadProps {
   userId: string;
   onUploadSuccess?: () => void;
 }
 
 export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
+  const { user } = useAuthStore()
   const [step, setStep] = useState(1) // 1: Select File, 2: Details & Preview, 3: Success
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -47,13 +61,29 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('0')
   const [tags, setTags] = useState('')
+  const [prompt, setPrompt] = useState('')
+  const [aiModel, setAiModel] = useState('')
   
   const [category, setCategory] = useState('Live')
   const [style, setStyle] = useState('Sci-Fi')
   const [ratio, setRatio] = useState('16:9')
   
   const [uploading, setUploading] = useState(false)
+  const [progress, setProgress] = useState(0)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
+  const [durationStr, setDurationStr] = useState('00:00')
+
+  const handleMetadataLoaded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget
+    const duration = video.duration
+    if (!isNaN(duration)) {
+        const minutes = Math.floor(duration / 60)
+        const seconds = Math.floor(duration % 60)
+        const formatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+        setDurationStr(formatted)
+    }
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -82,6 +112,11 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
 
   const handleUpload = async () => {
     if (!file || !userId) return
+    
+    if (user && !user.email_confirmed_at) {
+        toast.error("请先验证邮箱才能发布作品")
+        return
+    }
 
     setUploading(true)
     setMessage(null)
@@ -91,9 +126,20 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
       const fileExt = file.name.split('.').pop()
       const fileName = `${userId}/${Date.now()}.${fileExt}`
       
+      // Simulate progress since Supabase JS client doesn't support it directly in simple upload
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+            if (prev >= 90) return prev;
+            return prev + 5;
+        })
+      }, 500);
+
       const { error: uploadError } = await supabase.storage
         .from('uploads')
         .upload(fileName, file)
+      
+      clearInterval(progressInterval);
+      setProgress(100);
 
       if (uploadError) throw uploadError
 
@@ -137,7 +183,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           ai_model: aiModel,
           status: 'pending',
           download_url: '',
-          duration: '00:00' // Placeholder, could extract from video element
+          duration: durationStr // Use extracted duration
         })
 
       if (dbError) throw dbError
@@ -207,6 +253,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                                 src={previewUrl} 
                                 className="w-full h-full object-contain" 
                                 controls 
+                                onLoadedMetadata={handleMetadataLoaded}
                               />
                           )}
                       </div>
@@ -244,7 +291,12 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
 
                       <div className="space-y-2">
                         <Label className="text-gray-300">AI Model (使用的模型)</Label>
-                        <Input value={aiModel} onChange={(e) => setAiModel(e.target.value)} placeholder="例如: Midjourney v6, Runway Gen-2" className="bg-black/20 border-white/10 text-white" />
+                        <Select value={aiModel} onValueChange={setAiModel}>
+                            <SelectTrigger className="bg-black/20 border-white/10 text-white"><SelectValue placeholder="选择 AI 模型" /></SelectTrigger>
+                            <SelectContent className="bg-[#1e293b] border-white/10 text-white">
+                                {AI_MODELS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
@@ -299,23 +351,26 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                   </Alert>
               )}
 
-              <div className="flex gap-4 pt-4">
-                  <Button variant="outline" onClick={() => setStep(1)} className="flex-1 border-white/10 text-white hover:bg-white/10">
-                      上一步
+              <div className="flex justify-end gap-3 pt-4">
+                  <Button variant="ghost" onClick={() => { setStep(1); setFile(null); }} disabled={uploading} className="text-gray-300 hover:text-white hover:bg-white/10">
+                      取消
                   </Button>
-                  <Button onClick={handleUpload} disabled={uploading} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
-                      {uploading ? (
-                          <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              正在上传...
-                          </>
-                      ) : (
-                          <>
-                              <Upload className="mr-2 h-4 w-4" />
-                              确认发布
-                          </>
-                      )}
-                  </Button>
+                  <div className="flex flex-col gap-2 w-full max-w-[200px]">
+                    {uploading && <Progress value={progress} className="h-2" />}
+                    <Button onClick={handleUpload} disabled={uploading} className="bg-blue-600 hover:bg-blue-700 w-full">
+                        {uploading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                上传中 {Math.round(progress)}%
+                            </>
+                        ) : (
+                            <>
+                                <Upload className="mr-2 h-4 w-4" />
+                                确认发布
+                            </>
+                        )}
+                    </Button>
+                  </div>
               </div>
           </div>
       )

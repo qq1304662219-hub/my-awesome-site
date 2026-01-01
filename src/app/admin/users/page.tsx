@@ -1,206 +1,191 @@
-'use client'
-import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
-import { Search, Shield, User, UserCheck, UserMinus, ArrowUpCircle, ArrowDownCircle } from "lucide-react"
-import { toast } from "sonner"
-import { useAuthStore } from "@/store/useAuthStore"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
+"use client"
 
-export default function AdminUsers() {
-  const { profile } = useAuthStore()
-  const router = useRouter()
-  const [users, setUsers] = useState<any[]>([])
+import { useState, useEffect } from "react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Loader2, Search, UserCog, MoreHorizontal } from "lucide-react"
+import { toast } from "sonner"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
+interface UserProfile {
+  id: string
+  email: string // Note: email might not be in profiles depending on schema, assume it is for now or use full_name
+  full_name: string
+  avatar_url: string
+  role: string
+  balance: number
+  created_at: string
+}
+
+export default function UsersPage() {
+  const [users, setUsers] = useState<UserProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
-  const [updating, setUpdating] = useState<string | null>(null)
-
-  useEffect(() => {
-    // Double check permission on client side
-    if (profile && profile.role !== 'super_admin') {
-      toast.error("无权访问团队管理")
-      router.push('/admin')
-      return
-    }
-    fetchUsers()
-  }, [profile, router])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   const fetchUsers = async () => {
     setLoading(true)
     try {
-      let query = supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false })
-
-      if (search) {
-        query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`)
-      }
-
-      const { data, error } = await query
-      if (error) throw error
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: "10",
+        query: search
+      })
+      const res = await fetch(`/api/admin/users?${params}`)
+      const data = await res.json()
       
-      setUsers(data || [])
-    } catch (error) {
-      console.error("Error fetching users:", error)
-      toast.error("加载用户列表失败")
+      if (!res.ok) throw new Error(data.error)
+      
+      setUsers(data.users)
+      setTotalPages(data.totalPages)
+    } catch (error: any) {
+      toast.error("加载用户失败: " + error.message)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleRoleChange = async (userId: string, newRole: 'admin' | 'user') => {
-    if (!confirm(`确定要将该用户${newRole === 'admin' ? '提拔为管理员' : '降职为普通用户'}吗？`)) return
-
-    setUpdating(userId)
-    try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ role: newRole })
-        .eq("id", userId)
-
-      if (error) throw error
-
-      toast.success(newRole === 'admin' ? "已提拔为管理员" : "已降职为普通用户")
-      
-      // Update local state
-      setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u))
-    } catch (error) {
-      console.error("Error updating role:", error)
-      toast.error("操作失败，请检查权限")
-    } finally {
-      setUpdating(null)
-    }
-  }
+  useEffect(() => {
+    const timer = setTimeout(() => {
+        fetchUsers()
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [page, search])
 
   return (
-    <div className="space-y-6">
+    <div className="p-8 space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold">团队管理</h1>
-            <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 text-sm font-medium border border-blue-500/20">
-              {users.length} 成员
-            </span>
-          </div>
-          <p className="text-gray-400 mt-1">仅超级管理员可见</p>
-        </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="搜索邮箱或昵称..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && fetchUsers()}
-            className="pl-10 pr-4 py-2 bg-[#0B1120] border border-white/10 rounded-lg text-sm focus:outline-none focus:border-blue-500 w-64"
-          />
+          <h1 className="text-3xl font-bold text-white mb-2">用户管理</h1>
+          <p className="text-gray-400">管理平台注册用户及权限</p>
         </div>
       </div>
 
-      <div className="bg-[#0B1120] border border-white/10 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-white/5 text-gray-400">
-              <tr>
-                <th className="p-4">用户</th>
-                <th className="p-4">邮箱</th>
-                <th className="p-4">当前角色</th>
-                <th className="p-4 text-right">权限操作</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {loading ? (
-                <tr>
-                  <td colSpan={4} className="p-8 text-center text-gray-500">加载中...</td>
-                </tr>
-              ) : users.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="p-8 text-center text-gray-500">未找到用户</td>
-                </tr>
-              ) : (
-                users.map((user) => (
-                  <tr key={user.id} className="hover:bg-white/5 transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden">
-                          {user.avatar_url ? (
-                            <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
-                              {user.full_name?.[0]?.toUpperCase() || 'U'}
-                            </div>
-                          )}
-                        </div>
-                        <span className="font-medium text-white">{user.full_name || '未命名'}</span>
+      <div className="flex items-center gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
+        <Search className="w-5 h-5 text-gray-400" />
+        <Input 
+          placeholder="搜索用户..." 
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="bg-transparent border-none text-white focus-visible:ring-0 placeholder:text-gray-500"
+        />
+      </div>
+
+      <div className="rounded-xl border border-white/10 overflow-hidden bg-black/20">
+        <Table>
+          <TableHeader className="bg-white/5">
+            <TableRow className="border-white/10 hover:bg-white/5">
+              <TableHead className="text-gray-400">用户</TableHead>
+              <TableHead className="text-gray-400">角色</TableHead>
+              <TableHead className="text-gray-400">余额</TableHead>
+              <TableHead className="text-gray-400">注册时间</TableHead>
+              <TableHead className="text-gray-400 text-right">操作</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-32 text-center">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-500" />
+                </TableCell>
+              </TableRow>
+            ) : users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="h-32 text-center text-gray-500">
+                  没有找到用户
+                </TableCell>
+              </TableRow>
+            ) : (
+              users.map((user) => (
+                <TableRow key={user.id} className="border-white/10 hover:bg-white/5">
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage src={user.avatar_url} />
+                        <AvatarFallback>{user.full_name?.[0] || 'U'}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="font-medium text-white">{user.full_name}</span>
+                        <span className="text-xs text-gray-500">{user.email || user.id}</span>
                       </div>
-                    </td>
-                    <td className="p-4 text-gray-300">{user.email}</td>
-                    <td className="p-4">
-                      <RoleBadge role={user.role} />
-                    </td>
-                    <td className="p-4 text-right">
-                      {user.role === 'super_admin' ? (
-                        <span className="text-gray-500 text-xs italic">不可操作</span>
-                      ) : (
-                        <div className="flex justify-end gap-2">
-                          {user.role === 'user' && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 border-green-500/20 text-green-400 hover:bg-green-500/10 hover:text-green-300"
-                              onClick={() => handleRoleChange(user.id, 'admin')}
-                              disabled={updating === user.id}
-                            >
-                              <ArrowUpCircle className="w-3 h-3 mr-1" />
-                              提拔
-                            </Button>
-                          )}
-                          {user.role === 'admin' && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-300"
-                              onClick={() => handleRoleChange(user.id, 'user')}
-                              disabled={updating === user.id}
-                            >
-                              <ArrowDownCircle className="w-3 h-3 mr-1" />
-                              降职
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={
+                        user.role === 'super_admin' ? 'border-purple-500 text-purple-400' :
+                        user.role === 'admin' ? 'border-blue-500 text-blue-400' :
+                        'border-gray-500 text-gray-400'
+                    }>
+                        {user.role}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-mono text-green-400">¥{user.balance?.toFixed(2)}</span>
+                  </TableCell>
+                  <TableCell className="text-gray-400 text-sm">
+                    {new Date(user.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </DropdownMenuTrigger>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-[#1e293b] border-white/10 text-white">
+                        <DropdownMenuLabel>操作</DropdownMenuLabel>
+                        <DropdownMenuItem className="focus:bg-white/10">
+                            查看详情
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-white/10" />
+                        <DropdownMenuItem className="text-red-400 focus:bg-white/10 focus:text-red-400">
+                            禁用账号
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center gap-2">
+        <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1 || loading}
+            className="border-white/10 bg-transparent text-white hover:bg-white/10"
+        >
+            上一页
+        </Button>
+        <span className="flex items-center text-sm text-gray-400">
+            第 {page} / {totalPages} 页
+        </span>
+        <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages || loading}
+            className="border-white/10 bg-transparent text-white hover:bg-white/10"
+        >
+            下一页
+        </Button>
       </div>
     </div>
   )
-}
-
-function RoleBadge({ role }: { role: string | null }) {
-  switch (role) {
-    case 'super_admin':
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
-          <Shield className="w-3 h-3" /> 超级管理员
-        </span>
-      )
-    case 'admin':
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-          <UserCheck className="w-3 h-3" /> 管理员
-        </span>
-      )
-    default:
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-500/10 text-gray-400 border border-gray-500/20">
-          <User className="w-3 h-3" /> 普通用户
-        </span>
-      )
-  }
 }

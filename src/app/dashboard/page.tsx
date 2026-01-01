@@ -19,67 +19,69 @@ interface VideoItem {
   status: string
 }
 
+import { useAuthStore } from '@/store/useAuthStore'
+
 export default function Dashboard() {
-  const [user, setUser] = useState<any>(null)
+  const { user, isLoading: authLoading } = useAuthStore()
   const [username, setUsername] = useState<string>('')
   const [videos, setVideos] = useState<VideoItem[]>([])
   const [totalIncome, setTotalIncome] = useState(0)
   const router = useRouter()
-  const [loading, setLoading] = useState(true)
+  const [dataLoading, setDataLoading] = useState(true)
   const [origin, setOrigin] = useState('')
 
   useEffect(() => {
     setOrigin(window.location.origin)
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/auth')
-      } else {
-        setUser(user)
-        fetchData(user.id)
-      }
-      setLoading(false)
+    
+    if (authLoading) return
+
+    if (!user) {
+      router.push('/auth')
+      return
     }
-    getUser()
-  }, [router])
+
+    // User exists, fetch data
+    fetchData(user.id)
+  }, [user, authLoading, router])
 
   const fetchData = async (userId: string) => {
-    // Fetch profile for username
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('username')
-      .eq('id', userId)
-      .single()
-    
-    if (profileData) {
-      setUsername(profileData.username || '')
-    }
+    try {
+      // Parallel data fetching
+      const [profileResult, videosResult, incomeResult] = await Promise.allSettled([
+        supabase.from('profiles').select('username').eq('id', userId).single(),
+        supabase.from('videos').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+        supabase.from('transactions').select('amount').eq('user_id', userId).eq('type', 'income')
+      ])
 
-    // Fetch videos
-    const { data: videosData, error: videosError } = await supabase
-      .from('videos')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-    
-    if (!videosError && videosData) {
-      setVideos(videosData as any[])
-    }
+      // Handle Profile
+      if (profileResult.status === 'fulfilled') {
+        const { data, error } = profileResult.value
+        if (!error && data) setUsername(data.username || '')
+      }
 
-    // Fetch income transactions
-    const { data: incomeData, error: incomeError } = await supabase
-      .from('transactions')
-      .select('amount')
-      .eq('user_id', userId)
-      .eq('type', 'income')
-    
-    if (!incomeError && incomeData) {
-      const total = incomeData.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0)
-      setTotalIncome(total)
+      // Handle Videos
+      if (videosResult.status === 'fulfilled') {
+        const { data, error } = videosResult.value
+        if (!error && data) setVideos(data as any[])
+      }
+
+      // Handle Income
+      if (incomeResult.status === 'fulfilled') {
+        const { data, error } = incomeResult.value
+        if (!error && data) {
+          const total = data.reduce((acc: number, curr: any) => acc + (Number(curr.amount) || 0), 0)
+          setTotalIncome(total)
+        }
+      }
+    } catch (error) {
+      console.error('Unexpected error in fetchData:', error)
+      toast.error('获取数据部分失败，请重试')
+    } finally {
+      setDataLoading(false)
     }
   }
 
-  if (loading) return (
+  if (authLoading) return (
     <div className="min-h-screen bg-[#020817] flex items-center justify-center text-white">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
     </div>

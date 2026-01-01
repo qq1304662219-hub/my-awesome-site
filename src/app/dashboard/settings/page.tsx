@@ -1,193 +1,233 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+"use client"
+
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { toast } from 'sonner'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Textarea } from "@/components/ui/textarea"
+import { toast } from "sonner"
+import { Loader2, User, Save, Upload, Camera } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-export default function Settings() {
-  const [user, setUser] = useState<any>(null)
+export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
-  const [updating, setUpdating] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [formData, setFormData] = useState({
+    full_name: "",
+    bio: "",
+    website: "",
+    avatar_url: ""
+  })
+  const [user, setUser] = useState<any>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
-  // Form state
-  const [fullName, setFullName] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  // Password Reset State
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [updatingPassword, setUpdatingPassword] = useState(false)
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setUser(user)
-        setFullName(user.user_metadata?.full_name || '')
-      }
-      setLoading(false)
-    }
-    getUser()
+    fetchProfile()
   }, [])
 
-  const handleUpdateProfile = async () => {
-    if (!user) return
-    setUpdating(true)
-
+  const fetchProfile = async () => {
     try {
-        // 1. Update Auth Metadata
-        const { error: authError } = await supabase.auth.updateUser({
-            data: { full_name: fullName }
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      setUser(user)
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, bio, website, avatar_url')
+        .eq('id', user.id)
+        .single()
+
+      if (error && error.code !== 'PGRST116') throw error
+
+      if (data) {
+        setFormData({
+          full_name: data.full_name || "",
+          bio: data.bio || "",
+          website: data.website || "",
+          avatar_url: data.avatar_url || ""
         })
-        if (authError) throw authError
-
-        // 2. Update Profiles Table
-        const { error: profileError } = await supabase
-            .from('profiles')
-            .update({ full_name: fullName })
-            .eq('id', user.id)
-        
-        if (profileError) throw profileError
-
-        toast.success('个人资料已更新')
-    } catch (error: any) {
-        toast.error('更新失败: ' + error.message)
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error)
+      toast.error("加载个人资料失败")
     } finally {
-        setUpdating(false)
+      setLoading(false)
     }
   }
 
-  const handleUpdatePassword = async () => {
-    if (!password) return
-    if (password !== confirmPassword) {
-        toast.error('两次输入的密码不一致')
-        return
-    }
-    if (password.length < 6) {
-        toast.error('密码长度至少为 6 位')
-        return
-    }
-
-    setUpdating(true)
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
-        const { error } = await supabase.auth.updateUser({
-            password: password
-        })
-        
-        if (error) throw error
+      setUploadingAvatar(true)
+      const file = e.target.files?.[0]
+      if (!file) return
 
-        toast.success('密码已更新')
-        setPassword('')
-        setConfirmPassword('')
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`
+      const filePath = `avatars/${fileName}`
+
+      // Upload to 'avatars' bucket (assuming it exists, otherwise 'public')
+      // Let's try 'public' first or 'videos' if no specific bucket, but usually 'avatars' is separate.
+      // Based on previous files, we haven't seen an 'avatars' bucket creation.
+      // We will try 'public' bucket with folder 'avatars'.
+      const { error: uploadError } = await supabase.storage
+        .from('public')
+        .upload(filePath, file)
+
+      if (uploadError) {
+        // If bucket doesn't exist, this fails. 
+        // We assume 'public' bucket exists as it's common in Supabase starter.
+        // If not, we might need to create it or use 'videos' bucket if that's the only one.
+        throw uploadError
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('public')
+        .getPublicUrl(filePath)
+
+      setFormData({ ...formData, avatar_url: publicUrl })
+      toast.success("头像上传成功")
     } catch (error: any) {
-        toast.error('更新失败: ' + error.message)
+      console.error("Avatar upload error:", error)
+      toast.error("上传头像失败: " + error.message)
     } finally {
-        setUpdating(false)
+      setUploadingAvatar(false)
     }
   }
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-    </div>
-  )
+  const handleSave = async () => {
+    if (!user) return;
+    try {
+      setSaving(true)
+      const updates = {
+          full_name: formData.full_name,
+          bio: formData.bio,
+          website: formData.website,
+          avatar_url: formData.avatar_url,
+          updated_at: new Date().toISOString()
+      }
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id)
+
+      if (error) throw error
+      
+      // Update local store
+      if (profile) {
+          setProfile({ ...profile, ...updates })
+      }
+
+      toast.success("保存成功")
+    } catch (error: any) {
+      console.error("Save error:", error)
+      toast.error("保存失败: " + error.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-blue-500" /></div>
 
   return (
-    <div className="p-6 space-y-8 max-w-4xl">
-      <h1 className="text-2xl font-bold text-white">账号设置</h1>
+    <div className="max-w-4xl mx-auto p-8 space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold mb-2">账号设置</h1>
+        <p className="text-gray-400">管理您的个人资料和账号信息</p>
+      </div>
 
-      {/* Profile Settings */}
-      <Card className="bg-white/5 border-white/10">
-        <CardHeader>
-            <CardTitle className="text-white">基本资料</CardTitle>
-            <CardDescription className="text-gray-400">
-                管理您的个人信息和公开资料
-            </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-            <div className="flex items-center gap-6">
-                <Avatar className="h-20 w-20 border-2 border-white/10">
-                    <AvatarImage src={user?.user_metadata?.avatar_url} />
-                    <AvatarFallback className="bg-blue-600 text-xl">
-                        {user?.email?.[0]?.toUpperCase()}
+      <div className="bg-[#0B1120] border border-white/10 rounded-xl p-8 space-y-8">
+        
+        {/* Avatar Section */}
+        <div className="flex items-center gap-8 pb-8 border-b border-white/10">
+            <div className="relative group">
+                <Avatar className="h-24 w-24 border-2 border-white/10">
+                    <AvatarImage src={formData.avatar_url} />
+                    <AvatarFallback className="bg-blue-600 text-2xl">
+                        {formData.full_name?.[0]?.toUpperCase() || <User />}
                     </AvatarFallback>
                 </Avatar>
-                <div className="space-y-2">
-                    <Button variant="outline" className="border-white/10 text-white hover:bg-white/10">
-                        更换头像
-                    </Button>
-                    <p className="text-xs text-gray-500">支持 JPG, PNG 格式，最大 2MB</p>
-                </div>
+                <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                    {uploadingAvatar ? (
+                        <Loader2 className="w-6 h-6 animate-spin text-white" />
+                    ) : (
+                        <Camera className="w-6 h-6 text-white" />
+                    )}
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={handleAvatarUpload}
+                        disabled={uploadingAvatar}
+                    />
+                </label>
+            </div>
+            <div className="flex-1">
+                <h3 className="font-bold text-lg mb-1">头像</h3>
+                <p className="text-sm text-gray-400">
+                    点击图片上传新头像。支持 JPG, PNG, GIF 格式。
+                </p>
+            </div>
+        </div>
+
+        {/* Form Section */}
+        <div className="space-y-6">
+            <div className="grid gap-2">
+                <Label htmlFor="full_name">昵称</Label>
+                <Input 
+                    id="full_name"
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                    className="bg-black/20 border-white/10"
+                    placeholder="您的昵称"
+                />
             </div>
 
-            <div className="grid gap-4 max-w-md">
-                <div className="space-y-2">
-                    <Label htmlFor="email" className="text-gray-300">邮箱账号</Label>
-                    <Input 
-                        id="email" 
-                        value={user?.email} 
-                        disabled 
-                        className="bg-black/20 border-white/10 text-gray-500"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="fullname" className="text-gray-300">昵称</Label>
-                    <Input 
-                        id="fullname" 
-                        value={fullName} 
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="bg-black/20 border-white/10 text-white"
-                    />
-                </div>
+            <div className="grid gap-2">
+                <Label htmlFor="bio">个人简介</Label>
+                <Textarea 
+                    id="bio"
+                    value={formData.bio}
+                    onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                    className="bg-black/20 border-white/10 min-h-[100px]"
+                    placeholder="介绍一下自己..."
+                />
+            </div>
+
+            <div className="grid gap-2">
+                <Label htmlFor="website">个人网站 / 社交链接</Label>
+                <Input 
+                    id="website"
+                    value={formData.website}
+                    onChange={(e) => setFormData({...formData, website: e.target.value})}
+                    className="bg-black/20 border-white/10"
+                    placeholder="https://..."
+                />
+            </div>
+
+            <div className="pt-4 flex justify-end">
                 <Button 
-                    onClick={handleUpdateProfile} 
-                    disabled={updating}
-                    className="w-fit bg-blue-600 hover:bg-blue-700"
+                    onClick={handleSave} 
+                    disabled={saving}
+                    className="bg-blue-600 hover:bg-blue-700 min-w-[120px]"
                 >
-                    保存资料
+                    {saving ? (
+                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> 保存中...</>
+                    ) : (
+                        <><Save className="w-4 h-4 mr-2" /> 保存更改</>
+                    )}
                 </Button>
             </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Security Settings */}
-      <Card className="bg-white/5 border-white/10">
-        <CardHeader>
-            <CardTitle className="text-white">安全设置</CardTitle>
-            <CardDescription className="text-gray-400">
-                修改您的登录密码
-            </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 max-w-md">
-            <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-300">新密码</Label>
-                <Input 
-                    id="password" 
-                    type="password"
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-black/20 border-white/10 text-white"
-                />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="confirm" className="text-gray-300">确认新密码</Label>
-                <Input 
-                    id="confirm" 
-                    type="password"
-                    value={confirmPassword} 
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="bg-black/20 border-white/10 text-white"
-                />
-            </div>
-            <Button 
-                onClick={handleUpdatePassword} 
-                disabled={updating || !password}
-                className="w-fit bg-white text-black hover:bg-gray-200"
-            >
-                更新密码
-            </Button>
-        </CardContent>
-      </Card>
+      </div>
     </div>
   )
 }

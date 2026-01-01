@@ -30,6 +30,8 @@ interface Order {
   order_items: OrderItem[]
 }
 
+import { getStoragePathFromUrl } from "@/lib/utils"
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -66,12 +68,48 @@ export default function OrdersPage() {
 
       if (error) throw error
 
-      const formattedData = (data || []).map((order: any) => ({
-        ...order,
-        order_items: order.order_items.map((item: any) => ({
-          ...item,
-          video: Array.isArray(item.video) ? item.video[0] : item.video
-        }))
+      const formattedData = await Promise.all((data || []).map(async (order: any) => {
+        const orderItems = await Promise.all(order.order_items.map(async (item: any) => {
+            let video = Array.isArray(item.video) ? item.video[0] : item.video;
+            
+            // Generate Signed URL for download
+            if (video && video.url) {
+                const storagePath = getStoragePathFromUrl(video.url);
+                if (storagePath) {
+                    const { data: signedData } = await supabase
+                        .storage
+                        .from('uploads')
+                        .createSignedUrl(storagePath, 60 * 60 * 24); // 24 hours
+                    if (signedData) {
+                        video.url = signedData.signedUrl;
+                    }
+                }
+            }
+
+            // Generate Signed URL for thumbnail
+            if (video && video.thumbnail_url) {
+                const thumbPath = getStoragePathFromUrl(video.thumbnail_url);
+                if (thumbPath) {
+                     const { data: signedThumb } = await supabase
+                        .storage
+                        .from('uploads')
+                        .createSignedUrl(thumbPath, 60 * 60 * 24);
+                     if (signedThumb) {
+                         video.thumbnail_url = signedThumb.signedUrl;
+                     }
+                }
+            }
+
+            return {
+                ...item,
+                video
+            }
+        }));
+
+        return {
+            ...order,
+            order_items: orderItems
+        }
       }))
 
       setOrders(formattedData)

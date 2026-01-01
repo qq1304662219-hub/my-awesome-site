@@ -2,6 +2,8 @@ import { DashboardSidebar } from "@/components/dashboard/Sidebar"
 import { Navbar } from "@/components/landing/Navbar"
 import { AuthGuard } from "@/components/auth/AuthGuard"
 
+import { EmailVerificationBanner } from "@/components/dashboard/EmailVerificationBanner"
+
 export default function DashboardLayout({
   children,
 }: {
@@ -10,10 +12,11 @@ export default function DashboardLayout({
   return (
     <AuthGuard>
       <div className="flex h-screen bg-[#0B1120] overflow-hidden flex-col">
-        <Navbar />
+        <Navbar simple={true} showMobileMenu={false} />
         <div className="flex flex-1 overflow-hidden pt-16">
           <DashboardSidebar />
           <main className="flex-1 overflow-y-auto relative">
+            <EmailVerificationBanner />
             {children}
           </main>
         </div>

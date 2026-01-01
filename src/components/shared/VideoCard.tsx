@@ -17,8 +17,8 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/useAuthStore";
 
-interface VideoCardProps {
-  id: string | number;
+export interface VideoCardProps {
+  id: string;
   title: string;
   author?: string;
   user_id?: string;
@@ -167,6 +167,7 @@ export function VideoCard({
                 className="h-8 w-8 rounded-full bg-white/10 hover:bg-blue-600 text-white backdrop-blur-sm border border-white/20"
                 onClick={handleAddToCart}
                 disabled={addingToCart}
+                aria-label="添加到购物车"
              >
                 {addingToCart ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
              </Button>
@@ -203,7 +204,7 @@ export function VideoCard({
 
           {/* Play Overlay */}
           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none z-20">
-            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-xl transform scale-90 group-hover:scale-100 transition-transform duration-300">
+            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-xl transform scale-90 group-hover:scale-100 transition-transform duration-300" aria-label="播放视频">
               <Play className="fill-white text-white ml-1 w-5 h-5" />
             </div>
           </div>
@@ -214,19 +215,19 @@ export function VideoCard({
              <TooltipProvider delayDuration={0}>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md hover:bg-white hover:text-black border border-white/10 transition-colors">
+                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md hover:bg-white hover:text-black border border-white/10 transition-colors" aria-label={t.common.collect}>
                             <Heart className="h-4 w-4" />
                         </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>收藏</p></TooltipContent>
+                    <TooltipContent side="bottom"><p>{t.common.collect}</p></TooltipContent>
                 </Tooltip>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md hover:bg-white hover:text-black border border-white/10 transition-colors">
+                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md hover:bg-white hover:text-black border border-white/10 transition-colors" aria-label={t.common.watch_later}>
                             <Clock className="h-4 w-4" />
                         </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>稍后观看</p></TooltipContent>
+                    <TooltipContent side="bottom"><p>{t.common.watch_later}</p></TooltipContent>
                 </Tooltip>
              </TooltipProvider>
         </div>

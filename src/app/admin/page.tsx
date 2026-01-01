@@ -29,23 +29,24 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      // 1. Get counts
-      const { count: userCount } = await supabase
-        .from("profiles")
-        .select("*", { count: "exact", head: true })
-
-      const { count: videoCount } = await supabase
-        .from("videos")
-        .select("*", { count: "exact", head: true })
+      setLoading(true)
       
-      const { count: requestCount } = await supabase
-        .from("requests")
-        .select("*", { count: "exact", head: true })
-      
-      // Note: 'likes' table might be large, be careful with count
-      const { count: likesCount } = await supabase
-        .from("likes")
-        .select("*", { count: "exact", head: true })
+      const [
+        { count: userCount },
+        { count: videoCount },
+        { count: requestCount },
+        { count: likesCount },
+        { data: recentVideosData }
+      ] = await Promise.all([
+        supabase.from("profiles").select("*", { count: "exact", head: true }),
+        supabase.from("videos").select("*", { count: "exact", head: true }),
+        supabase.from("requests").select("*", { count: "exact", head: true }),
+        supabase.from("likes").select("*", { count: "exact", head: true }),
+        supabase.from("videos")
+          .select("id, title, created_at, thumbnail_url, category")
+          .order("created_at", { ascending: false })
+          .limit(5)
+      ])
 
       setStats({
         users: userCount || 0,
@@ -53,15 +54,8 @@ export default function AdminDashboard() {
         likes: likesCount || 0,
         requests: requestCount || 0
       })
-
-      // 2. Get recent videos
-      const { data: videos } = await supabase
-        .from("videos")
-        .select("id, title, created_at, thumbnail_url, category")
-        .order("created_at", { ascending: false })
-        .limit(5)
       
-      setRecentVideos(videos as DashboardVideo[] || [])
+      setRecentVideos(recentVideosData as DashboardVideo[] || [])
 
     } catch (error) {
       console.error("Error fetching admin stats:", error)

@@ -12,7 +12,7 @@ import { useAuthStore } from "@/store/useAuthStore"
 import { cn } from "@/lib/utils"
 
 interface AddToCollectionModalProps {
-  videoId: number
+  videoId: string
   trigger?: React.ReactNode
 }
 

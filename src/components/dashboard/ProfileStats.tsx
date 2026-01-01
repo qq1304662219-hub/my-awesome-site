@@ -92,12 +92,12 @@ export function ProfileStats({ user, stats }: ProfileStatsProps) {
                 </div>
                 
                 <div className="flex gap-3">
-                    <Link href="/dashboard/wallet-final">
+                    <Link href="/dashboard/wallet">
                         <Button variant="outline" className="border-white/10 hover:bg-white/10 text-white">
                             收益明细
                         </Button>
                     </Link>
-                    <Link href="/dashboard/wallet-final">
+                    <Link href="/dashboard/wallet">
                         <Button className="bg-white text-black hover:bg-gray-200">
                             提现
                         </Button>

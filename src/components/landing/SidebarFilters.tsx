@@ -105,6 +105,20 @@ export function SidebarFilters() {
             />
 
             <FilterGroup 
+                title="AI 模型" 
+                icon="🤖" 
+                paramName="model"
+                items={[
+                    { label: "Midjourney", value: "Midjourney" },
+                    { label: "Runway", value: "Runway" },
+                    { label: "Pika", value: "Pika" },
+                    { label: "Sora", value: "Sora" },
+                    { label: "Stable Diffusion", value: "Stable Diffusion" },
+                    { label: "DALL·E 3", value: "DALL·E 3" },
+                ]} 
+            />
+
+            <FilterGroup 
                 title="视频比例" 
                 icon="📐" 
                 paramName="ratio"

@@ -1,272 +1,198 @@
-'use client'
+"use client"
+
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { Trash2, Search, ExternalLink, Check, AlertCircle, XCircle } from "lucide-react"
-import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { Video } from "@/types/video"
-import { Database } from "@/types/supabase"
+import { Loader2, CheckCircle, XCircle, Play, FileText } from "lucide-react"
+import { format } from "date-fns"
+import { useAuthStore } from "@/store/useAuthStore"
+import { useRouter } from "next/navigation"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
-type Profile = Database['public']['Tables']['profiles']['Row']
-
-interface VideoWithProfile extends Video {
-  profiles?: Profile
-}
-
-export default function AdminVideos() {
-  const [videos, setVideos] = useState<VideoWithProfile[]>([])
+export default function AdminVideosPage() {
+  const [videos, setVideos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState("")
-  const [updating, setUpdating] = useState<string | number | null>(null)
+  const { user, profile } = useAuthStore()
+  const router = useRouter()
+  const [selectedVideo, setSelectedVideo] = useState<any>(null)
 
   useEffect(() => {
-    fetchVideos()
-  }, [])
-
-  const fetchVideos = async () => {
-    setLoading(true)
-    try {
-      // Only fetch pending videos for review
-      let query = supabase
-        .from("videos")
-        .select("*")
-        .eq('status', 'pending') // Review mode
-        .order("created_at", { ascending: false })
-
-      if (search) {
-        query = query.ilike("title", `%${search}%`)
-      }
-
-      const { data: videosData, error } = await query
-      if (error) throw error
-      
-      if (!videosData || videosData.length === 0) {
-        setVideos([])
+    if (profile && profile.role !== 'admin' && profile.role !== 'super_admin') {
+        router.push('/')
         return
-      }
+    }
+    fetchPendingVideos()
+  }, [profile, router])
 
-      // Fetch profiles manually to ensure we get user info even if FK is missing
-      const userIds = [...new Set(videosData.map(v => v.user_id))]
-      const { data: profilesData } = await supabase
-        .from("profiles")
-        .select("*")
-        .in("id", userIds)
+  const fetchPendingVideos = async () => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('videos')
+        .select(`
+            *,
+            profiles:user_id (full_name, email)
+        `)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
 
-      const profilesMap = (profilesData || []).reduce((acc: any, profile: any) => {
-        acc[profile.id] = profile
-        return acc
-      }, {} as Record<string, Profile>)
-
-      const videosWithProfiles: VideoWithProfile[] = videosData.map(video => ({
-        ...video,
-        profiles: profilesMap[video.user_id]
-      }))
-
-      setVideos(videosWithProfiles)
+      if (error) throw error
+      setVideos(data || [])
     } catch (error) {
       console.error("Error fetching videos:", error)
-      toast.error("加载视频列表失败")
+      toast.error("加载待审核视频失败")
     } finally {
       setLoading(false)
     }
   }
 
-  const handlePublish = async (video: VideoWithProfile, netdiskUrl: string) => {
-    if (!netdiskUrl) {
-      toast.error("请输入网盘链接")
-      return
-    }
-
-    if (!confirm("确定要发布这个视频吗？")) return
-
-    setUpdating(video.id)
+  const handleApprove = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from("videos")
-        .update({
-          status: 'published',
-          download_url: netdiskUrl
-        })
-        .eq("id", video.id)
+        const { error } = await supabase
+            .from('videos')
+            .update({ status: 'published' })
+            .eq('id', id)
 
-      if (error) throw error
-
-      toast.success("视频已发布")
-      // Remove from list
-      setVideos(videos.filter(v => v.id !== video.id))
-    } catch (error) {
-      console.error("Error publishing video:", error)
-      toast.error("发布失败")
-    } finally {
-      setUpdating(null)
+        if (error) throw error
+        toast.success("视频已发布")
+        fetchPendingVideos()
+        setSelectedVideo(null)
+    } catch (error: any) {
+        console.error("Approve error:", error)
+        toast.error("批准失败: " + error.message)
     }
   }
 
-  const handleReject = async (video: VideoWithProfile) => {
-    if (!confirm("确定要拒绝这个视频吗？")) return
+  const handleReject = async (id: string) => {
+      try {
+        if (!confirm("确定要拒绝发布该视频吗？")) return
 
-    setUpdating(video.id)
-    try {
-      const { error } = await supabase
-        .from("videos")
-        .update({
-          status: 'rejected'
-        })
-        .eq("id", video.id)
-
-      if (error) throw error
-
-      toast.success("视频已拒绝")
-      // Remove from list
-      setVideos(videos.filter(v => v.id !== video.id))
-    } catch (error) {
-      console.error("Error rejecting video:", error)
-      toast.error("拒绝失败")
-    } finally {
-      setUpdating(null)
-    }
+        const { error } = await supabase
+            .from('videos')
+            .update({ status: 'rejected' })
+            .eq('id', id)
+        
+        if (error) throw error
+        toast.success("已拒绝")
+        fetchPendingVideos()
+        setSelectedVideo(null)
+      } catch (error: any) {
+        console.error("Reject error:", error)
+        toast.error("操作失败: " + error.message)
+      }
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">审核视频</h1>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="搜索待审核视频..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && fetchVideos()}
-            className="pl-10 pr-4 py-2 bg-[#0B1120] border border-white/10 rounded-lg text-sm focus:outline-none focus:border-blue-500 w-64"
-          />
-        </div>
-      </div>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-8">视频审核</h1>
+      
+      {loading ? (
+          <div className="flex justify-center"><Loader2 className="animate-spin" /></div>
+      ) : videos.length === 0 ? (
+          <div className="text-gray-500">暂无待审核视频</div>
+      ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {videos.map((video) => (
+                  <div key={video.id} className="bg-[#0f172a] border border-white/10 rounded-xl overflow-hidden flex flex-col">
+                      <div className="relative aspect-video bg-black group cursor-pointer" onClick={() => setSelectedVideo(video)}>
+                          <img 
+                            src={video.thumbnail_url} 
+                            alt={video.title} 
+                            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                              <Play className="w-12 h-12 text-white opacity-50 group-hover:opacity-100" />
+                          </div>
+                          <div className="absolute bottom-2 right-2 bg-black/50 text-xs px-2 py-1 rounded text-white">
+                              {video.duration}
+                          </div>
+                      </div>
+                      
+                      <div className="p-4 flex-1 flex flex-col">
+                          <h3 className="font-bold text-white mb-1 truncate">{video.title}</h3>
+                          <div className="text-xs text-gray-400 mb-4 flex items-center justify-between">
+                              <span>by {video.profiles?.full_name || 'Unknown'}</span>
+                              <span>{format(new Date(video.created_at), "MM-dd HH:mm")}</span>
+                          </div>
+                          
+                          <div className="mt-auto flex gap-2">
+                              <Button 
+                                  className="flex-1 bg-green-600 hover:bg-green-700"
+                                  onClick={() => handleApprove(video.id)}
+                              >
+                                  <CheckCircle className="w-4 h-4 mr-1" /> 通过
+                              </Button>
+                              <Button 
+                                  className="flex-1" 
+                                  variant="destructive"
+                                  onClick={() => handleReject(video.id)}
+                              >
+                                  <XCircle className="w-4 h-4 mr-1" /> 拒绝
+                              </Button>
+                          </div>
+                      </div>
+                  </div>
+              ))}
+          </div>
+      )}
 
-      <div className="bg-[#0B1120] border border-white/10 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-white/5 text-gray-400">
-              <tr>
-                <th className="p-4 w-[300px]">视频预览</th>
-                <th className="p-4">原片下载</th>
-                <th className="p-4 w-[300px]">转存 (网盘链接)</th>
-                <th className="p-4 text-right">操作</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {loading ? (
-                <tr>
-                  <td colSpan={4} className="p-8 text-center text-gray-500">加载中...</td>
-                </tr>
-              ) : videos.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="p-8 text-center text-gray-500">暂无待审核视频</td>
-                </tr>
-              ) : (
-                videos.map((video) => (
-                  <VideoRow 
-                    key={video.id} 
-                    video={video} 
-                    onPublish={handlePublish} 
-                    onReject={handleReject}
-                    updating={updating === video.id} 
-                  />
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <Dialog open={!!selectedVideo} onOpenChange={(open) => !open && setSelectedVideo(null)}>
+        <DialogContent className="max-w-4xl bg-[#0f172a] border-white/10 text-white">
+            <DialogHeader>
+                <DialogTitle>{selectedVideo?.title}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+                <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                    {selectedVideo && (
+                        <video 
+                            src={selectedVideo.url} 
+                            controls 
+                            className="w-full h-full"
+                        />
+                    )}
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-sm text-gray-400">
+                    <div>
+                        <span className="text-gray-500 block">Prompt:</span>
+                        {selectedVideo?.prompt || 'N/A'}
+                    </div>
+                    <div>
+                        <span className="text-gray-500 block">AI Model:</span>
+                        {selectedVideo?.ai_model || 'N/A'}
+                    </div>
+                    <div>
+                        <span className="text-gray-500 block">Description:</span>
+                        {selectedVideo?.description || 'N/A'}
+                    </div>
+                     <div>
+                        <span className="text-gray-500 block">Tags:</span>
+                        {selectedVideo?.tags?.join(', ') || 'N/A'}
+                    </div>
+                </div>
+                <div className="flex gap-4 justify-end pt-4">
+                     <Button 
+                          className="bg-green-600 hover:bg-green-700"
+                          onClick={() => selectedVideo && handleApprove(selectedVideo.id)}
+                      >
+                          通过审核
+                      </Button>
+                      <Button 
+                          variant="destructive"
+                          onClick={() => selectedVideo && handleReject(selectedVideo.id)}
+                      >
+                          拒绝
+                      </Button>
+                </div>
+            </div>
+        </DialogContent>
+      </Dialog>
     </div>
-  )
-}
-
-function VideoRow({ video, onPublish, onReject, updating }: { 
-  video: VideoWithProfile, 
-  onPublish: (v: VideoWithProfile, url: string) => void, 
-  onReject: (v: VideoWithProfile) => void,
-  updating: boolean 
-}) {
-  const [netdiskUrl, setNetdiskUrl] = useState("")
-
-  return (
-    <tr className="hover:bg-white/5 transition-colors">
-      <td className="p-4">
-        <div className="flex gap-3">
-          <div className="w-32 h-20 bg-gray-800 rounded-lg overflow-hidden flex-shrink-0 relative group">
-            {video.thumbnail_url || video.url ? (
-              <>
-                <img 
-                  src={video.thumbnail_url || video.url} 
-                  className="w-full h-full object-cover" 
-                  alt={video.title}
-                />
-                {video.url && (
-                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <a href={video.url} target="_blank" rel="noopener noreferrer" className="text-white text-xs hover:underline">
-                        预览
-                      </a>
-                   </div>
-                )}
-              </>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-600">No Preview</div>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-white truncate" title={video.title}>{video.title}</h3>
-            <p className="text-gray-500 text-xs mt-1">
-              {video.profiles?.full_name || 'Unknown User'}
-            </p>
-            <p className="text-gray-500 text-xs">
-              {video.created_at ? new Date(video.created_at).toLocaleDateString() : '-'}
-            </p>
-          </div>
-        </div>
-      </td>
-      <td className="p-4">
-        <a 
-          href={video.url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 text-blue-400 rounded-lg hover:bg-blue-500/20 transition-colors text-xs"
-        >
-          <ExternalLink className="w-3 h-3" />
-          下载原片
-        </a>
-      </td>
-      <td className="p-4">
-        <input 
-          type="text" 
-          placeholder="输入百度网盘链接..." 
-          className="w-full bg-[#020817] border border-white/10 rounded px-3 py-2 text-white focus:border-blue-500 focus:outline-none text-xs"
-          value={netdiskUrl}
-          onChange={(e) => setNetdiskUrl(e.target.value)}
-        />
-      </td>
-      <td className="p-4 text-right">
-        <div className="flex items-center justify-end gap-2">
-          <button
-            onClick={() => onReject(video)}
-            disabled={updating}
-            className="px-3 py-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium flex items-center gap-1"
-            title="拒绝"
-          >
-            <XCircle className="w-3.5 h-3.5" />
-            拒绝
-          </button>
-          <button
-            onClick={() => onPublish(video, netdiskUrl)}
-            disabled={updating || !netdiskUrl}
-            className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium flex items-center gap-1"
-          >
-            <Check className="w-3.5 h-3.5" />
-            发布
-          </button>
-        </div>
-      </td>
-    </tr>
   )
 }

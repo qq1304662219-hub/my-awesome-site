@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { deleteVideoWithStorage } from '@/lib/storage-utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -53,16 +54,12 @@ export default function MyVideos() {
   const handleDelete = async () => {
     if (!deleteId) return
 
-    const { error } = await supabase
-      .from('videos')
-      .delete()
-      .eq('id', deleteId)
-
-    if (error) {
-      toast.error('删除失败: ' + error.message)
-    } else {
+    try {
+      await deleteVideoWithStorage(supabase, deleteId)
       toast.success('作品已删除')
       setVideos(videos.filter(v => v.id !== deleteId))
+    } catch (error: any) {
+      toast.error('删除失败: ' + error.message)
     }
     setDeleteId(null)
   }

@@ -42,7 +42,6 @@ export default function Finance() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    console.log('Finance Page v2.0 Rendering')
     fetchData()
   }, [])
 
@@ -70,7 +69,7 @@ export default function Finance() {
         .order('created_at', { ascending: false })
       
       if (!error && data) {
-        setTransactions(data as any[])
+        setTransactions(data as Transaction[])
       }
     } finally {
       setLoading(false)

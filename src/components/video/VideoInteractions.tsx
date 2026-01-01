@@ -5,12 +5,15 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { ThumbsUp, MessageSquare, Share2, Download, Send, Coffee } from "lucide-react";
+import { ThumbsUp, MessageSquare, Share2, Download, Send, Coffee, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { TipModal } from "./TipModal";
+import { AddToCollectionModal } from "./AddToCollectionModal";
+import { ReportModal } from "./ReportModal";
+import { SocialShare } from "./SocialShare";
 
 interface Comment {
   id: string;
@@ -28,12 +31,14 @@ interface VideoInteractionsProps {
   initialLikes: number;
   currentUser: any;
   videoUrl: string;
+  videoTitle?: string;
   downloadUrl?: string;
+  authorId?: string;
   authorName?: string;
   children?: React.ReactNode;
 }
 
-export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl, downloadUrl, authorName = "作者", children }: VideoInteractionsProps) {
+export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl, videoTitle, downloadUrl, authorId, authorName = "作者", children }: VideoInteractionsProps) {
   const router = useRouter();
   const lastClickTime = useRef(0);
   const [likes, setLikes] = useState(initialLikes);
@@ -43,6 +48,8 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
   const [loadingComments, setLoadingComments] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isTipModalOpen, setIsTipModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportTarget, setReportTarget] = useState<{id: string, type: 'video' | 'comment'}>({id: videoId, type: 'video'});
   
   const isMock = /^[1-4]$/.test(videoId);
 
@@ -155,6 +162,12 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
       router.push("/auth");
       return;
     }
+
+    if (!currentUser.email_confirmed_at) {
+      toast.error("请先验证邮箱才能评论");
+      return;
+    }
+
     if (!newComment.trim()) return;
 
     setSubmitting(true);
@@ -191,6 +204,18 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
 
       if (error) throw error;
 
+      // Trigger Notification if not self-comment
+      if (authorId && currentUser.id !== authorId) {
+          await supabase.from("notifications").insert({
+              user_id: authorId, // The video owner
+              actor_id: currentUser.id,
+              type: "comment",
+              resource_id: videoId.toString(),
+              resource_type: "video",
+              content: `评论了你的视频: ${newComment.trim().substring(0, 50)}${newComment.length > 50 ? '...' : ''}`
+          });
+      }
+
       // Optimistic update or refetch. 
       // Since we need profile info which is joined, refetching is safer or we construct it manually.
       // Let's construct manually if we have user info, but fetching profile is better.
@@ -213,20 +238,13 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
     if (isMock) return;
     
     try {
-        await supabase.rpc('increment_downloads', { video_id: parseInt(videoId) });
+        await supabase.rpc('increment_downloads', { video_id: videoId });
     } catch (error) {
         console.error("Error incrementing downloads:", error);
+        toast.error("下载统计失败");
     }
   };
 
-import { AddToCollectionModal } from "./AddToCollectionModal";
-
-// ... existing imports
-
-// Inside VideoInteractionsProps interface
-// No changes needed if we just render it inside
-
-// Inside VideoInteractions component
   return (
     <div className="space-y-8">
       {/* Actions Bar */}
@@ -241,16 +259,10 @@ import { AddToCollectionModal } from "./AddToCollectionModal";
             {likes}
           </Button>
           
-          <AddToCollectionModal videoId={parseInt(videoId)} />
+          <AddToCollectionModal videoId={videoId} />
 
-          <Button 
-            variant="secondary" 
-            className="bg-white/10 hover:bg-white/20 text-white border-0"
-            onClick={handleShare}
-          >
-            <Share2 className="h-4 w-4 mr-2" />
-            分享
-          </Button>
+          <SocialShare url={typeof window !== 'undefined' ? window.location.href : videoUrl} title={videoTitle} />
+          
           <a href={downloadUrl || videoUrl} download target="_blank" rel="noopener noreferrer" onClick={handleDownload}>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">
               <Download className="h-4 w-4 mr-2" />
@@ -271,6 +283,19 @@ import { AddToCollectionModal } from "./AddToCollectionModal";
             <Coffee className="h-4 w-4 mr-2" />
             请作者喝咖啡
           </Button>
+
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-gray-400 hover:text-red-400 hover:bg-white/10" 
+            title="举报视频"
+            onClick={() => { 
+                setReportTarget({id: videoId, type: 'video'}); 
+                setIsReportModalOpen(true); 
+            }}
+          >
+            <Flag className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
@@ -279,6 +304,13 @@ import { AddToCollectionModal } from "./AddToCollectionModal";
         authorName={authorName}
         isOpen={isTipModalOpen}
         onClose={() => setIsTipModalOpen(false)}
+      />
+
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        resourceId={reportTarget.id}
+        resourceType={reportTarget.type}
       />
 
       {children}
@@ -325,7 +357,7 @@ import { AddToCollectionModal } from "./AddToCollectionModal";
             <p className="text-gray-500">还没有评论，抢沙发！</p>
           ) : (
             comments.map((comment) => (
-              <div key={comment.id} className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
+              <div key={comment.id} className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/5 group">
                 <Link href={`/profile/${comment.user_id}`}>
                   <Avatar className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity">
                     <AvatarImage src={comment.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.user_id}`} />
@@ -337,8 +369,18 @@ import { AddToCollectionModal } from "./AddToCollectionModal";
                     <Link href={`/profile/${comment.user_id}`} className="font-semibold text-sm hover:text-blue-400 transition-colors">
                       {comment.profiles?.full_name || `User ${comment.user_id.slice(0, 6)}`}
                     </Link>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 flex items-center gap-2">
                       {new Date(comment.created_at).toLocaleDateString()}
+                      <button 
+                        className="hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => {
+                            setReportTarget({id: comment.id, type: 'comment'});
+                            setIsReportModalOpen(true);
+                        }}
+                        title="举报评论"
+                      >
+                        <Flag className="h-3 w-3" />
+                      </button>
                     </span>
                   </div>
                   <p className="text-gray-300 text-sm leading-relaxed">{comment.content}</p>

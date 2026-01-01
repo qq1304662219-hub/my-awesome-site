@@ -4,8 +4,9 @@ import { PlayCircle, Clock, CheckCircle, User, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
+import { CourseEnrollButton } from "@/components/classroom/CourseEnrollButton";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function CourseDetailPage({ params }: { params: { id: string } }) {
   const { data: course, error } = await supabase
@@ -16,6 +17,20 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
 
   if (error || !course) {
     notFound();
+  }
+
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  let isEnrolled = false
+  if (user) {
+    const { data } = await supabase
+      .from('course_enrollments')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('course_id', params.id)
+      .single()
+    
+    if (data) isEnrolled = true
   }
 
   return (

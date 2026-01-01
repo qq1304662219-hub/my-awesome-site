@@ -9,6 +9,8 @@ export interface UserProfile {
   balance: number;
   role?: string;
   invited_by?: string | null;
+  bio?: string | null;
+  website?: string | null;
 }
 
 interface AuthState {
