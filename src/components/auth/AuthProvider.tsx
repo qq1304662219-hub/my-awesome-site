@@ -44,6 +44,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
         } catch (error) {
             console.error('Profile sync error:', error)
+            // Fallback: Set minimal profile from user metadata if DB fetch fails
+            if (mounted.current && user) {
+                const fallbackProfile = {
+                    id: user.id,
+                    email: user.email,
+                    full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
+                    avatar_url: user.user_metadata?.avatar_url,
+                    role: 'user', // Default role
+                    status: 'active',
+                    balance: 0
+                }
+                setProfile(fallbackProfile as any)
+            }
         }
     }
 
@@ -109,7 +122,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         if (session?.user) {
             if (mounted.current) setUser(session.user)
-            await syncUserProfile(session.user)
+            // DO NOT await this to avoid blocking any internal state updates
+            syncUserProfile(session.user)
         }
       } else if (event === 'SIGNED_OUT') {
         if (mounted.current) {
