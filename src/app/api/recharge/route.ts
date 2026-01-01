@@ -81,10 +81,14 @@ export async function POST(request: Request) {
     // So users probably CANNOT insert into transactions directly.
     
     // We need to use Supabase Admin client to insert the pending request.
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    
+    if (!supabaseUrl || !supabaseKey) {
+        return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseKey)
 
     const { error: insertError } = await supabaseAdmin
         .from('transactions')

@@ -2,13 +2,19 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 // Initialize Supabase Admin Client
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+const supabaseAdmin = (supabaseUrl && supabaseKey) 
+  ? createClient(supabaseUrl, supabaseKey) 
+  : null
 
 export async function POST(request: Request) {
   try {
+    if (!supabaseAdmin) {
+        return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 })
+    }
+
     // 1. Auth check (ensure requester is admin)
     // We can check the session from the request cookie, but for simplicity/robustness in this context:
     // We assume the frontend protects the route, and we verify the token if passed.
