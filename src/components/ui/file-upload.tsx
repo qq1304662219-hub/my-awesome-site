@@ -207,7 +207,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           ai_model: aiModel,
           status: 'pending',
           download_url: '',
-          duration: durationStr // Use extracted duration
+          duration: durationSec // Use numeric duration (seconds)
         })
         .select()
         .single()
