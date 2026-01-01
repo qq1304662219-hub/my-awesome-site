@@ -33,7 +33,11 @@ export function AuthGuard({ children, requireAdmin = false }: { children: React.
       try {
         // 1. Check if user is logged in (from store)
         if (!user) {
-            router.push('/auth?tab=login')
+            // Delay redirect slightly to ensure store is synced or allow toast to show
+            // But usually we just redirect.
+            const searchParams = new URLSearchParams(window.location.search)
+            const returnUrl = encodeURIComponent(window.location.pathname)
+            router.push(`/auth?tab=login&returnUrl=${returnUrl}`)
             return
         }
 

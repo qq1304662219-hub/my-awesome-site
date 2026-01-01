@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Add timeout to getSession
         const getSessionPromise = supabase.auth.getSession()
         const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Session check timeout')), 10000)
+            setTimeout(() => reject(new Error('Session check timeout')), 20000)
         )
 
         const { data: { session }, error } = await Promise.race([
@@ -84,14 +84,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setProfile(null)
             }
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error("Auth init error:", e)
-        // Even on error, we must stop loading to allow app to function (as guest)
+        // If timeout occurred, check if we can verify session via getUser (sometimes faster if cached)
+        // But for now, if timeout, we might assume poor connection.
+        // We do NOT clear user immediately if it's a timeout error and we might have had a user?
+        // Actually, initAuth runs on mount. user is null initially.
+        
         if (mounted.current) {
-            // Only clear user if it was a session error, not just a timeout? 
-            // Actually if timeout, we assume no session or offline.
-            // But if we are offline, maybe we should keep previous state?
-            // For now, fail safe to guest.
+            // Only explicitly set null if we are sure it failed definitively
+            // For timeout, we still set null because we can't confirm identity
             setUser(null)
             setProfile(null)
         }
