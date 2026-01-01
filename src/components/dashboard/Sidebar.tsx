@@ -73,8 +73,19 @@ export function DashboardSidebar() {
   }
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
+    // 1. Clear local state immediately for UI responsiveness
+    useAuthStore.getState().setUser(null)
+    useAuthStore.getState().setProfile(null)
+    
+    // 2. Redirect immediately
     router.push('/')
+    
+    // 3. Perform network signout in background
+    try {
+        await supabase.auth.signOut()
+    } catch (e) {
+        console.error("Sign out error:", e)
+    }
   }
 
   const handleForceAdmin = async () => {

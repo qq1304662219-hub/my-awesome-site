@@ -102,38 +102,30 @@ export function VideoGrid({ filters }: VideoGridProps) {
     }
   }
 
-  if (loading && videos.length === 0) {
+  if (loading && page === 0) {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-                <div key={i} className="flex flex-col space-y-3">
-                    <Skeleton className="h-[225px] w-full rounded-xl bg-white/10" />
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-[250px] bg-white/10" />
-                        <Skeleton className="h-4 w-[200px] bg-white/10" />
-                    </div>
-                </div>
-            ))}
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="space-y-4">
+            <Skeleton className="aspect-video w-full rounded-xl bg-white/5" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-3/4 bg-white/5" />
+              <Skeleton className="h-4 w-1/2 bg-white/5" />
+            </div>
+          </div>
+        ))}
+      </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 space-y-4 text-center">
-        <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center">
-          <AlertTriangle className="h-8 w-8 text-red-500" />
-        </div>
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-white">加载失败</h3>
-          <p className="text-gray-400 max-w-sm">{error}</p>
-        </div>
-        <Button 
-          onClick={() => fetchVideos(0, true)} 
-          variant="outline" 
-          className="bg-white/5 hover:bg-white/10 border-white/10 text-white"
-        >
-          <RefreshCw className="h-4 w-4 mr-2" />
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
+        <h3 className="text-xl font-bold text-white mb-2">出错了</h3>
+        <p className="text-gray-400 mb-6">{error}</p>
+        <Button onClick={() => fetchVideos(0, true)} variant="outline" className="gap-2">
+          <RefreshCw className="h-4 w-4" />
           重试
         </Button>
       </div>

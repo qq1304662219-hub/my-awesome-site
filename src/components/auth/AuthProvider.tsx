@@ -1,36 +1,34 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useAuthStore } from '@/store/useAuthStore'
 import { supabase } from '@/lib/supabase'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, setProfile, setLoading } = useAuthStore()
+  const mounted = useRef(false)
 
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        
-        if (session?.user) {
-            setUser(session.user)
-            // Fetch profile
+    mounted.current = true
+    
+    // Function to fetch or create profile
+    const syncUserProfile = async (user: any) => {
+        try {
             const { data: profile, error } = await supabase
               .from('profiles')
               .select('*')
-              .eq('id', session.user.id)
+              .eq('id', user.id)
               .single()
             
             if (profile) {
-              setProfile(profile)
-            } else if (!profile) {
-                // Profile not found (or error occurred), try to create one manually
-                // We ignore the error here because single() returns error when no rows found
+              if (mounted.current) setProfile(profile)
+            } else {
+                // Profile not found, create one
                 const newProfile = {
-                    id: session.user.id,
-                    email: session.user.email,
-                    full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
-                    avatar_url: session.user.user_metadata?.avatar_url,
+                    id: user.id,
+                    email: user.email,
+                    full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
+                    avatar_url: user.user_metadata?.avatar_url,
                     role: 'user',
                     status: 'active',
                     balance: 0
@@ -40,70 +38,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     .from('profiles')
                     .insert(newProfile)
                 
-                if (!insertError) {
+                if (!insertError && mounted.current) {
                     setProfile(newProfile as any)
-                } else {
-                    console.error('Failed to auto-create profile:', insertError)
                 }
             }
-          } else {
-            setUser(null)
-            setProfile(null)
+        } catch (error) {
+            console.error('Profile sync error:', error)
         }
-      } catch (error) {
-        console.error('Auth check error:', error)
+    }
+
+    // Initialize session
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+            if (mounted.current) setUser(session.user)
+            await syncUserProfile(session.user)
+        } else {
+            if (mounted.current) {
+                setUser(null)
+                setProfile(null)
+            }
+        }
+      } catch (e) {
+        console.error("Auth init error:", e)
       } finally {
-        setLoading(false)
+        if (mounted.current) setLoading(false)
       }
     }
 
-    checkUser()
+    initAuth()
 
+    // Listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      try {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         if (session?.user) {
-            setUser(session.user)
-            // Fetch profile on auth change too
-            const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-            
-            if (profile) {
-                setProfile(profile)
-            } else if (!profile) {
-                // Profile not found fallback
-                const newProfile = {
-                    id: session.user.id,
-                    email: session.user.email,
-                    full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
-                    avatar_url: session.user.user_metadata?.avatar_url,
-                    role: 'user',
-                    status: 'active',
-                    balance: 0
-                }
-                
-                const { error: insertError } = await supabase
-                    .from('profiles')
-                    .insert(newProfile)
-                
-                if (!insertError) {
-                    setProfile(newProfile as any)
-                }
-            }
-        } else {
+            if (mounted.current) setUser(session.user)
+            await syncUserProfile(session.user)
+        }
+      } else if (event === 'SIGNED_OUT') {
+        if (mounted.current) {
             setUser(null)
             setProfile(null)
         }
-      } catch (error) {
-        console.error("Auth state change error:", error)
-      } finally {
-        setLoading(false)
       }
+      
+      // Ensure loading is false after any auth event processing
+      if (mounted.current) setLoading(false)
     })
 
     return () => {
+      mounted.current = false
       subscription.unsubscribe()
     }
   }, [setUser, setProfile, setLoading])
