@@ -116,6 +116,8 @@ export function DashboardSidebar() {
 
   const isActive = (href: string) => {
       if (href === '/dashboard' && pathname === '/dashboard') return true
+      // Special case for Wallet/Transactions
+      if (href === '/dashboard/wallet' && (pathname === '/dashboard/wallet' || pathname === '/dashboard/transactions')) return true
       if (href !== '/dashboard' && pathname.startsWith(href)) return true
       return false
   }

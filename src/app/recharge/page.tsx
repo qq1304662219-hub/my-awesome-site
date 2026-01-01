@@ -53,10 +53,10 @@ function RechargeContent() {
             throw new Error(data.error || 'Recharge request failed');
         }
 
-        toast.success(`充值申请已提交，请等待管理员确认`)
+        toast.success(`充值成功！余额已更新`)
         
-        // Redirect back or to transactions history
-        router.push('/dashboard/transactions')
+        // Redirect back or to wallet
+        router.push('/dashboard/wallet')
     } catch (error: any) {
         console.error("Recharge error:", error)
         toast.error(error.message || "充值申请失败，请联系客服")
@@ -139,6 +139,12 @@ function RechargeContent() {
                                 src={paymentMethod === 'wechat' ? '/images/wechat-pay.jpg' : '/images/alipay-pay.jpg'} 
                                 alt={paymentMethod === 'wechat' ? 'WeChat Pay' : 'Alipay'}
                                 className="w-full h-full object-contain"
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    target.parentElement!.innerText = '请联系管理员获取收款码';
+                                    target.parentElement!.className += ' text-gray-400 text-sm font-medium';
+                                }}
                              />
                         </div>
                         <p className="text-xs text-gray-400 mt-2">

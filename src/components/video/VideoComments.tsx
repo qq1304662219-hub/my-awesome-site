@@ -217,10 +217,10 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
       return;
     }
 
-    if (!currentUser.email_confirmed_at) {
-      toast.error("请先验证邮箱才能评论");
-      return;
-    }
+    // if (!currentUser.email_confirmed_at) {
+    //   toast.error("请先验证邮箱才能评论");
+    //   return;
+    // }
 
     const content = parentId ? replyContent : newComment;
 

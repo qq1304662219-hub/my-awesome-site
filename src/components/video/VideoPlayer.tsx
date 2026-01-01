@@ -35,6 +35,8 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height }: Vi
     const updateTime = () => setCurrentTime(video.currentTime)
     const updateDuration = () => setDuration(video.duration)
     const handleEnded = () => setIsPlaying(false)
+    const handlePlay = () => setIsPlaying(true)
+    const handlePause = () => setIsPlaying(false)
     const handleError = () => {
       setError("视频加载失败，请检查网络或稍后重试")
       setIsPlaying(false)
@@ -47,12 +49,14 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height }: Vi
     video.addEventListener("timeupdate", updateTime)
     video.addEventListener("loadedmetadata", updateDuration)
     video.addEventListener("ended", handleEnded)
+    video.addEventListener("play", handlePlay)
+    video.addEventListener("pause", handlePause)
     video.addEventListener("error", handleError)
     video.addEventListener("enterpictureinpicture", handlePipChange)
     video.addEventListener("leavepictureinpicture", handlePipChange)
 
     if (autoPlay) {
-      video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
+      video.play().catch(() => setIsPlaying(false))
     }
 
     // Keyboard controls
@@ -68,19 +72,20 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height }: Vi
       video.removeEventListener("timeupdate", updateTime)
       video.removeEventListener("loadedmetadata", updateDuration)
       video.removeEventListener("ended", handleEnded)
+      video.removeEventListener("play", handlePlay)
+      video.removeEventListener("pause", handlePause)
       video.removeEventListener("error", handleError)
       window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [autoPlay, isPlaying]) // Added isPlaying dependency for closure consistency
+  }, [autoPlay]) // Removed isPlaying dependency to avoid re-binding loop
 
   const togglePlay = () => {
     if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause()
-      } else {
+      if (videoRef.current.paused) {
         videoRef.current.play()
+      } else {
+        videoRef.current.pause()
       }
-      setIsPlaying(!isPlaying)
     }
   }
 
