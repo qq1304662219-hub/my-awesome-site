@@ -34,6 +34,12 @@ function AdminContent({ children }: { children: React.ReactNode }) {
       show: true
     },
     {
+      name: "课程管理",
+      href: "/admin/courses",
+      icon: GraduationCap,
+      show: true
+    },
+    {
       name: "团队管理",
       href: "/admin/users",
       icon: Users,

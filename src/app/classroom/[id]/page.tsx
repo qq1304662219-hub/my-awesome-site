@@ -90,9 +90,11 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
                                 </div>
                             </div>
 
-                            <Button className="w-full bg-blue-600 hover:bg-blue-700 py-6 text-lg">
-                                立即报名
-                            </Button>
+                            <CourseEnrollButton 
+                              courseId={course.id} 
+                              price={course.price} 
+                              isEnrolled={isEnrolled} 
+                            />
                             
                             <div className="space-y-4 text-sm text-gray-400">
                                 <div className="flex items-center gap-3">
