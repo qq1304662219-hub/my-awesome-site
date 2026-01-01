@@ -48,10 +48,12 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
+    "dotenv": "^17.2.3",
     "eslint": "latest",
     "eslint-config-next": "latest",
     "postcss": "latest",
     "tailwindcss": "^3.4.17",
+    "tsx": "^4.21.0",
     "typescript": "latest"
   }
 }

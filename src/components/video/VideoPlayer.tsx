@@ -39,12 +39,22 @@ export function VideoPlayer({ src, poster, autoPlay = false }: VideoPlayerProps)
       video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
     }
 
+    // Keyboard controls
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        e.preventDefault()
+        togglePlay()
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+
     return () => {
       video.removeEventListener("timeupdate", updateTime)
       video.removeEventListener("loadedmetadata", updateDuration)
       video.removeEventListener("ended", handleEnded)
+      window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [autoPlay])
+  }, [autoPlay, isPlaying]) // Added isPlaying dependency for closure consistency
 
   const togglePlay = () => {
     if (videoRef.current) {

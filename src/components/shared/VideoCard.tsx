@@ -1,9 +1,8 @@
-
 "use client"
 
 import Link from "next/link";
 import Image from "next/image";
-import { Play, Heart, Clock, MoreHorizontal, ShoppingCart, Loader2 } from "lucide-react";
+import { Play, Heart, Clock, ShoppingCart, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -49,10 +48,37 @@ export function VideoCard({
   showRank = false,
   price = 0,
 }: VideoCardProps) {
+  const [isHovering, setIsHovering] = useState(false);
   const isVideoUrl = url?.match(/\.(mp4|webm|mov)$/i);
-  const displayImage = image || url; // Fallback to url if image is missing (for image/video mix)
+  // Prioritize image (thumbnail), fallback to url if it's an image
+  const displayImage = image || (!isVideoUrl ? url : null); 
   const [addingToCart, setAddingToCart] = useState(false);
   const { user } = useAuthStore();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile || !isVideoUrl) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        setIsHovering(entry.isIntersecting);
+      });
+    }, { threshold: 0.6 });
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [isMobile, isVideoUrl]);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -89,28 +115,47 @@ export function VideoCard({
   };
 
   return (
-    <div className="group relative bg-[#0f172a] rounded-xl overflow-hidden border border-white/5 hover:border-white/20 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+    <div 
+      ref={containerRef}
+      className="group relative bg-[#0f172a] rounded-xl overflow-hidden border border-white/5 hover:border-white/20 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+      onMouseEnter={() => !isMobile && setIsHovering(true)}
+      onMouseLeave={() => !isMobile && setIsHovering(false)}
+    >
       {/* Thumbnail Area */}
       <div className="aspect-video relative overflow-hidden bg-black/50">
         <Link href={`/video/${id}`} className="block w-full h-full" prefetch={true}>
-          {isVideoUrl ? (
+          {/* Show Video on Hover if available */}
+          {isVideoUrl && isHovering ? (
             <video
               src={url}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100"
+              className="w-full h-full object-cover animate-in fade-in duration-300"
+              autoPlay
               muted
               loop
-              onMouseOver={(e) => e.currentTarget.play()}
-              onMouseOut={(e) => e.currentTarget.pause()}
+              playsInline
             />
           ) : (
+            /* Show Image otherwise */
             <div className="relative w-full h-full">
-               <Image
-                src={displayImage || "/placeholder-image.jpg"}
-                alt={title}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
+              {displayImage ? (
+                <Image
+                    src={displayImage}
+                    alt={title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              ) : (
+                /* Fallback for video without thumbnail and not hovering */
+                 isVideoUrl && (
+                    <video
+                        src={url}
+                        className="w-full h-full object-cover opacity-90"
+                        muted
+                        playsInline
+                    />
+                 )
+              )}
             </div>
           )}
 
@@ -165,7 +210,7 @@ export function VideoCard({
         </Link>
         
         {/* Hover Actions (Top Right) */}
-        <div className="absolute top-2 right-2 z-30 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+        <div className="absolute top-2 right-12 z-30 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
              <TooltipProvider delayDuration={0}>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -173,7 +218,7 @@ export function VideoCard({
                             <Heart className="h-4 w-4" />
                         </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="left"><p>收藏</p></TooltipContent>
+                    <TooltipContent side="bottom"><p>收藏</p></TooltipContent>
                 </Tooltip>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -181,7 +226,7 @@ export function VideoCard({
                             <Clock className="h-4 w-4" />
                         </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="left"><p>稍后观看</p></TooltipContent>
+                    <TooltipContent side="bottom"><p>稍后观看</p></TooltipContent>
                 </Tooltip>
              </TooltipProvider>
         </div>
@@ -202,42 +247,43 @@ export function VideoCard({
                         </Avatar>
                      </Link>
                 ) : (
-                    <div className="h-8 w-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                         <span className="text-[10px] text-gray-400">?</span>
-                    </div>
+                    <Avatar className="h-8 w-8 border border-white/10">
+                        <AvatarImage src={user_avatar} />
+                        <AvatarFallback className="bg-gray-600 text-[10px] text-white">U</AvatarFallback>
+                    </Avatar>
                 )}
              </div>
 
+             {/* Info */}
              <div className="flex-1 min-w-0">
-                <Link href={`/video/${id}`} prefetch={true} className="block group/title">
-                    <h4 className="text-gray-200 text-sm font-medium truncate mb-1 group-hover/title:text-blue-400 transition-colors">
+                <Link href={`/video/${id}`} className="block group/title">
+                    <h3 className="text-sm font-medium text-gray-200 group-hover/title:text-blue-400 transition-colors line-clamp-2 leading-tight mb-1">
                         {title}
-                    </h4>
+                    </h3>
                 </Link>
                 
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                    <div className="flex items-center gap-2 truncate">
-                         <span className="truncate hover:text-gray-300 transition-colors cursor-pointer">
-                            {author || "未知作者"}
+                <div className="flex items-center justify-between text-[11px] text-gray-500">
+                    <div className="flex items-center gap-2">
+                         <span className="hover:text-gray-300 transition-colors cursor-pointer">
+                            {author || "Unknown"}
                          </span>
                     </div>
+                    <span>{views} 次观看</span>
                 </div>
                 
-                <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
-                     <div className="flex items-center gap-3 text-[10px] text-gray-500">
-                        {views && (
-                            <span className="flex items-center gap-1 hover:text-gray-300 transition-colors">
-                                <Play className="w-3 h-3" /> {views}
-                            </span>
-                        )}
-                         <span className="hover:text-gray-300 transition-colors">
-                             {created_at ? new Date(created_at).toLocaleDateString('zh-CN') : ''}
-                         </span>
-                     </div>
-                     
-                     <Button variant="ghost" size="icon" className="h-5 w-5 text-gray-500 hover:text-white -mr-1">
-                        <MoreHorizontal className="h-3 w-3" />
-                     </Button>
+                <div className="flex items-center justify-between mt-2">
+                    <span className="text-xs text-gray-500">
+                        {created_at ? new Date(created_at).toLocaleDateString() : ''}
+                    </span>
+                    {price > 0 ? (
+                        <span className="text-yellow-500 font-bold text-xs">
+                            {price} A币
+                        </span>
+                    ) : (
+                         <span className="text-green-500 font-bold text-xs">
+                            免费
+                        </span>
+                    )}
                 </div>
              </div>
         </div>

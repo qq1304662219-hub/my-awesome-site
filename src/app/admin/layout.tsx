@@ -1,35 +1,24 @@
 'use client'
-import { useEffect, useState } from "react"
+
 import { useAuthStore } from "@/store/useAuthStore"
-import { useRouter, usePathname } from "next/navigation"
+import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Shield, Users, Video, LogOut } from "lucide-react"
+import { Users, Video, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { AuthGuard } from "@/components/auth/AuthGuard"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { profile, isLoading: loading } = useAuthStore()
-  const router = useRouter()
+  return (
+    <AuthGuard requireAdmin>
+      <AdminContent>{children}</AdminContent>
+    </AuthGuard>
+  )
+}
+
+function AdminContent({ children }: { children: React.ReactNode }) {
+  const { profile } = useAuthStore()
   const pathname = usePathname()
-  const [isAuthorized, setIsAuthorized] = useState(false)
-
-  useEffect(() => {
-    if (!loading) {
-      if (!profile || (profile.role !== 'admin' && profile.role !== 'super_admin')) {
-        router.push('/')
-      } else {
-        setIsAuthorized(true)
-      }
-    }
-  }, [profile, loading, router])
-
-  if (loading || !isAuthorized) {
-    return (
-      <div className="min-h-screen bg-[#020817] flex items-center justify-center text-white">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-      </div>
-    )
-  }
 
   const navItems = [
     {

@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://ai-vision.vercel.app'),
   title: {
     default: "AI Vision - Next Gen AI Video Platform",
     template: "%s | AI Vision"
