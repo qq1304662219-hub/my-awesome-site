@@ -10,6 +10,17 @@ export function AuthGuard({ children, requireAdmin = false }: { children: React.
   const router = useRouter()
   const { user, profile, isLoading: isAuthLoading } = useAuthStore()
   const [isChecking, setIsChecking] = useState(true)
+  const [isTimeout, setIsTimeout] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+        if (isAuthLoading || isChecking) {
+            setIsTimeout(true)
+        }
+    }, 8000) // 8 seconds timeout
+
+    return () => clearTimeout(timer)
+  }, [isAuthLoading, isChecking])
 
   useEffect(() => {
     // Wait for global auth loading to finish
@@ -39,15 +50,37 @@ export function AuthGuard({ children, requireAdmin = false }: { children: React.
                 return
             }
         }
+        // Auth check passed
+        setIsChecking(false)
       } catch (error) {
         console.error('AuthGuard error:', error)
-      } finally {
-        setIsChecking(false)
+        // If error occurs during admin check, deny access
+        if (requireAdmin) {
+             router.push('/')
+        } else {
+             // For normal users, if error (e.g. network), we might still want to show content or error
+             // But safest is to allow if user exists (handled above)
+             setIsChecking(false)
+        }
       }
     }
 
     checkAuth()
   }, [router, user, profile, requireAdmin, isAuthLoading])
+
+  if (isTimeout) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-[#020817] gap-4 text-white">
+            <div className="text-red-400">验证超时，请检查网络连接</div>
+            <button 
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 transition-colors"
+            >
+                刷新页面
+            </button>
+        </div>
+      )
+  }
 
   if (isAuthLoading || isChecking) {
     return (

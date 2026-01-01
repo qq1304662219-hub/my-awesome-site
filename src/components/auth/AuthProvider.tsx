@@ -23,9 +23,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             
             if (profile) {
               setProfile(profile)
-            } else if (!profile && !error) {
-                // Profile not found (and no network error), try to create one manually
-                // This is a fallback in case the database trigger didn't fire or exist
+            } else if (!profile) {
+                // Profile not found (or error occurred), try to create one manually
+                // We ignore the error here because single() returns error when no rows found
                 const newProfile = {
                     id: session.user.id,
                     email: session.user.email,
@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             
             if (profile) {
                 setProfile(profile)
-            } else if (!profile && !error) {
+            } else if (!profile) {
                 // Profile not found fallback
                 const newProfile = {
                     id: session.user.id,
