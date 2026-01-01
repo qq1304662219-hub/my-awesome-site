@@ -3,7 +3,7 @@
 import { useAuthStore } from "@/store/useAuthStore"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Users, Video, LogOut, FileQuestion, GraduationCap, AlertTriangle } from "lucide-react"
+import { Users, Video, LogOut, FileQuestion, GraduationCap, AlertTriangle, Wallet } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AuthGuard } from "@/components/auth/AuthGuard"

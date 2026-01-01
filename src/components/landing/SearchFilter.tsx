@@ -2,16 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const initialQuery = searchParams.get("q") || "";
+  const sort = searchParams.get("sort") || "newest";
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
 
@@ -44,7 +52,6 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
 
   // Handle sort change
   const handleSortChange = (value: string) => {
-    setSort(value);
     const params = new URLSearchParams(searchParams.toString());
     params.set("sort", value);
     router.push(`${pathname}?${params.toString()}`);
@@ -100,5 +107,5 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

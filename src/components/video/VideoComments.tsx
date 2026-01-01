@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { ReportModal } from "./ReportModal";
 import { useRouter } from "next/navigation";
 
+const SENSITIVE_WORDS = ["暴力", "色情", "赌博", "诈骗", "违法", "fuck", "shit"];
+
 interface Comment {
   id: string;
   content: string;

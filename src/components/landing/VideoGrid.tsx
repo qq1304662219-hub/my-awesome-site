@@ -18,6 +18,7 @@ interface FilterState {
   query?: string | null;
   resolution?: string | null;
   duration?: string | null;
+  fps?: string | null;
 }
 
 interface VideoGridProps {
@@ -93,6 +94,9 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
       }
       if (filters.resolution) {
         query = query.eq('resolution', filters.resolution)
+      }
+      if (filters.fps) {
+        query = query.eq('fps', parseInt(filters.fps))
       }
       if (filters.duration) {
         if (filters.duration === 'short') { // < 15s

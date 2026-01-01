@@ -12,7 +12,8 @@ import {
   ShieldAlert,
   FolderPlus,
   MessageSquare,
-  Download
+  Download,
+  BarChart3
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -62,6 +63,7 @@ export function DashboardSidebar() {
   const menuItems = [
     { id: 'overview', label: '仪表盘', icon: LayoutDashboard, href: '/dashboard' },
     { id: 'videos', label: '作品管理', icon: Film, href: '/dashboard/videos' },
+    { id: 'analytics', label: '数据分析', icon: BarChart3, href: '/dashboard/analytics' },
     { id: 'collections', label: '我的收藏', icon: FolderPlus, href: '/dashboard/collections' },
     { id: 'downloads', label: '下载历史', icon: Download, href: '/dashboard/downloads' },
     { id: 'messages', label: '我的私信', icon: MessageSquare, href: '/dashboard/messages' },

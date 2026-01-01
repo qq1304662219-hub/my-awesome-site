@@ -20,6 +20,7 @@ function ExploreContent() {
     model: searchParams.get("model"),
     resolution: searchParams.get("resolution"),
     duration: searchParams.get("duration"),
+    fps: searchParams.get("fps"),
     query: searchParams.get("q")
   }
 

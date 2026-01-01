@@ -140,6 +140,17 @@ export function SidebarFilters() {
             />
 
             <FilterGroup 
+                title="帧率" 
+                icon="⚡" 
+                paramName="fps"
+                items={[
+                    { label: "60 FPS", value: "60" },
+                    { label: "30 FPS", value: "30" },
+                    { label: "24 FPS", value: "24" },
+                ]} 
+            />
+
+            <FilterGroup 
                 title="时长" 
                 icon="⏱️" 
                 paramName="duration"

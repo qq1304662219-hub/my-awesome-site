@@ -76,11 +76,13 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
   const [durationStr, setDurationStr] = useState('00:00')
+  const [durationSec, setDurationSec] = useState(0)
 
   const handleMetadataLoaded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget
     const duration = video.duration
     if (!isNaN(duration)) {
+        setDurationSec(duration)
         const minutes = Math.floor(duration / 60)
         const seconds = Math.floor(duration % 60)
         const formatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
