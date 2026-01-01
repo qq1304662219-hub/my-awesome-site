@@ -80,8 +80,8 @@ export function LicenseSelector({ videoId, title, thumbnail }: LicenseSelectorPr
         <Button className="w-full h-12 bg-white text-black hover:bg-gray-200 font-bold text-base rounded-full" onClick={handleBuyNow}>
           立即购买
         </Button>
-        <Button variant="outline" className="w-full h-12 border-white/20 text-white hover:bg-white/10 rounded-full" onClick={handleAddToCart}>
-          <ShoppingCart className="mr-2 h-4 w-4" /> 加入购物车
+        <Button variant="outline" className="w-full h-12 border-white/20 text-white hover:bg-white/10 rounded-full" onClick={handleAddToCart} disabled={addingToCart}>
+          {addingToCart ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShoppingCart className="mr-2 h-4 w-4" />} 加入购物车
         </Button>
       </div>
 
