@@ -58,7 +58,7 @@ export default function CollectionDetailPage({ params }: CollectionDetailPagePro
             video_id,
             videos (*)
         `)
-        .eq('collection_id', params.id)
+        .eq('collection_id', id)
         .order('created_at', { ascending: false })
 
       if (itemsError) throw itemsError
@@ -83,7 +83,7 @@ export default function CollectionDetailPage({ params }: CollectionDetailPagePro
           const { error } = await supabase
               .from('collection_items')
               .delete()
-              .eq('collection_id', params.id)
+              .eq('collection_id', id)
               .eq('video_id', videoId)
           
           if (error) throw error
@@ -99,7 +99,7 @@ export default function CollectionDetailPage({ params }: CollectionDetailPagePro
   const handleDeleteCollection = async () => {
       if (!confirm("确定要删除此收藏夹吗？")) return
       try {
-          const { error } = await supabase.from('collections').delete().eq('id', params.id)
+          const { error } = await supabase.from('collections').delete().eq('id', id)
           if (error) throw error
           toast.success("收藏夹已删除")
           router.push('/dashboard/collections')
