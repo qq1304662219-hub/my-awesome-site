@@ -2,13 +2,14 @@ import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Eye, Calendar, Download, ShieldCheck, Heart, Play } from "lucide-react";
+import { Eye, Calendar, Download, ShieldCheck, Heart, Play, Copy, Check } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { VideoInteractions } from "@/components/video/VideoInteractions";
 import { VideoPlayer } from "@/components/video/VideoPlayer";
 import { LicenseSelector } from "@/components/video/LicenseSelector";
+import { CopyButton } from "@/components/shared/CopyButton";
 import { getStoragePathFromUrl } from "@/lib/utils";
 import type { Metadata, ResolvingMetadata } from 'next';
 
@@ -179,9 +180,51 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
               
               <div className="flex items-center gap-4 text-sm text-gray-400 mb-6">
                 <span className="flex items-center gap-1"><Eye className="h-4 w-4" /> {views} 次观看</span>
+                <span className="flex items-center gap-1"><Download className="h-4 w-4" /> {video.downloads || 0} 次下载</span>
                 <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {date}</span>
                 <span className="flex items-center gap-1 text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded text-xs border border-blue-500/20">商用授权</span>
               </div>
+
+              {/* AI Metadata */}
+              {(video.prompt || video.ai_model || (video.tags && video.tags.length > 0)) && (
+                 <div className="bg-white/5 rounded-xl p-4 mb-6 border border-white/10">
+                    <h3 className="text-sm font-bold text-gray-300 mb-3 flex items-center gap-2">
+                        <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
+                        AI 生成信息
+                    </h3>
+                    
+                    {video.ai_model && (
+                        <div className="mb-3">
+                            <span className="text-xs text-gray-500 uppercase tracking-wider block mb-1">Model (模型)</span>
+                            <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                                {video.ai_model}
+                            </div>
+                        </div>
+                    )}
+
+                    {video.prompt && (
+                        <div className="mb-3">
+                            <span className="text-xs text-gray-500 uppercase tracking-wider block mb-1">Prompt (提示词)</span>
+                            <div className="text-sm text-gray-300 bg-black/20 p-3 rounded-lg border border-white/5 font-mono">
+                                {video.prompt}
+                            </div>
+                        </div>
+                    )}
+
+                    {video.tags && video.tags.length > 0 && (
+                        <div>
+                            <span className="text-xs text-gray-500 uppercase tracking-wider block mb-1">Tags (标签)</span>
+                            <div className="flex flex-wrap gap-2">
+                                {video.tags.map((tag: string, index: number) => (
+                                    <span key={index} className="text-xs text-gray-400 bg-white/5 px-2 py-1 rounded hover:bg-white/10 cursor-pointer transition-colors">
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                 </div>
+              )}
 
               <VideoInteractions 
                 videoId={video.id} 

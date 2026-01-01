@@ -209,6 +209,16 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
     toast.success("链接已复制到剪贴板");
   };
 
+  const handleDownload = async () => {
+    if (isMock) return;
+    
+    try {
+        await supabase.rpc('increment_downloads', { video_id: parseInt(videoId) });
+    } catch (error) {
+        console.error("Error incrementing downloads:", error);
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Actions Bar */}
@@ -230,7 +240,7 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
             <Share2 className="h-4 w-4 mr-2" />
             分享
           </Button>
-          <a href={downloadUrl || videoUrl} download target="_blank" rel="noopener noreferrer">
+          <a href={downloadUrl || videoUrl} download target="_blank" rel="noopener noreferrer" onClick={handleDownload}>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white">
               <Download className="h-4 w-4 mr-2" />
               下载
