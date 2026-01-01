@@ -127,7 +127,7 @@ export function VideoCard({
       <div className="aspect-video relative overflow-hidden bg-black/50">
         <Link href={`/video/${id}`} className="block w-full h-full" prefetch={true}>
           {/* Show Video on Hover if available */}
-          {isVideoUrl && isHovering ? (
+          {isVideoUrl && isHovered ? (
             <video
               src={url}
               className="w-full h-full object-cover animate-in fade-in duration-300"
