@@ -63,7 +63,7 @@ export default function AnalyticsPage() {
           .from('transactions')
           .select('amount')
           .eq('user_id', user.id)
-          .eq('type', 'income') // Assuming 'income' or similar type for earnings
+          .in('type', ['income', 'tip_received']) // Include tips in income
         
         const totalIncome = transactions?.reduce((acc, tx) => acc + (tx.amount || 0), 0) || 0
 

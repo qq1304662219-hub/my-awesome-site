@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, use } from "react"
 import { supabase } from "@/lib/supabase"
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
@@ -14,12 +14,13 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 interface ProfilePageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function ProfilePage({ params }: ProfilePageProps) {
+  const { id } = use(params)
   const [profile, setProfile] = useState<any>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [videos, setVideos] = useState<any[]>([])
@@ -33,17 +34,23 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   })
 
   useEffect(() => {
+    if (!id || id === 'undefined' || id === 'null') {
+      setLoading(false)
+      return
+    }
     supabase.auth.getUser().then(({ data: { user } }) => setCurrentUser(user))
     fetchProfileAndVideos()
-  }, [])
+  }, [id])
 
   const fetchProfileAndVideos = async () => {
+    if (!id || id === 'undefined' || id === 'null') return
+
     try {
       // 1. Fetch Profile
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', params.id)
+        .eq('id', id)
         .single()
 
       if (profileError) throw profileError
@@ -53,7 +60,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
       const { data: videosData, error: videosError } = await supabase
         .from('videos')
         .select('*')
-        .eq('user_id', params.id)
+        .eq('user_id', id)
         .eq('status', 'published')
         .order('created_at', { ascending: false })
 
@@ -74,7 +81,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             )
           )
         `)
-        .eq('user_id', params.id)
+        .eq('user_id', id)
         .order('created_at', { ascending: false })
 
       if (likesError) {
@@ -99,12 +106,12 @@ export default function ProfilePage({ params }: ProfilePageProps) {
       let collectionsQuery = supabase
         .from('collections')
         .select('*, collection_items(count)')
-        .eq('user_id', params.id)
+        .eq('user_id', id)
         .order('created_at', { ascending: false })
 
       // If not viewing own profile, only show public collections
       const { data: { user: currentUser } } = await supabase.auth.getUser()
-      if (currentUser?.id !== params.id) {
+      if (currentUser?.id !== id) {
         collectionsQuery = collectionsQuery.eq('is_public', true)
       }
 

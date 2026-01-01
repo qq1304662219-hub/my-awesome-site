@@ -79,10 +79,19 @@ export async function generateMetadata(
 export default async function VideoDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   
-  // 1. Fetch Video (Real data only)
+  // 1. Fetch Video with Author Profile
   const { data: video, error } = await supabase
     .from('videos')
-    .select('*')
+    .select(`
+      *,
+      profiles:user_id (
+        id,
+        username,
+        full_name,
+        avatar_url,
+        bio
+      )
+    `)
     .eq('id', id)
     .single();
 
@@ -90,16 +99,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
     notFound();
   }
 
-  // 2. Fetch Author Profile
-  let authorProfile = null;
-  if (video.user_id) {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', video.user_id)
-        .single();
-      authorProfile = data;
-  }
+  const authorProfile = video.profiles;
 
   // 3. Fetch Initial Likes
   const { count: initialLikes } = await supabase
@@ -325,7 +325,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                 videoTitle={video.title}
                 downloadUrl={videoUrl} // Use signed URL for download as well
                 authorId={video.user_id}
-                authorName={authorProfile?.full_name}
+                authorName={authorProfile?.full_name || authorProfile?.username}
               >
                 <Separator className="bg-white/10 my-6" />
 
@@ -334,13 +334,13 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                   <Link href={`/profile/${video.user_id}`}>
                     <Avatar className="h-12 w-12 border border-white/10 hover:opacity-80 transition-opacity">
                       <AvatarImage src={authorProfile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${video.user_id}`} />
-                      <AvatarFallback>U</AvatarFallback>
+                      <AvatarFallback>{authorProfile?.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
                     </Avatar>
                   </Link>
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <Link href={`/profile/${video.user_id}`} className="hover:text-blue-400 transition-colors">
-                        <h3 className="font-semibold text-white">{authorProfile?.full_name || `创作者 ${video.user_id.slice(0, 6)}`}</h3>
+                        <h3 className="font-semibold text-white">{authorProfile?.full_name || authorProfile?.username || `创作者 ${video.user_id?.slice(0, 6)}`}</h3>
                       </Link>
                       <FollowButton authorId={video.user_id} />
                     </div>

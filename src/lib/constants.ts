@@ -1,6 +1,6 @@
 export const SITE_CONFIG = {
   name: "AI Vision",
-  description: "High-quality AI video material sharing platform",
+  description: "高质量 AI 视频素材分享平台",
   url: "https://aivision.com",
   ogImage: "https://aivision.com/og.jpg",
   links: {

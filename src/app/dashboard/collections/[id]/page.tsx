@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { supabase } from "@/lib/supabase"
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
@@ -19,12 +19,13 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 interface CollectionDetailPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function CollectionDetailPage({ params }: CollectionDetailPageProps) {
+  const { id } = use(params)
   const router = useRouter()
   const { user } = useAuthStore()
   const [collection, setCollection] = useState<any>(null)
@@ -33,7 +34,7 @@ export default function CollectionDetailPage({ params }: CollectionDetailPagePro
 
   useEffect(() => {
     fetchCollectionAndVideos()
-  }, [])
+  }, [id])
 
   const fetchCollectionAndVideos = async () => {
     try {
@@ -44,7 +45,7 @@ export default function CollectionDetailPage({ params }: CollectionDetailPagePro
             *,
             profiles:user_id(username, avatar_url)
         `)
-        .eq('id', params.id)
+        .eq('id', id)
         .single()
 
       if (collectionError) throw collectionError

@@ -69,12 +69,12 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
                   <DropdownMenuContent align="end" className="w-48 bg-[#1a1f2e] border-white/10 text-gray-300">
                     <div className="px-2 py-1.5 text-xs font-semibold text-gray-500">{t.categories.scene}</div>
                     <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Live')}>{t.categories.live_bg}</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=E-commerce')}>{t.categories.ecommerce}</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Commerce')}>{t.categories.ecommerce}</DropdownMenuItem>
                     <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Game')}>{t.categories.game}</DropdownMenuItem>
                     <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Wallpaper')}>{t.categories.wallpaper}</DropdownMenuItem>
                     
                     <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 border-t border-white/10 mt-1 pt-2">{t.categories.style}</div>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Cyberpunk')}>{t.categories.cyberpunk}</DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Sci-Fi')}>{t.categories.cyberpunk}</DropdownMenuItem>
                     <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Chinese')}>{t.categories.chinese}</DropdownMenuItem>
                     <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Anime')}>{t.categories.anime}</DropdownMenuItem>
                     <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Realistic')}>{t.categories.realistic}</DropdownMenuItem>

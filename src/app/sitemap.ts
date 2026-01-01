@@ -1,10 +1,9 @@
 import { MetadataRoute } from 'next'
-import { supabase } from '@/lib/supabase' // Note: This might need admin client if RLS prevents reading all videos
-// Actually, for sitemap we usually only want public videos.
-// We should use a direct fetch or a server-side supabase client to get all video IDs.
+import { supabase } from '@/lib/supabase'
+import { SITE_CONFIG } from '@/lib/constants'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ai-video-share.com'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || SITE_CONFIG.url
 
   // Fetch all published videos
   // In a real app, you might want to limit this or paginate
@@ -33,12 +32,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/pricing`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
     },
     ...videoEntries,
   ]

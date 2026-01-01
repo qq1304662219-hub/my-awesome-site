@@ -53,7 +53,7 @@ export function Footer() {
         </div>
         
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
-            <p>© 2025 AI Vision. 保留所有权利。</p>
+            <p>© {new Date().getFullYear()} AI Vision. 保留所有权利。</p>
             <div className="flex gap-4">
                 <Link href="/legal?tab=terms" className="hover:text-white transition-colors">使用条款</Link>
                 <Link href="/legal?tab=privacy" className="hover:text-white transition-colors">Cookie 政策</Link>

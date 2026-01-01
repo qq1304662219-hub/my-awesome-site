@@ -3,7 +3,7 @@
 import { useAuthStore } from "@/store/useAuthStore"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Users, Video, LogOut, FileQuestion, GraduationCap, AlertTriangle, Wallet } from "lucide-react"
+import { Users, Video, LogOut, FileQuestion, GraduationCap, AlertTriangle, Wallet, CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AuthGuard } from "@/components/auth/AuthGuard"
@@ -40,9 +40,15 @@ function AdminContent({ children }: { children: React.ReactNode }) {
       show: true
     },
     {
-      name: "财务管理",
+      name: "充值审核",
       href: "/admin/payments",
       icon: Wallet,
+      show: true
+    },
+    {
+      name: "提现审核",
+      href: "/admin/withdrawals",
+      icon: CreditCard,
       show: true
     },
     {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, use } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,7 +19,8 @@ interface Message {
   is_read: boolean
 }
 
-export default function ChatPage({ params }: { params: { userId: string } }) {
+export default function ChatPage({ params }: { params: Promise<{ userId: string }> }) {
+  const { userId } = use(params)
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [currentUser, setCurrentUser] = useState<any>(null)
@@ -43,7 +44,7 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', params.userId)
+        .eq('id', userId)
         .single()
       
       if (error) {
@@ -68,7 +69,7 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
             filter: `receiver_id=eq.${user.id}`,
           },
           (payload) => {
-             if (payload.new.sender_id === params.userId) {
+             if (payload.new.sender_id === userId) {
                 setMessages((prev) => [...prev, payload.new as Message])
                 scrollToBottom()
                 // Mark as read
@@ -86,13 +87,13 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
     }
 
     init()
-  }, [params.userId, router])
+  }, [userId, router])
 
   const fetchMessages = async (currentUserId: string) => {
     const { data, error } = await supabase
       .from('messages')
       .select('*')
-      .or(`and(sender_id.eq.${currentUserId},receiver_id.eq.${params.userId}),and(sender_id.eq.${params.userId},receiver_id.eq.${currentUserId})`)
+      .or(`and(sender_id.eq.${currentUserId},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${currentUserId})`)
       .order('created_at', { ascending: true })
 
     if (error) {
@@ -102,7 +103,7 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
       scrollToBottom()
       // Mark unread messages from other user as read
       const unreadIds = data
-        ?.filter(m => m.sender_id === params.userId && !m.is_read)
+        ?.filter(m => m.sender_id === userId && !m.is_read)
         .map(m => m.id) || []
       
       if (unreadIds.length > 0) {
@@ -138,7 +139,7 @@ export default function ChatPage({ params }: { params: { userId: string } }) {
             .from('messages')
             .insert({
                 sender_id: currentUser.id,
-                receiver_id: params.userId,
+                receiver_id: userId,
                 content: newMessage.trim()
             })
             .select()

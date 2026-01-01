@@ -50,7 +50,7 @@ export default function Dashboard() {
       const [profileResult, videosResult, incomeResult] = await Promise.allSettled([
         supabase.from('profiles').select('username').eq('id', userId).single(),
         supabase.from('videos').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
-        supabase.from('transactions').select('amount').eq('user_id', userId).eq('type', 'income')
+        supabase.from('transactions').select('amount').eq('user_id', userId).in('type', ['income', 'tip_received'])
       ])
 
       // Handle Profile

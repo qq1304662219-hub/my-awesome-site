@@ -158,6 +158,8 @@ export default function Finance() {
         case 'income': return { label: '收益', color: 'text-green-400', icon: ArrowDownLeft }
         case 'purchase': return { label: '购买', color: 'text-red-400', icon: ArrowUpRight }
         case 'withdrawal': return { label: '提现', color: 'text-gray-400', icon: ArrowUpRight }
+        case 'tip_sent': return { label: '打赏', color: 'text-red-400', icon: ArrowUpRight }
+        case 'tip_received': return { label: '获赏', color: 'text-green-400', icon: ArrowDownLeft }
         default: return { label: '其他', color: 'text-gray-400', icon: Clock }
     }
   }
@@ -200,7 +202,7 @@ export default function Finance() {
             </CardHeader>
             <CardContent>
                 <div className="text-3xl font-bold text-white">
-                    ¥ {transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + Number(t.amount), 0).toFixed(2)}
+                    ¥ {transactions.filter(t => t.type === 'income' || t.type === 'tip_received').reduce((acc, t) => acc + Number(t.amount), 0).toFixed(2)}
                 </div>
             </CardContent>
         </Card>
@@ -233,7 +235,7 @@ export default function Finance() {
                         {transactions.length > 0 ? (
                             transactions.map((t) => {
                                 const { label, color, icon: Icon } = getTypeLabel(t.type)
-                                const isPositive = t.type === 'recharge' || t.type === 'income'
+                                const isPositive = t.type === 'recharge' || t.type === 'income' || t.type === 'tip_received'
                                 return (
                                     <tr key={t.id} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4">
