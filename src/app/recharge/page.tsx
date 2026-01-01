@@ -31,9 +31,8 @@ function RechargeContent() {
 
     setLoading(true)
     
-    // Simulate API call and Payment process
+    // Submit manual recharge request
     try {
-        // Create a pending transaction
         const response = await fetch('/api/recharge', {
             method: 'POST',
             headers: {
@@ -43,23 +42,23 @@ function RechargeContent() {
                 amount: selectedAmount,
                 type: 'manual_qrcode',
                 payment_method: paymentMethod,
-                description: `用户使用${paymentMethod === 'wechat' ? '微信' : '支付宝'}扫码充值 ¥${selectedAmount}`
+                description: `用户申请充值 ¥${selectedAmount}`
             })
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'Recharge request failed');
+            throw new Error(data.error || '提交充值申请失败');
         }
 
-        toast.success(`充值成功！余额已更新`)
+        toast.success(`充值申请已提交！请等待管理员审核`)
         
-        // Redirect back or to wallet
+        // Redirect to wallet to see pending status
         router.push('/dashboard/wallet')
     } catch (error: any) {
         console.error("Recharge error:", error)
-        toast.error(error.message || "充值申请失败，请联系客服")
+        toast.error(error.message || "提交失败，请重试")
     } finally {
         setLoading(false)
     }
@@ -68,8 +67,8 @@ function RechargeContent() {
   return (
     <div className="container mx-auto px-4 py-24">
         <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-white mb-2">账户充值</h1>
-            <p className="text-gray-400 mb-10">充值余额可用于购买视频素材、图片素材及增值服务</p>
+            <h1 className="text-3xl font-bold text-white mb-2">账户充值 (人工审核)</h1>
+            <p className="text-gray-400 mb-10">由于当前未开通企业支付，请扫码支付后点击"我已支付"，管理员审核后将为您入账。</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* Left: Amount Selection */}

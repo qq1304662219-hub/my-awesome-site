@@ -90,39 +90,25 @@ export async function POST(request: Request) {
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey)
 
-    // Auto-approve for testing/demo purposes
-            // In a real production environment, this would be a callback from the payment provider
-            const { error: updateError } = await supabaseAdmin
-                .from('profiles')
-                .update({ 
-                    balance: (await supabaseAdmin.from('profiles').select('balance').eq('id', user.id).single()).data?.balance + amount 
-                })
-                .eq('id', user.id)
+    // Manual Review Mode:
+    // Insert a pending transaction record. Admin will review and approve.
+    const { error: insertError } = await supabaseAdmin
+        .from('transactions')
+        .insert({
+            user_id: user.id,
+            amount: amount,
+            type: 'recharge_pending', // Pending status
+            description: `充值申请: ¥${amount} (${body.payment_method === 'wechat' ? '微信' : '支付宝'})`,
+            status: 'pending',
+            created_at: new Date().toISOString()
+        })
 
-            if (updateError) {
-                console.error('Balance Update Error:', updateError)
-                return NextResponse.json({ error: 'Failed to update balance' }, { status: 500 })
-            }
+    if (insertError) {
+        console.error('Transaction Insert Error:', insertError)
+        return NextResponse.json({ error: 'Failed to create transaction' }, { status: 500 })
+    }
 
-            const { error: insertError } = await supabaseAdmin
-                .from('transactions')
-                .insert({
-                    user_id: user.id,
-                    amount: amount,
-                    type: 'recharge', // Marked as completed recharge
-                    description: `扫码充值成功: ¥${amount}`,
-                    status: 'completed',
-                    created_at: new Date().toISOString()
-                })
-
-            if (insertError) {
-                console.error('Insert Transaction Error:', insertError)
-                // Balance was updated, but transaction failed. This is a critical inconsistency.
-                // ideally we should rollback, but for now we just log it.
-                return NextResponse.json({ error: insertError.message }, { status: 500 })
-            }
-
-            return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, message: 'Recharge request submitted' })
   } catch (err) {
       console.error('Recharge Error:', err)
       return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })

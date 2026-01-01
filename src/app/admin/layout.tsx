@@ -40,6 +40,12 @@ function AdminContent({ children }: { children: React.ReactNode }) {
       show: true
     },
     {
+      name: "财务管理",
+      href: "/admin/payments",
+      icon: Wallet,
+      show: true
+    },
+    {
       name: "课程管理",
       href: "/admin/courses",
       icon: GraduationCap,

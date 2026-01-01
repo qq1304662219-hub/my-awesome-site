@@ -12,8 +12,9 @@ const alipaySdk = new AlipaySdk({
   // 支付宝公钥 (注意不是应用公钥)
   alipayPublicKey: process.env.ALIPAY_PUBLIC_KEY || '',
   
-  // 网关地址 (默认为正式环境)
-  endpoint: 'https://openapi.alipay.com/gateway.do',
+  // 网关地址 (根据是否是沙箱环境自动切换)
+  // 如果 ALIPAY_GATEWAY 环境变量存在则使用，否则默认生产环境
+  endpoint: process.env.ALIPAY_GATEWAY || 'https://openapi.alipay.com/gateway.do',
   
   // 签名算法
   signType: 'RSA2',
