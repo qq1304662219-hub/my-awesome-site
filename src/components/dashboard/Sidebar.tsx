@@ -11,7 +11,8 @@ import {
   LogOut,
   ShieldAlert,
   FolderPlus,
-  MessageSquare
+  MessageSquare,
+  Download
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -62,6 +63,7 @@ export function DashboardSidebar() {
     { id: 'overview', label: '仪表盘', icon: LayoutDashboard, href: '/dashboard' },
     { id: 'videos', label: '作品管理', icon: Film, href: '/dashboard/videos' },
     { id: 'collections', label: '我的收藏', icon: FolderPlus, href: '/dashboard/collections' },
+    { id: 'downloads', label: '下载历史', icon: Download, href: '/dashboard/downloads' },
     { id: 'messages', label: '我的私信', icon: MessageSquare, href: '/dashboard/messages' },
     { id: 'finance', label: '财务中心', icon: Wallet, href: '/dashboard/wallet' },
     { id: 'settings', label: '账号设置', icon: Settings, href: '/dashboard/settings' },
@@ -183,21 +185,9 @@ export function DashboardSidebar() {
 
       {/* Logout */}
       <div className="p-4 border-t border-white/5 space-y-2">
-        {/* Only show Force Admin if NOT admin */}
-        {profile?.role !== 'super_admin' && (
-            <Button 
-                variant="ghost" 
-                className="w-full justify-start text-yellow-500 hover:text-yellow-400 hover:bg-yellow-500/10"
-                onClick={handleForceAdmin}
-            >
-                <ShieldAlert className="mr-3 h-4 w-4" />
-                一键提权 (Admin)
-            </Button>
-        )}
-
         <Button 
-          variant="ghost"  
-          className="w-full justify-start text-gray-500 hover:text-red-400 hover:bg-red-500/5"
+          variant="ghost" 
+          className="w-full justify-start text-red-500 hover:text-red-400 hover:bg-red-500/10"
           onClick={handleSignOut}
         >
           <LogOut className="mr-3 h-4 w-4" />

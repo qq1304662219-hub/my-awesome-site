@@ -127,6 +127,28 @@ export function SidebarFilters() {
                     { label: "竖屏 9:16", value: "9:16" },
                 ]} 
             />
+
+            <FilterGroup 
+                title="分辨率" 
+                icon="🖥️" 
+                paramName="resolution"
+                items={[
+                    { label: "4K / Ultra HD", value: "4K" },
+                    { label: "1080p / Full HD", value: "1080p" },
+                    { label: "720p / HD", value: "720p" },
+                ]} 
+            />
+
+            <FilterGroup 
+                title="时长" 
+                icon="⏱️" 
+                paramName="duration"
+                items={[
+                    { label: "短视频 (<15s)", value: "short" },
+                    { label: "中长视频 (15s-60s)", value: "medium" },
+                    { label: "长视频 (>60s)", value: "long" },
+                ]} 
+            />
         </div>
     )
 }

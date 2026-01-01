@@ -36,7 +36,7 @@ export default function Home() {
         </div>
         
         <ErrorBoundary>
-            <VideoGrid filters={{ category: null, style: null, ratio: null, model: null }} />
+            <VideoGrid filters={{ category: null, style: null, ratio: null, model: null }} sort="popular" />
         </ErrorBoundary>
       </section>
     </main>

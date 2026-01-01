@@ -7,10 +7,10 @@ import { Footer } from "@/components/landing/Footer"
 import { VideoGrid } from "@/components/landing/VideoGrid"
 import { SearchFilter } from "@/components/landing/SearchFilter"
 import { SidebarFilters } from "@/components/landing/SidebarFilters"
-import { motion, AnimatePresence } from "framer-motion"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
 
 function ExploreContent() {
-  const [isFiltersOpen, setIsFiltersOpen] = useState(true)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
   const searchParams = useSearchParams()
 
   const filters = {
@@ -18,6 +18,8 @@ function ExploreContent() {
     style: searchParams.get("style"),
     ratio: searchParams.get("ratio"),
     model: searchParams.get("model"),
+    resolution: searchParams.get("resolution"),
+    duration: searchParams.get("duration"),
     query: searchParams.get("q")
   }
 
@@ -27,26 +29,23 @@ function ExploreContent() {
           <div className="container mx-auto px-4 py-8">
             <div className="flex gap-8 items-start">
                 
-                {/* Sidebar with Animation */}
-                <AnimatePresence initial={false}>
-                  {isFiltersOpen && (
-                    <motion.div
-                      initial={{ width: 0, opacity: 0, x: -20 }}
-                      animate={{ width: "auto", opacity: 1, x: 0 }}
-                      exit={{ width: 0, opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                      className="overflow-hidden sticky top-24 h-fit shrink-0"
-                    >
-                      <div className="w-64 border-r border-white/10 pr-6">
-                          <SidebarFilters />
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Desktop Sidebar */}
+                <div className="hidden lg:block w-64 border-r border-white/10 pr-6 shrink-0 sticky top-24 h-fit">
+                    <SidebarFilters />
+                </div>
+                
+                {/* Mobile Filter Sheet */}
+                <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
+                    <SheetContent side="left" className="w-[300px] bg-[#020817] border-white/10 p-0 text-white">
+                        <div className="h-full overflow-y-auto p-6">
+                            <SidebarFilters />
+                        </div>
+                    </SheetContent>
+                </Sheet>
                 
                 {/* Main Content */}
                 <div className="flex-1 min-w-0">
-                    <SearchFilter onOpenFilters={() => setIsFiltersOpen(!isFiltersOpen)} />
+                    <SearchFilter onOpenFilters={() => setIsMobileOpen(true)} />
                     <VideoGrid filters={filters} />
                 </div>
             </div>

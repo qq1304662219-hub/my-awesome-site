@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Check, ShoppingCart, ShieldCheck, Zap, Globe, Eye } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { supabase } from "@/lib/supabase"
 
 interface LicenseSelectorProps {
   videoId: string

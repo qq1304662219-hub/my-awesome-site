@@ -4,8 +4,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
-export function CopyButton({ text }: { text: string }) {
+export function CopyButton({ text, className }: { text: string, className?: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -19,7 +20,7 @@ export function CopyButton({ text }: { text: string }) {
     <Button 
       variant="ghost" 
       size="sm" 
-      className="h-6 px-2 text-xs text-gray-400 hover:text-white hover:bg-white/10"
+      className={cn("h-6 px-2 text-xs text-gray-400 hover:text-white hover:bg-white/10", className)}
       onClick={handleCopy}
     >
       {copied ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}

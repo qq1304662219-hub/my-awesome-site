@@ -8,12 +8,16 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { VideoInteractions } from "@/components/video/VideoInteractions";
+import { VideoComments } from "@/components/video/VideoComments";
 import { VideoPlayer } from "@/components/video/VideoPlayer";
 import { LicenseSelector } from "@/components/video/LicenseSelector";
 import { CopyButton } from "@/components/shared/CopyButton";
+import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 import { getStoragePathFromUrl } from "@/lib/utils";
 import type { Metadata, ResolvingMetadata } from 'next';
 import { SITE_CONFIG } from "@/lib/constants";
+
+import { FollowButton } from "@/components/profile/FollowButton";
 
 type Props = {
   params: Promise<{ id: string }>
@@ -113,18 +117,88 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
       const { data: signedData } = await supabase
           .storage
           .from('uploads')
-          .createSignedUrl(storagePath, 60 * 60 * 2); // 2 hours validity
+          .createSignedUrl(storagePath, 60 * 60 * 2, { download: true }); // 2 hours validity, force download
       if (signedData) {
           videoUrl = signedData.signedUrl;
       }
   }
 
-  // 6. Fetch Related Videos (Real data)
-  const { data: relatedVideos } = await supabase
-    .from('videos')
-    .select('id, title, url, thumbnail_url, user_id, created_at')
-    .neq('id', id)
-    .limit(5);
+  // 6. Fetch Related Videos (Improved Smart Algorithm)
+  const relatedLimit = 6;
+  let candidates: any[] = [];
+
+  // Parallel requests for better performance
+  const promises = [];
+
+  // Strategy 1: Tags Overlap (Highest relevance)
+  if (video.tags && video.tags.length > 0) {
+      promises.push(
+        supabase
+        .from('videos')
+        .select('id, title, url, thumbnail_url, user_id, created_at, views, duration')
+        .neq('id', id)
+        .eq('status', 'published')
+        .overlaps('tags', video.tags)
+        .limit(relatedLimit)
+        .then(({ data }) => data || [])
+      );
+  }
+
+  // Strategy 2: Same AI Model
+  if (video.ai_model) {
+      promises.push(
+        supabase
+        .from('videos')
+        .select('id, title, url, thumbnail_url, user_id, created_at, views, duration')
+        .neq('id', id)
+        .eq('status', 'published')
+        .eq('ai_model', video.ai_model)
+        .limit(relatedLimit)
+        .then(({ data }) => data || [])
+      );
+  }
+
+  // Strategy 3: Same Category (Broader fallback)
+  if (video.category) {
+       promises.push(
+        supabase
+        .from('videos')
+        .select('id, title, url, thumbnail_url, user_id, created_at, views, duration')
+        .neq('id', id)
+        .eq('status', 'published')
+        .eq('category', video.category)
+        .limit(relatedLimit)
+        .then(({ data }) => data || [])
+       );
+  }
+
+  const results = await Promise.all(promises);
+  results.forEach(res => candidates.push(...res));
+
+  // Deduplicate by ID
+  let uniqueVideos = Array.from(new Map(candidates.map(item => [item.id, item])).values());
+
+  // If still not enough, fetch latest published
+  if (uniqueVideos.length < 5) {
+      const { data: latestVideos } = await supabase
+        .from('videos')
+        .select('id, title, url, thumbnail_url, user_id, created_at, views, duration')
+        .neq('id', id)
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(6);
+      
+      if (latestVideos) {
+          uniqueVideos = [...uniqueVideos, ...latestVideos];
+          uniqueVideos = Array.from(new Map(uniqueVideos.map(item => [item.id, item])).values());
+      }
+  }
+
+  // Shuffle slightly to avoid static order? Or just slice.
+  // Simple shuffle
+  uniqueVideos = uniqueVideos.sort(() => Math.random() - 0.5);
+
+  const relatedVideos = uniqueVideos.slice(0, 8);
 
   // Data fallback for display
   const views = video.views || 0;
@@ -163,6 +237,15 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
       <Navbar />
       
       <div className="container mx-auto px-4 pt-24 pb-16">
+        <Breadcrumbs 
+            items={[
+                { label: "探索", href: "/explore" },
+                { label: video.category || "视频", href: `/explore?category=${video.category}` },
+                { label: video.title }
+            ]} 
+            className="mb-6"
+        />
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
@@ -171,13 +254,15 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
               src={videoUrl} 
               poster={video.thumbnail_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop"}
               autoPlay={true}
+              width={video.width}
+              height={video.height}
             />
 
             {/* Video Info */}
             <div>
               <h1 className="text-2xl font-bold text-white mb-2">{video.title}</h1>
               
-              <div className="flex items-center gap-4 text-sm text-gray-400 mb-6">
+              <div className="flex items-center gap-4 text-sm text-gray-400 mb-6 flex-wrap">
                 <span className="flex items-center gap-1"><Eye className="h-4 w-4" /> {views} 次观看</span>
                 <span className="flex items-center gap-1"><Download className="h-4 w-4" /> {video.downloads || 0} 次下载</span>
                 <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {date}</span>
@@ -205,8 +290,11 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
 
                     {video.prompt && (
                         <div className="mb-3">
-                            <span className="text-xs text-gray-500 uppercase tracking-wider block mb-1">Prompt (提示词)</span>
-                            <div className="text-sm text-gray-300 bg-black/20 p-3 rounded-lg border border-white/5 font-mono">
+                            <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs text-gray-500 uppercase tracking-wider">Prompt (提示词)</span>
+                                <CopyButton text={video.prompt} className="h-6 text-xs px-2 py-0" />
+                            </div>
+                            <div className="text-sm text-gray-300 bg-black/20 p-3 rounded-lg border border-white/5 font-mono whitespace-pre-wrap">
                                 {video.prompt}
                             </div>
                         </div>
@@ -254,7 +342,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                       <Link href={`/profile/${video.user_id}`} className="hover:text-blue-400 transition-colors">
                         <h3 className="font-semibold text-white">{authorProfile?.full_name || `创作者 ${video.user_id.slice(0, 6)}`}</h3>
                       </Link>
-                      <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full">Pro</span>
+                      <FollowButton authorId={video.user_id} />
                     </div>
                     <p className="text-gray-400 text-sm leading-relaxed">
                       {video.description || "这是一个由 AI 生成的精彩视频。探索人工智能带来的无限创意可能。"}
@@ -284,6 +372,12 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                 
                 <Separator className="bg-white/10 my-6" />
               </VideoInteractions>
+
+              <VideoComments 
+                videoId={video.id} 
+                currentUser={user} 
+                authorId={video.user_id} 
+              />
             </div>
           </div>
 

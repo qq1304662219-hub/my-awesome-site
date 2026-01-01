@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Settings, AlertTriangle } from "lucide-react"
+import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Settings, AlertTriangle, Repeat, PictureInPicture } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
@@ -9,9 +9,11 @@ interface VideoPlayerProps {
   src: string
   poster?: string
   autoPlay?: boolean
+  width?: number | string
+  height?: number | string
 }
 
-export function VideoPlayer({ src, poster, autoPlay = false }: VideoPlayerProps) {
+export function VideoPlayer({ src, poster, autoPlay = false, width, height }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -21,6 +23,8 @@ export function VideoPlayer({ src, poster, autoPlay = false }: VideoPlayerProps)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showControls, setShowControls] = useState(true)
   const [playbackRate, setPlaybackRate] = useState(1)
+  const [isLooping, setIsLooping] = useState(false)
+  const [isPip, setIsPip] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -36,10 +40,16 @@ export function VideoPlayer({ src, poster, autoPlay = false }: VideoPlayerProps)
       setIsPlaying(false)
     }
 
+    const handlePipChange = () => {
+        setIsPip(!!document.pictureInPictureElement)
+    }
+
     video.addEventListener("timeupdate", updateTime)
     video.addEventListener("loadedmetadata", updateDuration)
     video.addEventListener("ended", handleEnded)
     video.addEventListener("error", handleError)
+    video.addEventListener("enterpictureinpicture", handlePipChange)
+    video.addEventListener("leavepictureinpicture", handlePipChange)
 
     if (autoPlay) {
       video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
@@ -97,6 +107,26 @@ export function VideoPlayer({ src, poster, autoPlay = false }: VideoPlayerProps)
     }
   }
 
+  const toggleLoop = () => {
+    const newLoop = !isLooping
+    setIsLooping(newLoop)
+    if (videoRef.current) {
+      videoRef.current.loop = newLoop
+    }
+  }
+
+  const togglePip = async () => {
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture()
+      } else if (videoRef.current) {
+        await videoRef.current.requestPictureInPicture()
+      }
+    } catch (error) {
+      console.error("Failed to toggle Picture-in-Picture:", error)
+    }
+  }
+
   const handleSeek = (value: number[]) => {
     const newTime = value[0]
     setCurrentTime(newTime)
@@ -140,9 +170,15 @@ export function VideoPlayer({ src, poster, autoPlay = false }: VideoPlayerProps)
     return `${minutes}:${seconds.toString().padStart(2, "0")}`
   }
 
+  const aspectRatioStyle: React.CSSProperties | undefined = 
+    (typeof width === 'number' && typeof height === 'number')
+      ? { aspectRatio: `${width}/${height}` }
+      : undefined
+
   return (
     <div 
-      className="relative group bg-black rounded-xl overflow-hidden aspect-video border border-white/10 shadow-2xl"
+      className={`relative group bg-black rounded-xl overflow-hidden border border-white/10 shadow-2xl ${!width ? 'aspect-video' : ''}`}
+      style={aspectRatioStyle}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setShowControls(false)}
     >
@@ -187,7 +223,7 @@ export function VideoPlayer({ src, poster, autoPlay = false }: VideoPlayerProps)
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <button onClick={togglePlay} className="text-white hover:text-blue-400 transition-colors">
               {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
             </button>
@@ -231,6 +267,22 @@ export function VideoPlayer({ src, poster, autoPlay = false }: VideoPlayerProps)
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <button 
+                onClick={toggleLoop} 
+                className={`transition-colors ${isLooping ? 'text-blue-500' : 'text-white hover:text-blue-400'}`}
+                title="循环播放"
+            >
+                <Repeat className="h-5 w-5" />
+            </button>
+
+            <button 
+                onClick={togglePip} 
+                className={`transition-colors ${isPip ? 'text-blue-500' : 'text-white hover:text-blue-400'}`}
+                title="画中画"
+            >
+                <PictureInPicture className="h-5 w-5" />
+            </button>
 
             <button onClick={toggleFullscreen} className="text-white hover:text-blue-400 transition-colors">
               {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}

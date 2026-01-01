@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useI18n } from "@/lib/i18n";
+import { AddToCollectionModal } from "@/components/video/AddToCollectionModal";
 
 export interface VideoCardProps {
   id: string;
@@ -58,6 +59,40 @@ export function VideoCard({
   const { user } = useAuthStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [hasLiked, setHasLiked] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    const checkLiked = async () => {
+        const { data } = await supabase
+            .from('likes')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('video_id', id)
+            .single();
+        if (data) setHasLiked(true);
+    };
+    checkLiked();
+  }, [user, id]);
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+        toast.error("请先登录");
+        return;
+    }
+
+    if (hasLiked) {
+        await supabase.from('likes').delete().eq('user_id', user.id).eq('video_id', id);
+        setHasLiked(false);
+        toast.success("已取消点赞");
+    } else {
+        await supabase.from('likes').insert({ user_id: user.id, video_id: id });
+        setHasLiked(true);
+        toast.success("已点赞");
+    }
+  };
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -213,24 +248,38 @@ export function VideoCard({
         </Link>
         
         {/* Hover Actions (Top Right) */}
-        <div className="absolute top-2 right-12 z-30 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+        <div className={`absolute top-2 right-12 z-30 flex gap-2 transition-all duration-300 ${isMobile ? 'opacity-100 translate-x-0' : 'opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0'}`}>
              <TooltipProvider delayDuration={0}>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md hover:bg-white hover:text-black border border-white/10 transition-colors" aria-label={t.common.collect}>
-                            <Heart className="h-4 w-4" />
+                        <Button 
+                            size="icon" 
+                            variant="secondary" 
+                            className={`h-8 w-8 rounded-full backdrop-blur-md hover:bg-white hover:text-black border border-white/10 transition-colors ${hasLiked ? 'bg-blue-500 text-white' : 'bg-black/60'}`}
+                            aria-label={t.common.collect}
+                            onClick={handleLike}
+                        >
+                            <Heart className={`h-4 w-4 ${hasLiked ? 'fill-white' : ''}`} />
                         </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>{t.common.collect}</p></TooltipContent>
+                    <TooltipContent side="bottom"><p>{hasLiked ? "取消收藏" : t.common.collect}</p></TooltipContent>
                 </Tooltip>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md hover:bg-white hover:text-black border border-white/10 transition-colors" aria-label={t.common.watch_later}>
+                <AddToCollectionModal 
+                    videoId={id}
+                    trigger={
+                        <Button 
+                            size="icon" 
+                            variant="secondary" 
+                            className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md hover:bg-white hover:text-black border border-white/10 transition-colors" 
+                            aria-label={t.common.watch_later}
+                            onClick={(e) => {
+                                e.stopPropagation(); 
+                            }}
+                        >
                             <Clock className="h-4 w-4" />
                         </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>{t.common.watch_later}</p></TooltipContent>
-                </Tooltip>
+                    }
+                />
              </TooltipProvider>
         </div>
       </div>

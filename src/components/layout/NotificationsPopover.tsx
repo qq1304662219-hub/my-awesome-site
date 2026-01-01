@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Bell, Heart, MessageCircle, UserPlus, Info, CheckCheck } from "lucide-react"
+import { Bell, Heart, MessageCircle, UserPlus, Info, CheckCheck, Video } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import {
   Popover,
@@ -18,11 +18,11 @@ import { toast } from "sonner"
 
 interface Notification {
   id: number
-  type: 'like' | 'comment' | 'follow' | 'system'
+  type: 'like' | 'comment' | 'reply' | 'follow' | 'system' | 'new_video'
   actor_id: string
-  resource_id: string
-  resource_type: string
-  content: string
+  resource_id?: string
+  resource_type?: string
+  content?: string
   is_read: boolean
   created_at: string
   actor?: {
@@ -115,6 +115,12 @@ export function NotificationsPopover() {
     switch (notification.type) {
       case 'like':
       case 'comment':
+      case 'reply':
+        if (notification.resource_id) {
+            router.push(`/video/${notification.resource_id}`)
+        }
+        break
+      case 'new_video':
         if (notification.resource_id) {
             router.push(`/video/${notification.resource_id}`)
         }
@@ -151,7 +157,9 @@ export function NotificationsPopover() {
     switch (type) {
       case 'like': return <Heart className="h-3 w-3 text-red-500 fill-red-500" />
       case 'comment': return <MessageCircle className="h-3 w-3 text-blue-500 fill-blue-500" />
+      case 'reply': return <MessageCircle className="h-3 w-3 text-green-500 fill-green-500" />
       case 'follow': return <UserPlus className="h-3 w-3 text-green-500" />
+      case 'new_video': return <Video className="h-3 w-3 text-purple-500" />
       case 'system': return <Info className="h-3 w-3 text-yellow-500" />
       default: return <Bell className="h-3 w-3 text-gray-400" />
     }
@@ -211,7 +219,9 @@ export function NotificationsPopover() {
                         {" "}
                         {notification.type === 'like' && "赞了你的作品"}
                         {notification.type === 'comment' && "评论了你的作品"}
+                        {notification.type === 'reply' && "回复了你的评论"}
                         {notification.type === 'follow' && "关注了你"}
+                        {notification.type === 'new_video' && "发布了新视频"}
                         {notification.type === 'system' && "系统通知"}
                       </p>
                       {notification.content && (
@@ -229,6 +239,11 @@ export function NotificationsPopover() {
             </div>
           )}
         </ScrollArea>
+        <div className="p-2 border-t border-white/10 text-center">
+            <Button variant="ghost" size="sm" className="w-full text-xs text-blue-400 hover:text-blue-300" onClick={() => { setIsOpen(false); router.push('/notifications'); }}>
+                查看所有通知
+            </Button>
+        </div>
       </PopoverContent>
     </Popover>
   )

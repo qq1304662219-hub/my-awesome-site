@@ -18,7 +18,7 @@ export function AuthGuard({ children, requireAdmin = false }: { children: React.
         if (isAuthLoading || isChecking) {
             setIsTimeout(true)
         }
-    }, 8000) // 8 seconds timeout
+    }, 15000) // 15 seconds timeout
 
     return () => clearTimeout(timer)
   }, [isAuthLoading, isChecking])

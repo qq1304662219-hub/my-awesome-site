@@ -1,15 +1,16 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Upload, Loader2, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react'
+import { Upload, Loader2, CheckCircle, AlertCircle, RefreshCw, X } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Link from 'next/link'
 import { Progress } from "@/components/ui/progress"
 import { toast } from "sonner"
 import { useAuthStore } from "@/store/useAuthStore"
+import { Badge } from "@/components/ui/badge"
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
@@ -52,6 +53,7 @@ interface FileUploadProps {
 
 export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
   const { user } = useAuthStore()
+  const videoRef = useRef<HTMLVideoElement>(null)
   const [step, setStep] = useState(1) // 1: Select File, 2: Details & Preview, 3: Success
   const [file, setFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
@@ -60,7 +62,8 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [price, setPrice] = useState('0')
-  const [tags, setTags] = useState('')
+  const [tags, setTags] = useState<string[]>([])
+  const [tagInput, setTagInput] = useState('')
   const [prompt, setPrompt] = useState('')
   const [aiModel, setAiModel] = useState('')
   
@@ -85,6 +88,12 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
     }
   }
 
+  const handleSeeked = () => {
+    if (!coverUrl) {
+        handleCaptureCover();
+    }
+  }
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0]
@@ -100,7 +109,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
   }
 
   const handleCaptureCover = () => {
-    const video = document.getElementById('preview-video') as HTMLVideoElement
+    const video = videoRef.current
     if (video) {
       const canvas = document.createElement('canvas')
       canvas.width = video.videoWidth
@@ -108,6 +117,21 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
       canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height)
       setCoverUrl(canvas.toDataURL('image/jpeg'))
     }
+  }
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+        e.preventDefault()
+        const newTag = tagInput.trim()
+        if (newTag && !tags.includes(newTag)) {
+            setTags([...tags, newTag])
+            setTagInput('')
+        }
+    }
+  }
+
+  const removeTag = (indexToRemove: number) => {
+    setTags(tags.filter((_, index) => index !== indexToRemove))
   }
 
   const handleUpload = async () => {
@@ -166,7 +190,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
         .getPublicUrl(fileName)
 
       // 4. Save metadata
-      const { error: dbError } = await supabase
+      const { data: videoData, error: dbError } = await supabase
         .from('videos')
         .insert({
           title: title || file.name,
@@ -178,15 +202,42 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           style: style,
           ratio: ratio,
           price: parseFloat(price) || 0,
-          tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+          tags: tags, // Fix: tags is already an array
           prompt: prompt,
           ai_model: aiModel,
           status: 'pending',
           download_url: '',
           duration: durationStr // Use extracted duration
         })
+        .select()
+        .single()
 
       if (dbError) throw dbError
+
+      // 5. Notify Followers
+      try {
+        const { data: followers } = await supabase
+            .from('follows')
+            .select('follower_id')
+            .eq('following_id', userId)
+        
+        if (followers && followers.length > 0) {
+            const notifications = followers.map(f => ({
+                user_id: f.follower_id,
+                actor_id: userId,
+                type: 'new_video',
+                resource_id: videoData.id.toString(),
+                resource_type: 'video',
+                content: `发布了新视频: ${title || file.name}`,
+                is_read: false
+            }))
+            
+            await supabase.from('notifications').insert(notifications)
+        }
+      } catch (notifyError) {
+        console.error("Error notifying followers:", notifyError)
+        // Don't block success flow if notification fails
+      }
 
       setMessage({ type: 'success', text: '上传成功！' })
       setStep(3)
@@ -249,11 +300,12 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                       <div className="aspect-video bg-black rounded-lg overflow-hidden border border-white/10 relative group">
                           {previewUrl && (
                               <video 
-                                id="preview-video"
+                                ref={videoRef}
                                 src={previewUrl} 
                                 className="w-full h-full object-contain" 
                                 controls 
                                 onLoadedMetadata={handleMetadataLoaded}
+                                onSeeked={handleSeeked}
                               />
                           )}
                       </div>
@@ -337,8 +389,22 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-gray-300">标签 (逗号分隔)</Label>
-                        <Input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="例如: 4K, 自然, 延时摄影" className="bg-black/20 border-white/10 text-white" />
+                        <Label className="text-gray-300">标签 (输入后回车添加)</Label>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {tags.map((tag, index) => (
+                                <Badge key={index} variant="secondary" className="gap-1 pr-1 bg-white/10 hover:bg-white/20 text-gray-200">
+                                    {tag}
+                                    <X className="h-3 w-3 cursor-pointer hover:text-red-400" onClick={() => removeTag(index)} />
+                                </Badge>
+                            ))}
+                        </div>
+                        <Input 
+                            value={tagInput} 
+                            onChange={(e) => setTagInput(e.target.value)} 
+                            onKeyDown={handleTagKeyDown}
+                            placeholder="例如: 4K, 自然, 延时摄影" 
+                            className="bg-black/20 border-white/10 text-white" 
+                        />
                       </div>
                   </div>
               </div>

@@ -16,15 +16,18 @@ interface FilterState {
   ratio: string | null;
   model: string | null;
   query?: string | null;
+  resolution?: string | null;
+  duration?: string | null;
 }
 
 interface VideoGridProps {
   filters: FilterState;
+  sort?: string;
 }
 
 import { APP_CONFIG } from "@/lib/constants"
 
-export function VideoGrid({ filters }: VideoGridProps) {
+export function VideoGrid({ filters, sort }: VideoGridProps) {
   const router = useRouter()
   const [videos, setVideos] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
@@ -48,13 +51,27 @@ export function VideoGrid({ filters }: VideoGridProps) {
       
       if (filters.query) {
         // Use RPC for advanced search (title, description, tags, ai_model)
-        query = supabase.rpc('search_videos', { query_text: filters.query })
+        // Ensure profiles are joined if the RPC supports it, otherwise we might need a separate fetch or view
+        // Assuming search_videos returns video rows, we might miss profiles if not joined.
+        // If RPC returns simple rows, we can't easily join in one go without modifying RPC.
+        // Fallback to client-side filtering or standard query with ILIKE if RPC is problematic.
+        // For now, let's try to use standard query with OR for search to ensure we can join profiles.
+        query = supabase
+          .from('videos')
+          .select('*, profiles(full_name, avatar_url)')
+          .or(`title.ilike.%${filters.query}%,description.ilike.%${filters.query}%`)
       } else {
         // Standard query
         query = supabase
           .from('videos')
-          .select('*')
-          .order('created_at', { ascending: false })
+          .select('*, profiles(full_name, avatar_url)')
+      }
+
+      // Apply sorting
+      if (sort === 'popular') {
+        query = query.order('views', { ascending: false })
+      } else {
+        query = query.order('created_at', { ascending: false })
       }
 
       // Apply common filters and pagination
@@ -74,11 +91,24 @@ export function VideoGrid({ filters }: VideoGridProps) {
       if (filters.model) {
         query = query.eq('ai_model', filters.model)
       }
+      if (filters.resolution) {
+        query = query.eq('resolution', filters.resolution)
+      }
+      if (filters.duration) {
+        if (filters.duration === 'short') { // < 15s
+          query = query.lt('duration', 15)
+        } else if (filters.duration === 'medium') { // 15-60s
+          query = query.gte('duration', 15).lte('duration', 60)
+        } else if (filters.duration === 'long') { // > 60s
+          query = query.gt('duration', 60)
+        }
+      }
 
       const { data, error } = await query
-
+      
       if (error) {
         console.error('Error fetching videos:', error)
+        setError(error.message)
       } else {
         if (data) {
           if (data.length < PAGE_SIZE) {
@@ -87,8 +117,9 @@ export function VideoGrid({ filters }: VideoGridProps) {
           setVideos(prev => isNewFilter ? data : [...prev, ...data])
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Unexpected error:', err)
+      setError(err.message || '加载视频失败')
     } finally {
       setLoading(false)
     }
@@ -154,7 +185,7 @@ export function VideoGrid({ filters }: VideoGridProps) {
                   author={video.profiles?.full_name || 'Unknown'}
                   user_id={video.user_id}
                   user_avatar={video.profiles?.avatar_url || undefined}
-                  views={video.views_count}
+                  views={video.views || 0}
                   duration={video.duration || '00:00'}
                   image={video.thumbnail_url}
                   url={video.url}

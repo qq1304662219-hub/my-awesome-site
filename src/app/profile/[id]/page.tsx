@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { VideoCard } from "@/components/shared/VideoCard"
-import { Loader2, Video, Heart, Download, User, Folder, MessageSquare } from "lucide-react"
+import { Loader2, Video, Heart, Download, User, Folder, MessageSquare, Lock } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -23,6 +23,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   const [profile, setProfile] = useState<any>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [videos, setVideos] = useState<any[]>([])
+  const [likedVideos, setLikedVideos] = useState<any[]>([])
   const [collections, setCollections] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
@@ -48,7 +49,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
       if (profileError) throw profileError
       setProfile(profileData)
 
-      // 2. Fetch Videos
+      // 2. Fetch Videos (My Works)
       const { data: videosData, error: videosError } = await supabase
         .from('videos')
         .select('*')
@@ -59,7 +60,64 @@ export default function ProfilePage({ params }: ProfilePageProps) {
       if (videosError) throw videosError
       setVideos(videosData || [])
 
-      // 3. Calculate Stats
+      // 3. Fetch Liked Videos
+      const { data: likesData, error: likesError } = await supabase
+        .from('likes')
+        .select(`
+          video_id,
+          videos (
+            *,
+            profiles:user_id (
+              username,
+              full_name,
+              avatar_url
+            )
+          )
+        `)
+        .eq('user_id', params.id)
+        .order('created_at', { ascending: false })
+
+      if (likesError) {
+          console.error("Error fetching likes:", likesError)
+      } else {
+          // Extract videos from the join
+          const liked = likesData
+            .map((item: any) => {
+                const video = item.videos;
+                if (!video) return null;
+                return {
+                    ...video,
+                    author: video.profiles?.full_name || video.profiles?.username || "Unknown",
+                    user_avatar: video.profiles?.avatar_url
+                };
+            })
+            .filter((v: any) => v !== null) // Filter out deleted videos
+          setLikedVideos(liked)
+      }
+
+      // 4. Fetch Collections
+      let collectionsQuery = supabase
+        .from('collections')
+        .select('*, collection_items(count)')
+        .eq('user_id', params.id)
+        .order('created_at', { ascending: false })
+
+      // If not viewing own profile, only show public collections
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      if (currentUser?.id !== params.id) {
+        collectionsQuery = collectionsQuery.eq('is_public', true)
+      }
+
+      const { data: collectionsData, error: collectionsError } = await collectionsQuery
+
+      
+      if (collectionsError) {
+          console.error("Error fetching collections:", collectionsError)
+      } else {
+          setCollections(collectionsData || [])
+      }
+
+      // 5. Calculate Stats
       const totalVideos = videosData?.length || 0
       const totalLikes = videosData?.reduce((acc, curr) => acc + (curr.likes || 0), 0) || 0
       // Assuming 'downloads' column is added, otherwise 0
@@ -151,9 +209,13 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                         <Video className="w-4 h-4 mr-2" />
                         发布的作品
                     </TabsTrigger>
+                    <TabsTrigger value="likes" className="data-[state=active]:bg-blue-600">
+                        <Heart className="w-4 h-4 mr-2" />
+                        喜欢的视频
+                    </TabsTrigger>
                     <TabsTrigger value="collections" className="data-[state=active]:bg-blue-600">
                         <Folder className="w-4 h-4 mr-2" />
-                        公开收藏夹
+                        收藏夹
                     </TabsTrigger>
                 </TabsList>
 
@@ -176,12 +238,34 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     )}
                 </TabsContent>
 
+                <TabsContent value="likes" className="mt-0">
+                    {likedVideos.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {likedVideos.map((video) => (
+                                <VideoCard
+                                    key={video.id}
+                                    {...video}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-20 bg-[#0B1120] rounded-xl border border-white/5">
+                            <p className="text-gray-400">该用户暂无喜欢的视频</p>
+                        </div>
+                    )}
+                </TabsContent>
+
                 <TabsContent value="collections" className="mt-0">
                      {collections.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {collections.map((collection) => (
-                                <Link href={`/dashboard/collections/${collection.id}`} key={collection.id}>
-                                    <div className="bg-[#0B1120] border border-white/10 rounded-xl p-6 hover:border-blue-500/50 transition-colors cursor-pointer group">
+                                <Link href={`/collections/${collection.id}`} key={collection.id}>
+                                    <div className="bg-[#0B1120] border border-white/10 rounded-xl p-6 hover:border-blue-500/50 transition-colors cursor-pointer group relative">
+                                        {!collection.is_public && (
+                                            <div className="absolute top-4 right-4 text-gray-500" title="私密收藏夹">
+                                                <Lock className="w-4 h-4" />
+                                            </div>
+                                        )}
                                         <div className="flex items-start justify-between mb-4">
                                             <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
                                                 <Folder className="h-5 w-5 text-blue-500" />

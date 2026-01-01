@@ -160,6 +160,7 @@ export interface Database {
           content: string
           video_id: string
           user_id: string
+          parent_id?: number | null
           created_at?: string
           updated_at?: string
         }
@@ -168,10 +169,17 @@ export interface Database {
           content?: string
           video_id?: string
           user_id?: string
+          parent_id?: number | null
           created_at?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "comments_video_id_fkey"
             columns: ["video_id"]

@@ -74,23 +74,17 @@ export default function SettingsPage() {
       const fileName = `${user.id}-${Date.now()}.${fileExt}`
       const filePath = `avatars/${fileName}`
 
-      // Upload to 'avatars' bucket (assuming it exists, otherwise 'public')
-      // Let's try 'public' first or 'videos' if no specific bucket, but usually 'avatars' is separate.
-      // Based on previous files, we haven't seen an 'avatars' bucket creation.
-      // We will try 'public' bucket with folder 'avatars'.
+      // Upload to 'uploads' bucket which is used for videos as well
       const { error: uploadError } = await supabase.storage
-        .from('public')
+        .from('uploads')
         .upload(filePath, file)
 
       if (uploadError) {
-        // If bucket doesn't exist, this fails. 
-        // We assume 'public' bucket exists as it's common in Supabase starter.
-        // If not, we might need to create it or use 'videos' bucket if that's the only one.
         throw uploadError
       }
 
       const { data: { publicUrl } } = supabase.storage
-        .from('public')
+        .from('uploads')
         .getPublicUrl(filePath)
 
       setFormData({ ...formData, avatar_url: publicUrl })

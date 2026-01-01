@@ -59,14 +59,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Add timeout to getSession
-        const sessionPromise = supabase.auth.getSession()
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Auth timeout')), 5000))
-        
-        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any
+        const getSessionPromise = supabase.auth.getSession()
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Session check timeout')), 10000)
+        )
+
+        const { data: { session }, error } = await Promise.race([
+            getSessionPromise,
+            timeoutPromise
+        ]) as any
+
+        if (error) {
+            console.error("Session check error:", error)
+            throw error
+        }
 
         if (session?.user) {
             if (mounted.current) setUser(session.user)
-            await syncUserProfile(session.user)
+            // Don't await profile sync to unblock UI, let it happen in background
+            syncUserProfile(session.user)
         } else {
             if (mounted.current) {
                 setUser(null)
@@ -77,6 +88,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error("Auth init error:", e)
         // Even on error, we must stop loading to allow app to function (as guest)
         if (mounted.current) {
+            // Only clear user if it was a session error, not just a timeout? 
+            // Actually if timeout, we assume no session or offline.
+            // But if we are offline, maybe we should keep previous state?
+            // For now, fail safe to guest.
             setUser(null)
             setProfile(null)
         }
