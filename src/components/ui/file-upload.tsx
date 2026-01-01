@@ -133,6 +133,8 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           ratio: ratio,
           price: parseFloat(price) || 0,
           tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+          prompt: prompt,
+          ai_model: aiModel,
           status: 'pending',
           download_url: '',
           duration: '00:00' // Placeholder, could extract from video element
@@ -233,6 +235,16 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                       <div className="space-y-2">
                         <Label htmlFor="desc" className="text-gray-300">描述</Label>
                         <Input id="desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="简单介绍一下视频内容..." className="bg-black/20 border-white/10 text-white" />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-gray-300">Prompt (提示词)</Label>
+                        <Input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="生成该视频使用的提示词..." className="bg-black/20 border-white/10 text-white" />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-gray-300">AI Model (使用的模型)</Label>
+                        <Input value={aiModel} onChange={(e) => setAiModel(e.target.value)} placeholder="例如: Midjourney v6, Runway Gen-2" className="bg-black/20 border-white/10 text-white" />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">

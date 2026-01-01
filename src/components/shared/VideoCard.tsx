@@ -238,7 +238,7 @@ export function VideoCard({
              {/* Author Avatar */}
              <div className="flex-shrink-0 pt-0.5">
                 {user_id ? (
-                     <Link href={`/profile/${user_id}`}>
+                     <Link href={`/profile/${user_id}`} onClick={(e) => e.stopPropagation()}>
                         <Avatar className="h-8 w-8 border border-white/10 hover:border-blue-500 transition-colors">
                             <AvatarImage src={user_avatar} />
                             <AvatarFallback className="bg-blue-600 text-[10px] text-white">
@@ -264,9 +264,15 @@ export function VideoCard({
                 
                 <div className="flex items-center justify-between text-[11px] text-gray-500">
                     <div className="flex items-center gap-2">
-                         <span className="hover:text-gray-300 transition-colors cursor-pointer">
-                            {author || "Unknown"}
-                         </span>
+                         {user_id ? (
+                            <Link href={`/profile/${user_id}`} className="hover:text-blue-400 transition-colors cursor-pointer truncate" onClick={(e) => e.stopPropagation()}>
+                                {author || "Unknown"}
+                            </Link>
+                         ) : (
+                            <span className="hover:text-gray-300 transition-colors cursor-pointer truncate">
+                                {author || "Unknown"}
+                            </span>
+                         )}
                     </div>
                     <span>{views} 次观看</span>
                 </div>
