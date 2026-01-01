@@ -6,6 +6,7 @@ import { Eye, Calendar, Download, ShieldCheck, Heart, Play, Copy, Check } from "
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { VideoInteractions } from "@/components/video/VideoInteractions";
 import { VideoPlayer } from "@/components/video/VideoPlayer";
 import { LicenseSelector } from "@/components/video/LicenseSelector";
