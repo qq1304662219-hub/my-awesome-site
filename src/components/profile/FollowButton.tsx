@@ -13,13 +13,15 @@ interface FollowButtonProps {
 }
 
 export function FollowButton({ authorId, className }: FollowButtonProps) {
-  const { user } = useAuthStore()
+  const { user, isLoading } = useAuthStore()
   const router = useRouter()
   const [isFollowing, setIsFollowing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [isOwner, setIsOwner] = useState(false)
 
   useEffect(() => {
+    if (isLoading) return
+
     if (user) {
       if (user.id === authorId) {
         setIsOwner(true)
@@ -30,14 +32,15 @@ export function FollowButton({ authorId, className }: FollowButtonProps) {
     } else {
       setLoading(false)
     }
-  }, [user, authorId])
+  }, [user, authorId, isLoading])
 
   const checkFollowStatus = async () => {
     try {
+      if (!user) return
       const { data } = await supabase
         .from('follows')
         .select('*')
-        .eq('follower_id', user!.id)
+        .eq('follower_id', user.id)
         .eq('following_id', authorId)
         .single()
       
@@ -50,7 +53,10 @@ export function FollowButton({ authorId, className }: FollowButtonProps) {
   }
 
   const handleFollow = async () => {
+    if (isLoading) return
+
     if (!user) {
+      toast.error("请先登录后关注")
       router.push("/auth")
       return
     }
