@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -30,10 +31,10 @@ export default function Finance() {
   const [loading, setLoading] = useState(true)
   const [balance, setBalance] = useState(0)
   
-  // Recharge state
-  const [isRechargeOpen, setIsRechargeOpen] = useState(false)
-  const [rechargeAmount, setRechargeAmount] = useState('')
-  const [rechargeSubmitting, setRechargeSubmitting] = useState(false)
+  // Recharge state - Moved to /recharge page
+  // const [isRechargeOpen, setIsRechargeOpen] = useState(false)
+  // const [rechargeAmount, setRechargeAmount] = useState('')
+  // const [rechargeSubmitting, setRechargeSubmitting] = useState(false)
 
   // Withdrawal state
   const [isWithdrawOpen, setIsWithdrawOpen] = useState(false)
@@ -116,40 +117,40 @@ export default function Finance() {
     setSubmitting(false)
   }
 
-  const handleRecharge = async () => {
-    if (!rechargeAmount) {
-      toast.error('请输入充值金额')
-      return
-    }
-
-    const amount = parseFloat(rechargeAmount)
-    if (isNaN(amount) || amount <= 0) {
-      toast.error('请输入有效的金额')
-      return
-    }
-
-    setRechargeSubmitting(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (user) {
-        // Use RPC to handle recharge atomically
-        const { error } = await supabase.rpc('handle_recharge', {
-            p_amount: amount
-        })
-
-        if (error) {
-            toast.error('充值失败: ' + error.message)
-            setRechargeSubmitting(false)
-            return
-        }
-
-        toast.success(`成功充值 ¥${amount}`)
-        setIsRechargeOpen(false)
-        setRechargeAmount('')
-        fetchData()
-    }
-    setRechargeSubmitting(false)
-  }
+  // const handleRecharge = async () => {
+  //   if (!rechargeAmount) {
+  //     toast.error('请输入充值金额')
+  //     return
+  //   }
+  //
+  //   const amount = parseFloat(rechargeAmount)
+  //   if (isNaN(amount) || amount <= 0) {
+  //     toast.error('请输入有效的金额')
+  //     return
+  //   }
+  //
+  //   setRechargeSubmitting(true)
+  //   const { data: { user } } = await supabase.auth.getUser()
+  //   
+  //   if (user) {
+  //       // Use RPC to handle recharge atomically
+  //       const { error } = await supabase.rpc('handle_recharge', {
+  //           p_amount: amount
+  //       })
+  //
+  //       if (error) {
+  //           toast.error('充值失败: ' + error.message)
+  //           setRechargeSubmitting(false)
+  //           return
+  //       }
+  //
+  //       toast.success(`成功充值 ¥${amount}`)
+  //       setIsRechargeOpen(false)
+  //       setRechargeAmount('')
+  //       fetchData()
+  //   }
+  //   setRechargeSubmitting(false)
+  // }
 
   const getTypeLabel = (type: string) => {
     switch (type) {
@@ -172,9 +173,11 @@ export default function Finance() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">财务中心</h1>
         <div className="flex gap-3">
-            <Button onClick={() => setIsRechargeOpen(true)} className="bg-green-600 hover:bg-green-700 text-white shadow-[0_0_15px_rgba(22,163,74,0.5)]">
-                充值
-            </Button>
+            <Link href="/recharge">
+                <Button className="bg-green-600 hover:bg-green-700 text-white shadow-[0_0_15px_rgba(22,163,74,0.5)]">
+                    充值
+                </Button>
+            </Link>
             <Button onClick={() => setIsWithdrawOpen(true)} className="bg-red-600 hover:bg-red-700 text-white">
                 <Wallet className="h-4 w-4 mr-2" />
                 提现
@@ -310,7 +313,7 @@ export default function Finance() {
             </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Dialog open={isRechargeOpen} onOpenChange={setIsRechargeOpen}>
+      {/* <Dialog open={isRechargeOpen} onOpenChange={setIsRechargeOpen}>
         <DialogContent className="bg-[#1a202c] border-white/10 text-white sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>账户充值</DialogTitle>
@@ -364,7 +367,7 @@ export default function Finance() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   )
 }
