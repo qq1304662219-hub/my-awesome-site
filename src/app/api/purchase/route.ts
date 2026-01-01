@@ -3,10 +3,12 @@ import { NextResponse } from 'next/server'
 import { rateLimit } from '@/lib/rate-limit'
 
 // Initialize Supabase Admin Client for secure operations
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+const supabaseAdmin = (supabaseUrl && supabaseKey) 
+  ? createClient(supabaseUrl, supabaseKey) 
+  : null
 
 export async function POST(request: Request) {
   try {
@@ -18,6 +20,11 @@ export async function POST(request: Request) {
         { error: 'Too many requests', reset },
         { status: 429, headers: { 'Retry-After': reset.toString() } }
       )
+    }
+
+    if (!supabaseAdmin) {
+      console.error('Purchase API disabled: Supabase Admin client not initialized')
+      return NextResponse.json({ error: 'Internal Server Configuration Error' }, { status: 500 })
     }
 
     // 1. Authenticate user

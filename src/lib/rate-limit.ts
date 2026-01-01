@@ -1,9 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+const supabaseAdmin = (supabaseUrl && supabaseKey) 
+  ? createClient(supabaseUrl, supabaseKey) 
+  : null
 
 interface RateLimitResult {
   success: boolean
@@ -18,6 +20,11 @@ interface RateLimitResult {
  * @param windowSeconds Window in seconds
  */
 export async function rateLimit(key: string, limit: number = 10, windowSeconds: number = 60): Promise<RateLimitResult> {
+  if (!supabaseAdmin) {
+    console.warn('Rate limiting disabled: Supabase Admin client not initialized')
+    return { success: true, remaining: limit, reset: windowSeconds }
+  }
+
   const now = new Date()
   const windowStart = new Date(now.getTime() - windowSeconds * 1000)
 
