@@ -54,6 +54,7 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
     lastClickTime.current = now;
 
     if (!currentUser) {
+      toast.error("请先登录后操作")
       router.push("/auth");
       return;
     }
@@ -134,6 +135,7 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
             className="bg-yellow-500 hover:bg-yellow-600 text-white border-0"
             onClick={() => {
                 if (!currentUser) {
+                    toast.error("请先登录后打赏")
                     router.push("/auth");
                     return;
                 }

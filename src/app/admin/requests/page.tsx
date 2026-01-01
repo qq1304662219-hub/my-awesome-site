@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
 import { Trash2, Search, ExternalLink, Coins, CheckCircle2, XCircle } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -35,21 +34,14 @@ export default function AdminRequests() {
   const fetchRequests = async () => {
     setLoading(true)
     try {
-      let query = supabase
-        .from("requests")
-        .select(`
-          *,
-          profiles:user_id(full_name, avatar_url)
-        `)
-        .order("created_at", { ascending: false })
+      const params = new URLSearchParams()
+      if (search) params.set("search", search)
+      
+      const res = await fetch(`/api/admin/requests?${params}`)
+      const data = await res.json()
 
-      if (search) {
-        query = query.ilike("title", `%${search}%`)
-      }
-
-      const { data, error } = await query
-      if (error) throw error
-      setRequests(data || [])
+      if (!res.ok) throw new Error(data.error)
+      setRequests(data.requests || [])
     } catch (error) {
       console.error("Error fetching requests:", error)
       toast.error("加载悬赏列表失败")
@@ -62,12 +54,12 @@ export default function AdminRequests() {
     if (!confirm("确定要删除这个悬赏任务吗？此操作不可恢复。")) return
 
     try {
-      const { error } = await supabase
-        .from("requests")
-        .delete()
-        .eq("id", id)
+      const res = await fetch(`/api/admin/requests/${id}`, {
+        method: 'DELETE'
+      })
+      const data = await res.json()
 
-      if (error) throw error
+      if (!res.ok) throw new Error(data.error)
 
       toast.success("悬赏任务已删除")
       setRequests(requests.filter(r => r.id !== id))
@@ -81,18 +73,20 @@ export default function AdminRequests() {
     if (!confirm("确定要关闭这个悬赏任务吗？")) return
 
     try {
-        const { error } = await supabase
-            .from("requests")
-            .update({ status: 'closed' })
-            .eq("id", id)
+      const res = await fetch(`/api/admin/requests/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'closed' })
+      })
+      const data = await res.json()
         
-        if (error) throw error
+      if (!res.ok) throw new Error(data.error)
         
-        toast.success("悬赏任务已关闭")
-        setRequests(requests.map(r => r.id === id ? { ...r, status: 'closed' } : r))
+      toast.success("悬赏任务已关闭")
+      setRequests(requests.map(r => r.id === id ? { ...r, status: 'closed' } : r))
     } catch (error) {
-        console.error("Error closing request:", error)
-        toast.error("关闭失败")
+      console.error("Error closing request:", error)
+      toast.error("关闭失败")
     }
   }
 

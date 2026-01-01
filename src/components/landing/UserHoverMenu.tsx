@@ -82,7 +82,7 @@ export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) 
                 <Link href="/dashboard/wallet" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
                     <span>充值中心</span>
                 </Link>
-                <Link href="/checkout" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
+                <Link href="/cart" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
                     <span>我的购物车</span>
                 </Link>
                 <Link href="/invite" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">

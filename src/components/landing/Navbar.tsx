@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Video, Upload, Menu, X, LogOut, User as UserIcon, ChevronDown, Search } from "lucide-react";
+import { Video, Upload, Menu, X, LogOut, User as UserIcon, ChevronDown, Search, ShoppingCart } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
@@ -144,6 +144,12 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
                     
                     <UserHoverMenu user={user} profile={profile} onSignOut={handleSignOut} />
                     
+                    <Link href="/cart" className="relative group">
+                        <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                            <ShoppingCart className="h-5 w-5" />
+                        </Button>
+                    </Link>
+
                     <NotificationsPopover />
                  </div>
               </>

@@ -1,8 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { supabase } from "@/lib/supabase"
-import { deleteVideoWithStorage } from "@/lib/storage-utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
@@ -27,18 +25,11 @@ export default function AdminReportsPage() {
 
   const fetchReports = async () => {
     try {
-      const { data, error } = await supabase
-        .from("reports")
-        .select(`
-          *,
-          profiles:reporter_id (full_name, email),
-          videos:video_id (title, id),
-          comments:comment_id (content, id, video_id)
-        `)
-        .order("created_at", { ascending: false })
+      const res = await fetch('/api/admin/reports')
+      const data = await res.json()
 
-      if (error) throw error
-      setReports(data || [])
+      if (!res.ok) throw new Error(data.error)
+      setReports(data.reports || [])
     } catch (error) {
       console.error("Error fetching reports:", error)
       toast.error("加载举报列表失败")
@@ -49,12 +40,15 @@ export default function AdminReportsPage() {
 
   const handleUpdateStatus = async (id: string, status: string) => {
     try {
-      const { error } = await supabase
-        .from("reports")
-        .update({ status })
-        .eq("id", id)
-
-      if (error) throw error
+      const res = await fetch(`/api/admin/reports/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      })
+      const data = await res.json()
+      
+      if (!res.ok) throw new Error(data.error)
+      
       toast.success("状态已更新")
       fetchReports()
     } catch (error) {
@@ -66,24 +60,12 @@ export default function AdminReportsPage() {
     if (!confirm("确定要删除这条内容吗？此操作不可恢复。")) return
 
     try {
-      let error
-      if (report.video_id) {
-        // Delete video and its files
-        try {
-          await deleteVideoWithStorage(supabase, report.video_id)
-        } catch (err: any) {
-          error = err
-        }
-      } else if (report.comment_id) {
-        // Delete comment
-        const { error: err } = await supabase.from("comments").delete().eq("id", report.comment_id)
-        error = err
-      }
+      const res = await fetch(`/api/admin/reports/${report.id}`, {
+        method: 'DELETE'
+      })
+      const data = await res.json()
 
-      if (error) throw error
-
-      // Auto resolve report
-      await supabase.from("reports").update({ status: 'resolved' }).eq("id", report.id)
+      if (!res.ok) throw new Error(data.error)
       
       toast.success("内容已删除，举报已标记为解决")
       fetchReports()
