@@ -98,23 +98,20 @@ export default function Finance() {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (user) {
-        // 1. Create withdrawal record
-        const { error: withdrawError } = await supabase
-        .from('withdrawals')
-        .insert({
-            user_id: user.id,
-            amount: amount,
-            alipay_account: alipayAccount,
-            status: 'pending'
+        // Use RPC to handle withdrawal securely
+        const { error } = await supabase.rpc('create_withdrawal', {
+            p_amount: amount,
+            p_alipay_account: alipayAccount
         })
 
-        if (withdrawError) {
-            toast.error('申请提交失败: ' + withdrawError.message)
+        if (error) {
+            toast.error('申请提交失败: ' + error.message)
         } else {
             toast.success('提现申请已提交，等待审核')
             setIsWithdrawOpen(false)
             setWithdrawAmount('')
             setAlipayAccount('')
+            fetchData() // Refresh balance
         }
     }
     setSubmitting(false)
@@ -136,30 +133,13 @@ export default function Finance() {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (user) {
-        // 1. Add transaction record
-        const { error: transactionError } = await supabase
-        .from('transactions')
-        .insert({
-            user_id: user.id,
-            amount: amount,
-            type: 'recharge',
-            description: `充值 ¥${amount}`
+        // Use RPC to handle recharge atomically
+        const { error } = await supabase.rpc('handle_recharge', {
+            p_amount: amount
         })
 
-        if (transactionError) {
-            toast.error('充值失败')
-            setRechargeSubmitting(false)
-            return
-        }
-
-        // 2. Update balance
-        const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ balance: balance + amount })
-        .eq('id', user.id)
-
-        if (updateError) {
-            toast.error('余额更新失败')
+        if (error) {
+            toast.error('充值失败: ' + error.message)
             setRechargeSubmitting(false)
             return
         }

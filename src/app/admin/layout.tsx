@@ -3,7 +3,7 @@
 import { useAuthStore } from "@/store/useAuthStore"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Users, Video, LogOut } from "lucide-react"
+import { Users, Video, LogOut, FileQuestion } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AuthGuard } from "@/components/auth/AuthGuard"
@@ -26,6 +26,12 @@ function AdminContent({ children }: { children: React.ReactNode }) {
       href: "/admin/videos",
       icon: Video,
       show: true // Everyone (admins) can see
+    },
+    {
+      name: "悬赏管理",
+      href: "/admin/requests",
+      icon: FileQuestion,
+      show: true
     },
     {
       name: "团队管理",

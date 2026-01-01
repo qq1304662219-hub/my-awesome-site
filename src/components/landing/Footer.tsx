@@ -20,9 +20,10 @@ export function Footer() {
             <h4 className="font-bold text-white mb-4">导航</h4>
             <ul className="space-y-2 text-sm text-gray-400 flex flex-col">
                 <Link href="/" className="hover:text-white transition-colors">首页</Link>
-                <Link href="/?category=All" className="hover:text-white transition-colors">浏览素材</Link>
+                <Link href="/explore" className="hover:text-white transition-colors">浏览素材</Link>
+                <Link href="/requests" className="hover:text-white transition-colors">悬赏任务</Link>
+                <Link href="/classroom" className="hover:text-white transition-colors">创作课堂</Link>
                 <Link href="/dashboard" className="hover:text-white transition-colors">上传作品</Link>
-                <Link href="/legal?tab=about" className="hover:text-white transition-colors">关于我们</Link>
             </ul>
           </div>
 

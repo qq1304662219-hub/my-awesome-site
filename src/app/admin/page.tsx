@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { Video, Users, Activity, Film } from "lucide-react"
+import { Video, Users, Activity, Film, AlertCircle, FileQuestion } from "lucide-react"
 import Link from "next/link"
 
 interface DashboardVideo {
@@ -17,7 +17,8 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     users: 0,
     videos: 0,
-    likes: 0
+    likes: 0,
+    requests: 0
   })
   const [recentVideos, setRecentVideos] = useState<DashboardVideo[]>([])
   const [loading, setLoading] = useState(true)
@@ -37,6 +38,10 @@ export default function AdminDashboard() {
         .from("videos")
         .select("*", { count: "exact", head: true })
       
+      const { count: requestCount } = await supabase
+        .from("requests")
+        .select("*", { count: "exact", head: true })
+      
       // Note: 'likes' table might be large, be careful with count
       const { count: likesCount } = await supabase
         .from("likes")
@@ -45,7 +50,8 @@ export default function AdminDashboard() {
       setStats({
         users: userCount || 0,
         videos: videoCount || 0,
-        likes: likesCount || 0
+        likes: likesCount || 0,
+        requests: requestCount || 0
       })
 
       // 2. Get recent videos
@@ -76,7 +82,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-[#0B1120] border border-white/10 rounded-xl p-6 flex items-center gap-4">
           <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
             <Users className="w-8 h-8" />

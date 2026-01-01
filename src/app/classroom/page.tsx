@@ -1,57 +1,35 @@
+import Link from "next/link";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
-import { BookOpen, PlayCircle, Star, Clock, User } from "lucide-react";
-import Link from "next/link";
+import { PlayCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase";
 
-const COURSES = [
-  {
-    id: 1,
-    title: "Midjourney 零基础入门",
-    description: "从注册账号到精通提示词，带你一步步掌握最强大的 AI 绘画工具。",
-    instructor: "AI 艺术研究院",
-    duration: "2小时 30分钟",
-    level: "入门",
-    rating: 4.9,
-    students: 1205,
-    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop"
-  },
-  {
-    id: 2,
-    title: "Stable Diffusion 高级进阶",
-    description: "深入理解 ControlNet、LoRA 训练与局部重绘，掌控 AI 绘画的每一个细节。",
-    instructor: "TechFlow",
-    duration: "4小时 15分钟",
-    level: "进阶",
-    rating: 4.8,
-    students: 850,
-    image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=2070&auto=format&fit=crop"
-  },
-  {
-    id: 3,
-    title: "Runway Gen-2 视频生成指南",
-    description: "探索 AI 视频生成的无限可能，学习如何用文字和图片创作电影级镜头。",
-    instructor: "Motion AI",
-    duration: "1小时 45分钟",
-    level: "中级",
-    rating: 4.7,
-    students: 620,
-    image: "https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop"
-  },
-  {
-    id: 4,
-    title: "AI 辅助商业设计实战",
-    description: "结合 Photoshop 与 AI 工具，提升电商海报、Logo 设计与包装设计的效率。",
-    instructor: "Design Master",
-    duration: "3小时 20分钟",
-    level: "实战",
-    rating: 4.9,
-    students: 2100,
-    image: "https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=2727&auto=format&fit=crop"
+export const revalidate = 60; // Revalidate every minute
+
+interface Course {
+  id: number;
+  title: string;
+  description: string;
+  instructor: string;
+  duration: string;
+  level: string;
+  rating: number;
+  students_count: number;
+  image_url: string;
+  price: number;
+}
+
+export default async function ClassroomPage() {
+  const { data: courses, error } = await supabase
+    .from('courses')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching courses:', error);
   }
-];
 
-export default function ClassroomPage() {
   return (
     <div className="min-h-screen bg-[#020817] text-white flex flex-col">
       <Navbar />
@@ -79,55 +57,48 @@ export default function ClassroomPage() {
 
       {/* Course List */}
       <div className="flex-1 container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {COURSES.map((course) => (
-                <div key={course.id} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-blue-500/50 transition-all group">
-                    <div className="relative h-48 overflow-hidden">
-                        <img 
-                            src={course.image} 
-                            alt={course.title} 
-                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <PlayCircle className="w-12 h-12 text-white" />
+        {(!courses || courses.length === 0) ? (
+            <div className="text-center py-20 bg-white/5 rounded-xl border border-white/10">
+                <p className="text-gray-400 mb-4">暂无课程</p>
+            </div>
+        ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {courses.map((course) => (
+                    <div key={course.id} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-blue-500/50 transition-all group">
+                        <div className="relative h-48 overflow-hidden">
+                            <img 
+                                src={course.image_url} 
+                                alt={course.title} 
+                                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <PlayCircle className="w-12 h-12 text-white" />
+                            </div>
+                            <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium">
+                                {course.level}
+                            </div>
                         </div>
-                        <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium">
-                            {course.level}
+                        <div className="p-5">
+                            <h3 className="font-bold text-lg mb-2 line-clamp-1 group-hover:text-blue-400 transition-colors">
+                                {course.title}
+                            </h3>
+                            <p className="text-sm text-gray-400 mb-4 line-clamp-2 min-h-[40px]">
+                                {course.description}
+                            </p>
+                            <div className="flex items-center justify-between text-xs text-gray-500 border-t border-white/10 pt-4">
+                                <div className="flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {course.duration}
+                                </div>
+                                <span>{course.students_count} 人在学</span>
+                            </div>
                         </div>
                     </div>
-                    <div className="p-5">
-                        <h3 className="font-bold text-lg mb-2 line-clamp-1 group-hover:text-blue-400 transition-colors">
-                            {course.title}
-                        </h3>
-                        <p className="text-sm text-gray-400 mb-4 line-clamp-2 h-10">
-                            {course.description}
-                        </p>
-                        
-                        <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-                            <div className="flex items-center gap-1">
-                                <User className="w-3 h-3" />
-                                {course.instructor}
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                {course.duration}
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                            <div className="flex items-center gap-1 text-yellow-500">
-                                <Star className="w-4 h-4 fill-current" />
-                                <span className="font-bold">{course.rating}</span>
-                            </div>
-                            <span className="text-xs text-gray-400">
-                                {course.students} 人在学
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </div>
+                ))}
+            </div>
+        )}
       </div>
+      
       <Footer />
     </div>
   );

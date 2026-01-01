@@ -63,18 +63,21 @@ values ('uploads', 'uploads', true)
 on conflict (id) do nothing;
 
 -- Allow authenticated users to upload to 'uploads' bucket
+DROP POLICY IF EXISTS "Authenticated users can upload files" ON storage.objects;
 CREATE POLICY "Authenticated users can upload files"
 ON storage.objects FOR INSERT
 TO authenticated
 WITH CHECK (bucket_id = 'uploads' AND auth.uid() = owner);
 
 -- Allow authenticated users to update their files
+DROP POLICY IF EXISTS "Users can update own files" ON storage.objects;
 CREATE POLICY "Users can update own files"
 ON storage.objects FOR UPDATE
 TO authenticated
 USING (bucket_id = 'uploads' AND auth.uid() = owner);
 
 -- Allow public to view files in 'uploads' bucket
+DROP POLICY IF EXISTS "Public can view files" ON storage.objects;
 CREATE POLICY "Public can view files"
 ON storage.objects FOR SELECT
 TO public
@@ -83,10 +86,12 @@ USING (bucket_id = 'uploads');
 -- 4. Fix Profiles Policies (if needed)
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public can view profiles" ON profiles;
 CREATE POLICY "Public can view profiles"
 ON profiles FOR SELECT
 USING (true);
 
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile"
 ON profiles FOR UPDATE
 USING (auth.uid() = id);
