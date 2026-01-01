@@ -21,6 +21,7 @@ export function VideoPlayer({ src, poster, autoPlay = false }: VideoPlayerProps)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showControls, setShowControls] = useState(true)
   const [playbackRate, setPlaybackRate] = useState(1)
+  const [error, setError] = useState<string | null>(null)
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
