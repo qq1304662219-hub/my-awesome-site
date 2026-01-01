@@ -219,6 +219,14 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
     }
   };
 
+import { AddToCollectionModal } from "./AddToCollectionModal";
+
+// ... existing imports
+
+// Inside VideoInteractionsProps interface
+// No changes needed if we just render it inside
+
+// Inside VideoInteractions component
   return (
     <div className="space-y-8">
       {/* Actions Bar */}
@@ -232,6 +240,9 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
             <ThumbsUp className={cn("h-4 w-4 mr-2", hasLiked && "fill-blue-400")} />
             {likes}
           </Button>
+          
+          <AddToCollectionModal videoId={parseInt(videoId)} />
+
           <Button 
             variant="secondary" 
             className="bg-white/10 hover:bg-white/20 text-white border-0"
