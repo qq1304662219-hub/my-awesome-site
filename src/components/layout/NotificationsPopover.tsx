@@ -37,6 +37,21 @@ export function NotificationsPopover() {
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
 
+  const fetchUnreadCount = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { count, error } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false)
+
+    if (!error && count !== null) {
+      setUnreadCount(count)
+    }
+  }
+
   const fetchNotifications = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
@@ -56,12 +71,14 @@ export function NotificationsPopover() {
 
     if (data) {
       setNotifications(data as any)
-      setUnreadCount(data.filter((n: any) => !n.is_read).length)
+      // Also fetch total unread count
+      fetchUnreadCount()
     }
   }
 
   useEffect(() => {
     let channel: any
+    let interval: any
 
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -69,6 +86,7 @@ export function NotificationsPopover() {
 
       fetchNotifications()
 
+      // Realtime subscription
       channel = supabase
         .channel('notifications')
         .on(
@@ -85,12 +103,18 @@ export function NotificationsPopover() {
           }
         )
         .subscribe()
+      
+      // Polling fallback (every 60s)
+      interval = setInterval(() => {
+        fetchUnreadCount()
+      }, 60000)
     }
 
     init()
 
     return () => {
       if (channel) supabase.removeChannel(channel)
+      if (interval) clearInterval(interval)
     }
   }, [])
 

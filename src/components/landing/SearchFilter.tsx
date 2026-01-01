@@ -42,6 +42,14 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
     return () => clearTimeout(timer);
   }, [searchQuery, router, searchParams, pathname]);
 
+  // Handle sort change
+  const handleSortChange = (value: string) => {
+    setSort(value);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("sort", value);
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <div className="container mx-auto px-4 mb-8">
       <motion.div
@@ -56,8 +64,8 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
             <p className="text-gray-500">个性化筛选 AI 视频素材库，上传 Prompts，作品，互助共赢。</p>
         </div>
 
-        {/* Search Bar */}
-        <div className="max-w-2xl mx-auto relative flex gap-4">
+        {/* Search Bar & Sort */}
+        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input 
@@ -67,15 +75,28 @@ export function SearchFilter({ onOpenFilters }: { onOpenFilters?: () => void }) 
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
             </div>
-            
-            <Button 
-                variant="outline" 
-                className="lg:hidden h-12 px-6 border-white/10 bg-white/5 text-gray-300 rounded-full"
-                onClick={onOpenFilters}
-            >
-                <SlidersHorizontal className="h-4 w-4 mr-2" />
-                筛选
-            </Button>
+
+            <div className="flex gap-2">
+                <Select value={sort} onValueChange={handleSortChange}>
+                    <SelectTrigger className="w-[140px] h-12 bg-white/5 border-white/10 text-white rounded-full">
+                        <ArrowUpDown className="w-4 h-4 mr-2" />
+                        <SelectValue placeholder="排序" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="newest">最新发布</SelectItem>
+                        <SelectItem value="popular">最多浏览</SelectItem>
+                    </SelectContent>
+                </Select>
+                
+                <Button 
+                    variant="outline" 
+                    className="lg:hidden h-12 px-6 border-white/10 bg-white/5 text-gray-300 rounded-full"
+                    onClick={onOpenFilters}
+                >
+                    <SlidersHorizontal className="h-4 w-4 mr-2" />
+                    筛选
+                </Button>
+            </div>
         </div>
       </motion.div>
     </div>

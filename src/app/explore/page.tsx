@@ -23,6 +23,8 @@ function ExploreContent() {
     query: searchParams.get("q")
   }
 
+  const sort = searchParams.get("sort") || "newest"
+
   return (
     <>
       <div className="relative z-10 bg-[#020817] pb-20 pt-24">
@@ -46,7 +48,7 @@ function ExploreContent() {
                 {/* Main Content */}
                 <div className="flex-1 min-w-0">
                     <SearchFilter onOpenFilters={() => setIsMobileOpen(true)} />
-                    <VideoGrid filters={filters} />
+                    <VideoGrid filters={filters} sort={sort} />
                 </div>
             </div>
           </div>

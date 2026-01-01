@@ -226,6 +226,13 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
 
     if (!content.trim()) return;
 
+    // Content Safety Check
+    const hasSensitiveWords = SENSITIVE_WORDS.some(word => content.toLowerCase().includes(word.toLowerCase()));
+    if (hasSensitiveWords) {
+      toast.error("评论包含敏感词汇，请文明发言");
+      return;
+    }
+
     setSubmitting(true);
     
     try {

@@ -80,11 +80,22 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height }: Vi
   }, [autoPlay]) // Removed isPlaying dependency to avoid re-binding loop
 
   const togglePlay = () => {
+    setShowControls(true)
+    if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current)
+    
+    // Auto-hide controls after 2s if playing
+    controlsTimeoutRef.current = setTimeout(() => {
+      if (videoRef.current && !videoRef.current.paused) {
+        setShowControls(false)
+      }
+    }, 2000)
+
     if (videoRef.current) {
       if (videoRef.current.paused) {
         videoRef.current.play()
       } else {
         videoRef.current.pause()
+        setShowControls(true) // Always show when paused
       }
     }
   }
