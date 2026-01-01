@@ -120,8 +120,8 @@ export function VideoCard({
     <div 
       ref={containerRef}
       className="group relative bg-[#0f172a] rounded-xl overflow-hidden border border-white/5 hover:border-white/20 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
-      onMouseEnter={() => !isMobile && setIsHovering(true)}
-      onMouseLeave={() => !isMobile && setIsHovering(false)}
+      onMouseEnter={() => !isMobile && setIsHovered(true)}
+      onMouseLeave={() => !isMobile && setIsHovered(false)}
     >
       {/* Thumbnail Area */}
       <div className="aspect-video relative overflow-hidden bg-black/50">
