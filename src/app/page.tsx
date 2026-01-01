@@ -8,6 +8,7 @@ import { VideoGrid } from "@/components/landing/VideoGrid"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
+import { ErrorBoundary } from "@/components/shared/ErrorBoundary"
 
 export default function Home() {
   return (
