@@ -20,4 +20,9 @@ export interface Video {
   created_at?: string;
   width?: number;
   height?: number;
+  profiles?: {
+    full_name: string | null;
+    avatar_url: string | null;
+  };
+  views_count?: number;
 }

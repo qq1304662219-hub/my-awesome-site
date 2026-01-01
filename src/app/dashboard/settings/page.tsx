@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
+import { useAuthStore } from "@/store/useAuthStore"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,6 +12,7 @@ import { Loader2, User, Save, Upload, Camera } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function SettingsPage() {
+  const { profile, setProfile } = useAuthStore()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({

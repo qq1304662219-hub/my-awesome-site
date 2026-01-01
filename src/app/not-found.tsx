@@ -1,19 +1,37 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { FileQuestion, Home } from "lucide-react"
+import { Navbar } from "@/components/landing/Navbar"
+import { Footer } from "@/components/landing/Footer"
 
 export default function NotFound() {
   return (
-    <div className="bg-[#020817] text-white min-h-screen flex flex-col items-center justify-center p-4">
-      <h2 className="text-6xl font-bold mb-4 text-blue-500">404</h2>
-      <h3 className="text-2xl font-semibold mb-6">Page Not Found</h3>
-      <p className="text-gray-400 mb-8 text-center max-w-md">
-        The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
-      </p>
-      <Link href="/">
-        <Button variant="secondary" size="lg">
-          Return Home
-        </Button>
-      </Link>
+    <div className="min-h-screen bg-[#020817] text-white flex flex-col">
+      <Navbar />
+      
+      <div className="flex-1 flex flex-col items-center justify-center p-4">
+        <div className="relative mb-8">
+            <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full"></div>
+            <FileQuestion className="h-32 w-32 text-gray-700 relative z-10" />
+        </div>
+
+        <h2 className="text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">404</h2>
+        <h3 className="text-2xl font-semibold mb-6 text-white">页面未找到</h3>
+        <p className="text-gray-400 mb-8 text-center max-w-md leading-relaxed">
+          抱歉，您访问的页面可能已被移除、重命名或暂时不可用。
+          <br />
+          请检查链接是否正确，或返回首页。
+        </p>
+        
+        <Link href="/">
+          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 rounded-full px-8">
+            <Home className="h-4 w-4 mr-2" />
+            返回首页
+          </Button>
+        </Link>
+      </div>
+
+      <Footer />
     </div>
   )
 }

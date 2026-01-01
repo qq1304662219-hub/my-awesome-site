@@ -82,19 +82,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
     .single();
 
   if (error || !video) {
-    return (
-      <div className="min-h-screen bg-[#020817] text-white flex flex-col">
-        <Navbar />
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <h1 className="text-4xl font-bold mb-4">404</h1>
-          <p className="text-gray-400 mb-8">视频未找到或已被删除</p>
-          <Link href="/">
-            <Button>返回首页</Button>
-          </Link>
-        </div>
-        <Footer />
-      </div>
-    );
+    notFound();
   }
 
   // 2. Fetch Author Profile
@@ -180,7 +168,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
             {/* Video Player */}
             <VideoPlayer 
               src={videoUrl} 
-              poster={thumbnailUrl || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop"}
+              poster={video.thumbnail_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop"}
               autoPlay={true}
             />
 

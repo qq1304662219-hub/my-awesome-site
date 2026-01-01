@@ -222,8 +222,10 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
       // For now, simple refetch.
       fetchComments();
       setNewComment("");
+      toast.success("评论发表成功");
     } catch (error) {
       console.error("Error posting comment:", error);
+      toast.error("评论发表失败，请重试");
     } finally {
       setSubmitting(false);
     }

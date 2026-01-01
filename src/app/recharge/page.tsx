@@ -18,6 +18,7 @@ function RechargeContent() {
   
   const [selectedAmount, setSelectedAmount] = useState(100)
   const [loading, setLoading] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<'wechat' | 'alipay'>('wechat')
 
   const amounts = [50, 100, 200, 500, 1000, 2000, 5000, 10000]
 
@@ -40,8 +41,9 @@ function RechargeContent() {
             },
             body: JSON.stringify({ 
                 amount: selectedAmount,
-                type: 'manual_qrcode', // New type
-                description: `用户扫码充值 ¥${selectedAmount}`
+                type: 'manual_qrcode',
+                payment_method: paymentMethod,
+                description: `用户使用${paymentMethod === 'wechat' ? '微信' : '支付宝'}扫码充值 ¥${selectedAmount}`
             })
         });
 

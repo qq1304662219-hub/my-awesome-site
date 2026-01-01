@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { rateLimit } from '@/lib/rate-limit'
 
 // Initialize Supabase Admin Client for secure operations
 const supabaseAdmin = createClient(

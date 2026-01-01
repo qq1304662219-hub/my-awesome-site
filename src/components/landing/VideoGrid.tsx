@@ -6,6 +6,9 @@ import { supabase } from "@/lib/supabase"
 import { Video } from "@/types/video"
 import { motion, AnimatePresence } from "framer-motion"
 import { VideoCard } from "@/components/shared/VideoCard"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
+import { AlertTriangle, RefreshCw } from "lucide-react"
 
 interface FilterState {
   category: string | null;
@@ -25,6 +28,7 @@ export function VideoGrid({ filters }: VideoGridProps) {
   const router = useRouter()
   const [videos, setVideos] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(true)
   const [page, setPage] = useState(0)
   const PAGE_SIZE = APP_CONFIG.PAGE_SIZE
@@ -114,6 +118,28 @@ export function VideoGrid({ filters }: VideoGridProps) {
     )
   }
 
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-4 text-center">
+        <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center">
+          <AlertTriangle className="h-8 w-8 text-red-500" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold text-white">加载失败</h3>
+          <p className="text-gray-400 max-w-sm">{error}</p>
+        </div>
+        <Button 
+          onClick={() => fetchVideos(0, true)} 
+          variant="outline" 
+          className="bg-white/5 hover:bg-white/10 border-white/10 text-white"
+        >
+          <RefreshCw className="h-4 w-4 mr-2" />
+          重试
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       {videos.length === 0 ? (
@@ -135,9 +161,9 @@ export function VideoGrid({ filters }: VideoGridProps) {
                   title={video.title}
                   author={video.profiles?.full_name || 'Unknown'}
                   user_id={video.user_id}
-                  user_avatar={video.profiles?.avatar_url}
+                  user_avatar={video.profiles?.avatar_url || undefined}
                   views={video.views_count}
-                  duration={video.duration_str || '00:00'}
+                  duration={video.duration || '00:00'}
                   image={video.thumbnail_url}
                   url={video.url}
                   price={video.price}

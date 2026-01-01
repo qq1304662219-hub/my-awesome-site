@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Settings } from "lucide-react"
+import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Settings, AlertTriangle } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
@@ -30,10 +30,15 @@ export function VideoPlayer({ src, poster, autoPlay = false }: VideoPlayerProps)
     const updateTime = () => setCurrentTime(video.currentTime)
     const updateDuration = () => setDuration(video.duration)
     const handleEnded = () => setIsPlaying(false)
+    const handleError = () => {
+      setError("视频加载失败，请检查网络或稍后重试")
+      setIsPlaying(false)
+    }
 
     video.addEventListener("timeupdate", updateTime)
     video.addEventListener("loadedmetadata", updateDuration)
     video.addEventListener("ended", handleEnded)
+    video.addEventListener("error", handleError)
 
     if (autoPlay) {
       video.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false))
@@ -52,6 +57,7 @@ export function VideoPlayer({ src, poster, autoPlay = false }: VideoPlayerProps)
       video.removeEventListener("timeupdate", updateTime)
       video.removeEventListener("loadedmetadata", updateDuration)
       video.removeEventListener("ended", handleEnded)
+      video.removeEventListener("error", handleError)
       window.removeEventListener("keydown", handleKeyDown)
     }
   }, [autoPlay, isPlaying]) // Added isPlaying dependency for closure consistency
@@ -147,8 +153,16 @@ export function VideoPlayer({ src, poster, autoPlay = false }: VideoPlayerProps)
         onClick={togglePlay}
       />
 
+      {/* Error Overlay */}
+      {error && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm text-center p-4">
+          <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
+          <p className="text-white text-lg font-medium">{error}</p>
+        </div>
+      )}
+
       {/* Center Play Button (if paused) */}
-      {!isPlaying && (
+      {!isPlaying && !error && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="bg-white/20 backdrop-blur-sm p-6 rounded-full">
             <Play className="h-12 w-12 text-white fill-white" />

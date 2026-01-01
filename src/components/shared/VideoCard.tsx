@@ -16,6 +16,7 @@ import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useI18n } from "@/lib/i18n";
 
 export interface VideoCardProps {
   id: string;
@@ -48,7 +49,8 @@ export function VideoCard({
   showRank = false,
   price = 0,
 }: VideoCardProps) {
-  const [isHovering, setIsHovering] = useState(false);
+  const { t } = useI18n()
+  const [isHovered, setIsHovered] = useState(false);
   const isVideoUrl = url?.match(/\.(mp4|webm|mov)$/i);
   // Prioritize image (thumbnail), fallback to url if it's an image
   const displayImage = image || (!isVideoUrl ? url : null); 

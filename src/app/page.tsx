@@ -34,7 +34,9 @@ export default function Home() {
             </Link>
         </div>
         
-        <VideoGrid filters={{ category: null, style: null, ratio: null, model: null }} />
+        <ErrorBoundary>
+            <VideoGrid filters={{ category: null, style: null, ratio: null, model: null }} />
+        </ErrorBoundary>
       </section>
     </main>
   )

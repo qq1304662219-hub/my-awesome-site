@@ -141,7 +141,7 @@ export default function UsersPage() {
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreHorizontal className="w-4 h-4" />
-                        </DropdownMenuTrigger>
+                        </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="bg-[#1e293b] border-white/10 text-white">
                         <DropdownMenuLabel>操作</DropdownMenuLabel>
