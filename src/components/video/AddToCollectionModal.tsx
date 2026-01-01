@@ -10,6 +10,7 @@ import { Plus, FolderPlus, Check, Lock, Globe } from "lucide-react"
 import { toast } from "sonner"
 import { useAuthStore } from "@/store/useAuthStore"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 interface AddToCollectionModalProps {
   videoId: string
@@ -18,6 +19,7 @@ interface AddToCollectionModalProps {
 
 export function AddToCollectionModal({ videoId, trigger }: AddToCollectionModalProps) {
   const { user } = useAuthStore()
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [collections, setCollections] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
@@ -125,11 +127,23 @@ export function AddToCollectionModal({ videoId, trigger }: AddToCollectionModalP
   }
 
   if (!user) {
-    return null
+    // Keep rendering but handle click in DialogTrigger or parent
+    // Actually, to handle it properly with DialogTrigger, we can use an onClick on the trigger wrapper
+    // But DialogTrigger hijacks the click.
+    // Better strategy: Use onOpenChange to intercept
+  }
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen && !user) {
+      toast.error("请先登录")
+      router.push("/auth")
+      return
+    }
+    setOpen(newOpen)
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-0">

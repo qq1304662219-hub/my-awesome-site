@@ -4,10 +4,11 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { Check, ShoppingCart, ShieldCheck, Zap, Globe, Eye } from "lucide-react"
+import { Check, ShoppingCart, ShieldCheck, Zap, Globe, Eye, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
+import { useAuthStore } from "@/store/useAuthStore"
 
 interface LicenseSelectorProps {
   videoId: string
@@ -17,7 +18,9 @@ interface LicenseSelectorProps {
 
 export function LicenseSelector({ videoId, title, thumbnail }: LicenseSelectorProps) {
   const router = useRouter()
+  const { user } = useAuthStore()
   const [license, setLicense] = useState("personal")
+  const [addingToCart, setAddingToCart] = useState(false)
   
   const prices = {
     personal: 70,
@@ -39,8 +42,36 @@ export function LicenseSelector({ videoId, title, thumbnail }: LicenseSelectorPr
     router.push(`/checkout?${params.toString()}`)
   }
 
-  const handleAddToCart = () => {
-    toast.success("已加入购物车")
+  const handleAddToCart = async () => {
+    if (!user) {
+      toast.error("请先登录")
+      router.push("/auth")
+      return
+    }
+
+    setAddingToCart(true)
+    try {
+      const { error } = await supabase.from('cart_items').insert({
+        user_id: user.id,
+        video_id: videoId,
+        license_type: license
+      })
+
+      if (error) {
+        if (error.code === '23505') { // Unique violation
+          toast.warning("该视频已在购物车中")
+        } else {
+          throw error
+        }
+      } else {
+        toast.success("已加入购物车")
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error("加入购物车失败")
+    } finally {
+      setAddingToCart(false)
+    }
   }
 
   return (
