@@ -329,9 +329,9 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
           setNewComment("");
       }
       toast.success("评论发表成功");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error posting comment:", error);
-      toast.error("评论发表失败，请重试");
+      toast.error(error.message || "评论发表失败，请重试");
     } finally {
       setSubmitting(false);
     }
