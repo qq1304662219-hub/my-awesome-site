@@ -46,7 +46,7 @@ export default function SettingsPage() {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name, bio, website, avatar_url')
+        .select('*')
         .eq('id', user.id)
         .single()
 
@@ -123,6 +123,8 @@ export default function SettingsPage() {
       // Update local store
       if (profile) {
           setProfile({ ...profile, ...updates })
+      } else {
+          setProfile({ ...updates, id: user.id } as any)
       }
 
       // Sync metadata for better compatibility

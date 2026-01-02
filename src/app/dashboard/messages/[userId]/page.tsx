@@ -5,11 +5,12 @@ import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Send, ArrowLeft, Loader2, MoreVertical } from 'lucide-react'
+import { Send, ArrowLeft, Loader2, MoreVertical, Smile } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
+import EmojiPicker, { Theme } from 'emoji-picker-react'
 
 interface Message {
   id: number
@@ -271,12 +272,44 @@ export default function ChatPage({ params }: { params: Promise<{ userId: string 
       <div className="p-4 bg-[#0B1120] border-t border-white/10">
         <div className="flex items-end gap-2 max-w-4xl mx-auto">
             <div className="relative flex-1">
+                <AnimatePresence>
+                    {showEmoji && (
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                            className="absolute bottom-14 left-0 z-50 shadow-2xl rounded-xl overflow-hidden border border-white/10"
+                        >
+                            <EmojiPicker 
+                                theme={Theme.DARK} 
+                                onEmojiClick={(e) => {
+                                    setNewMessage(prev => prev + e.emoji)
+                                    setShowEmoji(false)
+                                }}
+                                width={320}
+                                height={400}
+                                searchDisabled
+                                skinTonesDisabled
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+                
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 text-gray-400 hover:text-white hover:bg-white/10 z-10"
+                    onClick={() => setShowEmoji(!showEmoji)}
+                >
+                    <Smile className="w-5 h-5" />
+                </Button>
+
                 <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="输入消息..."
-                    className="bg-black/20 border-white/10 text-white pr-10 min-h-[44px] focus-visible:ring-blue-500/50"
+                    className="bg-black/20 border-white/10 text-white pl-12 pr-4 min-h-[44px] focus-visible:ring-blue-500/50"
                 />
             </div>
             <motion.div whileTap={{ scale: 0.95 }}>

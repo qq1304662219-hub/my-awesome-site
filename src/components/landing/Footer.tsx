@@ -38,6 +38,21 @@ export function Footer() {
           </div>
 
           <div>
+            <h4 className="font-bold text-white mb-4">联系我们</h4>
+            <ul className="space-y-2 text-sm text-gray-400 flex flex-col">
+                <li className="flex items-center gap-2">
+                  <span className="text-blue-400">QQ:</span> 1304662219
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-400">WeChat:</span> yier060
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-purple-400">QQ群:</span> 722542496
+                </li>
+            </ul>
+          </div>
+
+          <div>
             <h4 className="font-bold text-white mb-4">订阅更新</h4>
             <div className="flex gap-2">
                 <input 

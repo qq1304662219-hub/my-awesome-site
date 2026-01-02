@@ -58,6 +58,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             {children}
+            <FloatingActionButton />
           </AuthProvider>
           <Toaster position="top-right" />
         </ThemeProvider>
