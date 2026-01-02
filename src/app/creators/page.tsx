@@ -248,7 +248,7 @@ export default function CreatorsPage() {
                                     <div className="px-6 py-2 flex gap-6 text-sm text-gray-500 border-b border-white/5">
                                         <div className="flex items-center gap-1.5">
                                             <Video className="w-3.5 h-3.5" />
-                                            <span>{creator.works_count || creator.recent_works.length} 作品</span>
+                                            <span>{creator.works_count || creator.recent_works?.length || 0} 作品</span>
                                         </div>
                                         <div className="flex items-center gap-1.5">
                                             <Users className="w-3.5 h-3.5" />

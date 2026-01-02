@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ interface ProfileViewProps {
 }
 
 export function ProfileView({ profile, videos, likedVideos, isOwnProfile: initialIsOwnProfile }: ProfileViewProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"works" | "likes" | "about">("works");
   const [isFollowing, setIsFollowing] = useState(false);
   const [isOwner, setIsOwner] = useState(initialIsOwnProfile);
