@@ -179,7 +179,7 @@ export default function Finance() {
     >
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">财务中心</h1>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">我的钱包</h1>
           <p className="text-gray-400 mt-1">管理您的收益、充值与提现记录</p>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
