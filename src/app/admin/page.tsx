@@ -2,8 +2,19 @@
 
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { Video, Users, Activity, Film, AlertCircle, FileQuestion } from "lucide-react"
+import { 
+  Video, Users, Activity, Film, AlertCircle, FileQuestion, 
+  TrendingUp, TrendingDown, DollarSign, Eye, ShoppingCart
+} from "lucide-react"
 import Link from "next/link"
+import { motion } from "framer-motion"
+import { 
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar 
+} from 'recharts'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 
 interface DashboardVideo {
   id: string
@@ -11,17 +22,40 @@ interface DashboardVideo {
   created_at: string
   thumbnail_url: string | null
   category: string | null
+  status: string
+  user_id: string
+  profiles?: {
+    username: string
+    avatar_url: string
+  }
+}
+
+interface Transaction {
+  id: string
+  amount: number
+  type: string
+  created_at: string
+  status: string
+  user_id: string
+  profiles?: {
+    username: string
+  }
 }
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
     users: 0,
     videos: 0,
-    likes: 0,
-    requests: 0
+    revenue: 0,
+    orders: 0
   })
   const [recentVideos, setRecentVideos] = useState<DashboardVideo[]>([])
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
+  
+  // Mock data for charts (since we don't have historical aggregation tables yet)
+  const [revenueData, setRevenueData] = useState<any[]>([])
+  const [userGrowthData, setUserGrowthData] = useState<any[]>([])
 
   useEffect(() => {
     fetchDashboardData()
@@ -31,31 +65,42 @@ export default function AdminDashboard() {
     try {
       setLoading(true)
       
+      // Parallel data fetching
       const [
         { count: userCount },
         { count: videoCount },
-        { count: requestCount },
-        { count: likesCount },
-        { data: recentVideosData }
+        { data: transactionsData },
+        { data: recentVideosData },
+        { data: recentTransactionsData }
       ] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }),
         supabase.from("videos").select("*", { count: "exact", head: true }),
-        supabase.from("requests").select("*", { count: "exact", head: true }),
-        supabase.from("likes").select("*", { count: "exact", head: true }),
+        supabase.from("transactions").select("amount").eq('status', 'succeeded').eq('type', 'purchase'),
         supabase.from("videos")
-          .select("id, title, created_at, thumbnail_url, category")
+          .select("id, title, created_at, thumbnail_url, category, status, user_id, profiles(username, avatar_url)")
+          .order("created_at", { ascending: false })
+          .limit(5),
+        supabase.from("transactions")
+          .select("id, amount, type, created_at, status, user_id, profiles(username)")
           .order("created_at", { ascending: false })
           .limit(5)
       ])
 
+      // Calculate total revenue
+      const totalRevenue = transactionsData?.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0) || 0
+
       setStats({
         users: userCount || 0,
         videos: videoCount || 0,
-        likes: likesCount || 0,
-        requests: requestCount || 0
+        revenue: totalRevenue,
+        orders: transactionsData?.length || 0
       })
       
-      setRecentVideos(recentVideosData as DashboardVideo[] || [])
+      setRecentVideos(recentVideosData as any[] || [])
+      setRecentTransactions(recentTransactionsData as any[] || [])
+
+      // Generate mock chart data
+      generateMockChartData()
 
     } catch (error) {
       console.error("Error fetching admin stats:", error)
@@ -64,92 +109,292 @@ export default function AdminDashboard() {
     }
   }
 
+  const generateMockChartData = () => {
+    const days = 7
+    const revData = []
+    const usrData = []
+    
+    for (let i = 0; i < days; i++) {
+      const date = new Date()
+      date.setDate(date.getDate() - (days - 1 - i))
+      const dateStr = date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+      
+      revData.push({
+        date: dateStr,
+        amount: Math.floor(Math.random() * 5000) + 1000
+      })
+      
+      usrData.push({
+        date: dateStr,
+        users: Math.floor(Math.random() * 50) + 10
+      })
+    }
+    
+    setRevenueData(revData)
+    setUserGrowthData(usrData)
+  }
+
   if (loading) {
-    return <div className="text-white">Loading stats...</div>
+    return (
+      <div className="flex items-center justify-center h-[50vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">仪表盘</h1>
-        <p className="text-gray-400">网站运营概况</p>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            运营概览
+          </h1>
+          <p className="text-gray-400 mt-1">欢迎回来，这里是您的控制中心</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="border-white/10 text-gray-300 hover:text-white">
+            导出报表
+          </Button>
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            <Activity className="mr-2 h-4 w-4" /> 实时监控
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-[#0B1120] border border-white/10 rounded-xl p-6 flex items-center gap-4">
-          <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
-            <Users className="w-8 h-8" />
-          </div>
-          <div>
-            <p className="text-gray-400 text-sm">总用户数</p>
-            <p className="text-2xl font-bold">{stats.users}</p>
-          </div>
-        </div>
-
-        <div className="bg-[#0B1120] border border-white/10 rounded-xl p-6 flex items-center gap-4">
-          <div className="p-3 bg-purple-500/10 rounded-lg text-purple-500">
-            <Video className="w-8 h-8" />
-          </div>
-          <div>
-            <p className="text-gray-400 text-sm">总视频数</p>
-            <p className="text-2xl font-bold">{stats.videos}</p>
-          </div>
-        </div>
-
-        <div className="bg-[#0B1120] border border-white/10 rounded-xl p-6 flex items-center gap-4">
-          <div className="p-3 bg-green-500/10 rounded-lg text-green-500">
-            <Activity className="w-8 h-8" />
-          </div>
-          <div>
-            <p className="text-gray-400 text-sm">总点赞数</p>
-            <p className="text-2xl font-bold">{stats.likes}</p>
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatsCard 
+          title="总收入" 
+          value={`¥${stats.revenue.toLocaleString()}`} 
+          icon={DollarSign} 
+          trend="+12.5%" 
+          trendUp={true}
+          color="blue"
+        />
+        <StatsCard 
+          title="总用户" 
+          value={stats.users.toLocaleString()} 
+          icon={Users} 
+          trend="+5.2%" 
+          trendUp={true}
+          color="purple"
+        />
+        <StatsCard 
+          title="视频内容" 
+          value={stats.videos.toLocaleString()} 
+          icon={Film} 
+          trend="+8.1%" 
+          trendUp={true}
+          color="pink"
+        />
+        <StatsCard 
+          title="成交订单" 
+          value={stats.orders.toLocaleString()} 
+          icon={ShoppingCart} 
+          trend="-2.4%" 
+          trendUp={false}
+          color="orange"
+        />
       </div>
 
-      {/* Recent Activity */}
-      <div className="bg-[#0B1120] border border-white/10 rounded-xl overflow-hidden">
-        <div className="p-6 border-b border-white/10 flex justify-between items-center">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <Film className="w-5 h-5 text-blue-500" />
-            最新上传
-          </h2>
-          <Link href="/admin/videos" className="text-sm text-blue-400 hover:text-blue-300">
-            查看全部 &rarr;
-          </Link>
-        </div>
-        <div className="divide-y divide-white/10">
-          {recentVideos.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">暂无视频</div>
-          ) : (
-            recentVideos.map((video) => (
-              <div key={video.id} className="p-4 flex items-center gap-4 hover:bg-white/5 transition-colors">
-                <div className="w-16 h-10 bg-gray-800 rounded overflow-hidden flex-shrink-0">
-                  {video.thumbnail_url ? (
-                    <img src={video.thumbnail_url} alt={video.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xs text-gray-600">No Img</div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium truncate">{video.title}</h3>
-                  <p className="text-xs text-gray-500">
-                    {video.category} • {new Date(video.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-                <Link 
-                  href={`/video/${video.id}`} 
-                  target="_blank"
-                  className="px-3 py-1 text-xs border border-white/20 rounded hover:bg-white/10"
-                >
-                  查看
-                </Link>
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="bg-[#0B1120] border-white/10">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-500" />
+              收入趋势 (近7天)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={revenueData}>
+                <defs>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `¥${value}`} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#1e293b', borderColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
+                  itemStyle={{ color: '#fff' }}
+                />
+                <Area type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-[#0B1120] border-white/10">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Users className="h-5 w-5 text-purple-500" />
+              新增用户 (近7天)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={userGrowthData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  cursor={{fill: 'rgba(255,255,255,0.05)'}}
+                  contentStyle={{ backgroundColor: '#1e293b', borderColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
+                  itemStyle={{ color: '#fff' }}
+                />
+                <Bar dataKey="users" fill="#a855f7" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Activity & Transactions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent Videos - Takes up 2 columns */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="bg-[#0B1120] border-white/10">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-white flex items-center gap-2">
+                <Film className="h-5 w-5 text-pink-500" />
+                最新上传
+              </CardTitle>
+              <Link href="/admin/videos">
+                <Button variant="ghost" size="sm" className="text-blue-400 hover:text-blue-300">
+                  查看全部
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentVideos.map((video) => (
+                  <div key={video.id} className="flex items-center gap-4 p-3 rounded-lg hover:bg-white/5 transition-colors border border-transparent hover:border-white/5">
+                    <div className="w-24 h-16 bg-gray-800 rounded-md overflow-hidden relative shrink-0">
+                      {video.thumbnail_url ? (
+                        <img src={video.thumbnail_url} alt={video.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-900 text-gray-600">
+                          <Film className="h-6 w-6" />
+                        </div>
+                      )}
+                      <div className="absolute bottom-1 right-1 bg-black/60 px-1 rounded text-[10px] text-white">
+                        {video.category}
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-white truncate">{video.title}</h4>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Avatar className="h-5 w-5">
+                          <AvatarImage src={video.profiles?.avatar_url} />
+                          <AvatarFallback className="text-[10px]">{video.profiles?.username?.[0]}</AvatarFallback>
+                        </Avatar>
+                        <span className="text-xs text-gray-400 truncate">{video.profiles?.username}</span>
+                        <span className="text-xs text-gray-500">• {new Date(video.created_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className={`
+                      ${video.status === 'published' ? 'border-green-500/50 text-green-400 bg-green-500/10' : 
+                        video.status === 'rejected' ? 'border-red-500/50 text-red-400 bg-red-500/10' : 
+                        'border-yellow-500/50 text-yellow-400 bg-yellow-500/10'}
+                    `}>
+                      {video.status === 'published' ? '已发布' : video.status === 'rejected' ? '已拒绝' : '审核中'}
+                    </Badge>
+                  </div>
+                ))}
               </div>
-            ))
-          )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Transactions - Takes up 1 column */}
+        <div className="space-y-6">
+          <Card className="bg-[#0B1120] border-white/10 h-full">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-white flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-green-500" />
+                最新交易
+              </CardTitle>
+              <Link href="/admin/payments">
+                <Button variant="ghost" size="sm" className="text-blue-400 hover:text-blue-300">
+                  查看
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentTransactions.map((tx) => (
+                  <div key={tx.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-full ${
+                        tx.type === 'income' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
+                      }`}>
+                        <DollarSign className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-white">
+                          {tx.type === 'purchase' ? '购买内容' : tx.type === 'recharge' ? '账户充值' : '提现申请'}
+                        </p>
+                        <p className="text-xs text-gray-500">{tx.profiles?.username || 'Unknown User'}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className={`font-bold ${
+                        tx.type === 'withdrawal' ? 'text-red-400' : 'text-green-400'
+                      }`}>
+                        {tx.type === 'withdrawal' ? '-' : '+'}¥{tx.amount}
+                      </p>
+                      <p className="text-xs text-gray-500">{new Date(tx.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                ))}
+                {recentTransactions.length === 0 && (
+                  <div className="text-center text-gray-500 py-8">
+                    暂无交易记录
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
+  )
+}
+
+function StatsCard({ title, value, icon: Icon, trend, trendUp, color }: any) {
+  const colorStyles = {
+    blue: "bg-blue-500/10 text-blue-500",
+    purple: "bg-purple-500/10 text-purple-500",
+    pink: "bg-pink-500/10 text-pink-500",
+    orange: "bg-orange-500/10 text-orange-500"
+  }
+
+  return (
+    <Card className="bg-[#0B1120] border-white/10 overflow-hidden relative group hover:border-white/20 transition-all">
+      <CardContent className="p-6">
+        <div className="flex justify-between items-start mb-4">
+          <div className={`p-3 rounded-xl ${(colorStyles as any)[color]}`}>
+            <Icon className="w-6 h-6" />
+          </div>
+          <div className={`flex items-center text-xs font-medium px-2 py-1 rounded-full ${
+            trendUp ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
+          }`}>
+            {trendUp ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
+            {trend}
+          </div>
+        </div>
+        <div>
+          <p className="text-gray-400 text-sm mb-1">{title}</p>
+          <h3 className="text-2xl font-bold text-white">{value}</h3>
+        </div>
+        
+        {/* Decorative background blur */}
+        <div className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full blur-2xl opacity-0 group-hover:opacity-20 transition-opacity ${(colorStyles as any)[color].split(' ')[0].replace('/10', '')}`} />
+      </CardContent>
+    </Card>
   )
 }

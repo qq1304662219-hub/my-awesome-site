@@ -3,7 +3,7 @@
 import { useAuthStore } from "@/store/useAuthStore"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Users, Video, LogOut, FileQuestion, GraduationCap, AlertTriangle, Wallet, CreditCard } from "lucide-react"
+import { Users, Video, LogOut, FileQuestion, GraduationCap, AlertTriangle, Wallet, CreditCard, LayoutDashboard, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AuthGuard } from "@/components/auth/AuthGuard"
@@ -21,6 +21,12 @@ function AdminContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   const navItems = [
+    {
+      name: "仪表盘",
+      href: "/admin",
+      icon: LayoutDashboard,
+      show: true
+    },
     {
       name: "视频审核",
       href: "/admin/videos",
@@ -62,6 +68,12 @@ function AdminContent({ children }: { children: React.ReactNode }) {
       href: "/admin/users",
       icon: Users,
       show: true // Everyone (admins) can see
+    },
+    {
+      name: "系统设置",
+      href: "/admin/settings",
+      icon: Settings,
+      show: true
     }
   ]
 

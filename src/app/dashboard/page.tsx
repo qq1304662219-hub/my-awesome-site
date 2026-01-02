@@ -219,14 +219,18 @@ export default function Dashboard() {
                         
                         <div className="bg-black/20 rounded-lg p-3 flex items-center justify-between gap-2 mb-4 border border-white/5">
                             <code className="text-sm text-purple-300 font-mono truncate">
-                                {origin}/invite/{user.id.slice(0, 8)}
+                                {username ? `${origin}/auth?tab=register&ref=${username}` : '请先设置用户名'}
                             </code>
                             <Button 
                                 size="sm" 
                                 variant="ghost" 
                                 className="h-8 text-white hover:bg-white/10"
                                 onClick={() => {
-                                    navigator.clipboard.writeText(`${origin}/invite/${user.id.slice(0, 8)}`)
+                                    if (!username) {
+                                        toast.error('请先设置用户名')
+                                        return
+                                    }
+                                    navigator.clipboard.writeText(`${origin}/auth?tab=register&ref=${username}`)
                                     toast.success('邀请链接已复制')
                                 }}
                             >
@@ -234,7 +238,10 @@ export default function Dashboard() {
                             </Button>
                         </div>
                         
-                        <Button className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/10">
+                        <Button 
+                            className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/10"
+                            onClick={() => router.push('/dashboard/invite')}
+                        >
                             查看邀请详情
                         </Button>
                     </div>
