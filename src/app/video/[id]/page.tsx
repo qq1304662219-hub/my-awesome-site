@@ -352,21 +352,32 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                 </div>
 
                 {/* Technical Specs */}
-                <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 bg-white/5 rounded-xl p-6 border border-white/10">
+                <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-6 bg-white/5 rounded-xl p-6 border border-white/10">
                     <div>
-                        <span className="text-xs text-gray-500 block mb-1">分辨率</span>
-                        <span className="text-white font-medium">{video.width && video.height ? `${video.width} x ${video.height}` : "--"}</span>
+                        <span className="text-xs text-gray-500 block mb-1">分辨率 (Resolution)</span>
+                        <div className="flex items-center gap-2">
+                             {video.resolution && <span className="bg-blue-500/20 text-blue-400 text-xs px-2 py-0.5 rounded border border-blue-500/30 uppercase">{video.resolution}</span>}
+                             <span className="text-white font-medium">{video.width && video.height ? `${video.width} x ${video.height}` : "--"}</span>
+                        </div>
                     </div>
                     <div>
-                        <span className="text-xs text-gray-500 block mb-1">时长</span>
+                        <span className="text-xs text-gray-500 block mb-1">帧率 (FPS)</span>
+                        <span className="text-white font-medium">{video.fps ? `${video.fps} FPS` : "--"}</span>
+                    </div>
+                    <div>
+                        <span className="text-xs text-gray-500 block mb-1">时长 (Duration)</span>
                         <span className="text-white font-medium">{video.duration ? `${video.duration} 秒` : "--"}</span>
                     </div>
                     <div>
-                        <span className="text-xs text-gray-500 block mb-1">格式</span>
+                        <span className="text-xs text-gray-500 block mb-1">AI 模型 (Model)</span>
+                        <span className="text-white font-medium">{video.ai_model || "--"}</span>
+                    </div>
+                    <div>
+                        <span className="text-xs text-gray-500 block mb-1">格式 (Format)</span>
                         <span className="text-white font-medium uppercase">{video.format || "--"}</span>
                     </div>
                     <div>
-                        <span className="text-xs text-gray-500 block mb-1">大小</span>
+                        <span className="text-xs text-gray-500 block mb-1">大小 (Size)</span>
                         <span className="text-white font-medium">{video.size ? (video.size / 1024 / 1024).toFixed(1) + ' MB' : "--"}</span>
                     </div>
                 </div>

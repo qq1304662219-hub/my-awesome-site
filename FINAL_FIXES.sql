@@ -16,6 +16,7 @@ CREATE POLICY "Allow public read daily_video_stats"
     USING (true);
 
 -- 2. Increment Views RPC
+DROP FUNCTION IF EXISTS increment_views(UUID);
 CREATE OR REPLACE FUNCTION increment_views(video_id UUID)
 RETURNS void
 LANGUAGE plpgsql
@@ -36,6 +37,7 @@ END;
 $$;
 
 -- 3. Increment Downloads RPC
+DROP FUNCTION IF EXISTS increment_downloads(UUID);
 CREATE OR REPLACE FUNCTION increment_downloads(video_id UUID)
 RETURNS void
 LANGUAGE plpgsql
@@ -56,6 +58,7 @@ END;
 $$;
 
 -- 4. Tip Author RPC
+DROP FUNCTION IF EXISTS tip_author(UUID, DECIMAL);
 CREATE OR REPLACE FUNCTION tip_author(p_video_id UUID, p_amount DECIMAL)
 RETURNS void
 LANGUAGE plpgsql
@@ -112,6 +115,7 @@ END;
 $$;
 
 -- 5. Reject Withdrawal RPC
+DROP FUNCTION IF EXISTS reject_withdrawal(UUID, TEXT);
 CREATE OR REPLACE FUNCTION reject_withdrawal(p_withdrawal_id UUID, p_reason TEXT)
 RETURNS void
 LANGUAGE plpgsql
@@ -149,6 +153,7 @@ END;
 $$;
 
 -- 6. Get User Daily Stats RPC
+DROP FUNCTION IF EXISTS get_user_daily_stats(UUID, INT);
 CREATE OR REPLACE FUNCTION get_user_daily_stats(p_user_id UUID, p_days INT)
 RETURNS TABLE (
     date TEXT,

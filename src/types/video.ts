@@ -27,4 +27,8 @@ export interface Video {
   views_count?: number;
   ai_model?: string;
   prompt?: string;
+  resolution?: string;
+  fps?: number;
+  format?: string;
+  size?: number;
 }

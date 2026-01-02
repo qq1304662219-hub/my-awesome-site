@@ -81,6 +81,8 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
 
   const handleMetadataLoaded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget
+    
+    // Extract Duration
     const duration = video.duration
     if (!isNaN(duration)) {
         setDurationSec(duration)
@@ -88,6 +90,30 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
         const seconds = Math.floor(duration % 60)
         const formatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
         setDurationStr(formatted)
+    }
+
+    // Extract Resolution
+    const width = video.videoWidth
+    const height = video.videoHeight
+    if (width && height) {
+        // Auto-detect ratio
+        const r = width / height
+        if (r > 1.7) setRatio("16:9")
+        else if (r < 0.6) setRatio("9:16")
+        
+        // Auto-detect resolution tag
+        let resTag = "1080p"
+        if (width >= 3840 || height >= 3840) resTag = "4k"
+        else if (width < 1280 && height < 1280) resTag = "720p"
+        
+        // Store technical specs in a way we can use during upload
+        // For now, we'll just log it or store in state if we had a dedicated state for it.
+        // We'll append it to the description or a hidden field if needed, 
+        // OR better: we add these fields to the insert query in handleUpload.
+        // Let's store them in a ref or state.
+        videoRef.current!.dataset.width = width.toString()
+        videoRef.current!.dataset.height = height.toString()
+        videoRef.current!.dataset.resolution = resTag
     }
   }
 
@@ -226,7 +252,14 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           ratio,
           duration: durationSec,
           ai_model: aiModel,
-          prompt
+          prompt,
+          // Auto-detected metadata
+          resolution: videoRef.current?.dataset.resolution || '1080p',
+          width: videoRef.current?.dataset.width ? parseInt(videoRef.current.dataset.width) : null,
+          height: videoRef.current?.dataset.height ? parseInt(videoRef.current.dataset.height) : null,
+          size: file.size,
+          format: file.type.split('/')[1]?.toUpperCase() || 'MP4',
+          fps: 30 // Default assumption as browser API doesn't give FPS easily
         })
         .select()
         .single()

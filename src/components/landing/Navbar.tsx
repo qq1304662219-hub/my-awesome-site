@@ -93,6 +93,7 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
                   </DropdownMenuContent>
               </DropdownMenu>
 
+              <Link href="/creators" className="hover:text-white transition-colors font-semibold bg-gradient-to-r from-amber-200 to-yellow-500 bg-clip-text text-transparent">创作者</Link>
               <Link href="/events" className="hover:text-white transition-colors">{t.nav.events}</Link>
               <Link href="/requests" className="hover:text-white transition-colors">{t.nav.requests}</Link>
               <Link href="/classroom" className="hover:text-white transition-colors">{t.nav.classroom}</Link>

@@ -99,43 +99,32 @@ export function SidebarFilters() {
                     { label: "赛博/科幻 (Sci-Fi)", value: "Sci-Fi" },
                     { label: "国潮/古风 (Chinese)", value: "Chinese" },
                     { label: "二次元/动漫 (Anime)", value: "Anime" },
-                    { label: "超写实 (Realistic)", value: "Realistic" },
-                    { label: "粒子/抽象 (Abstract)", value: "Abstract" },
+                    { label: "真实感/摄影 (Realistic)", value: "Realistic" },
+                    { label: "抽象/艺术 (Abstract)", value: "Abstract" },
+                    { label: "3D渲染 (3D Render)", value: "3D" },
                 ]} 
             />
 
             <FilterGroup 
-                title="AI 模型" 
-                icon="🤖" 
-                paramName="model"
-                items={[
-                    { label: "Midjourney", value: "Midjourney" },
-                    { label: "Runway", value: "Runway" },
-                    { label: "Pika", value: "Pika" },
-                    { label: "Sora", value: "Sora" },
-                    { label: "Stable Diffusion", value: "Stable Diffusion" },
-                    { label: "DALL·E 3", value: "DALL·E 3" },
-                ]} 
-            />
-
-            <FilterGroup 
-                title="视频比例" 
+                title="画面比例" 
                 icon="📐" 
                 paramName="ratio"
                 items={[
-                    { label: "横屏 16:9", value: "16:9" },
-                    { label: "竖屏 9:16", value: "9:16" },
+                    { label: "横屏 (16:9)", value: "16:9" },
+                    { label: "竖屏 (9:16)", value: "9:16" },
+                    { label: "方屏 (1:1)", value: "1:1" },
+                    { label: "宽屏 (21:9)", value: "21:9" },
                 ]} 
             />
 
             <FilterGroup 
                 title="分辨率" 
-                icon="🖥️" 
+                icon="�️" 
                 paramName="resolution"
                 items={[
-                    { label: "4K / Ultra HD", value: "4K" },
-                    { label: "1080p / Full HD", value: "1080p" },
-                    { label: "720p / HD", value: "720p" },
+                    { label: "4K Ultra HD", value: "4k" },
+                    { label: "1080P Full HD", value: "1080p" },
+                    { label: "720P HD", value: "720p" },
                 ]} 
             />
 
@@ -155,9 +144,22 @@ export function SidebarFilters() {
                 icon="⏱️" 
                 paramName="duration"
                 items={[
-                    { label: "短视频 (<15s)", value: "short" },
-                    { label: "中长视频 (15s-60s)", value: "medium" },
-                    { label: "长视频 (>60s)", value: "long" },
+                    { label: "0-15秒", value: "short" },
+                    { label: "15-60秒", value: "medium" },
+                    { label: "60秒以上", value: "long" },
+                ]} 
+            />
+
+            <FilterGroup 
+                title="AI 模型" 
+                icon="🤖" 
+                paramName="model"
+                items={[
+                    { label: "Sora", value: "Sora" },
+                    { label: "Runway Gen-2", value: "Runway" },
+                    { label: "Pika Labs", value: "Pika" },
+                    { label: "Midjourney", value: "Midjourney" },
+                    { label: "Stable Video", value: "SVD" },
                 ]} 
             />
         </div>
