@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Settings, AlertTriangle, Repeat, PictureInPicture } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { supabase } from "@/lib/supabase"
 
 interface VideoPlayerProps {
   src: string
@@ -11,10 +12,13 @@ interface VideoPlayerProps {
   autoPlay?: boolean
   width?: number | string
   height?: number | string
+  onStart?: () => void
+  videoId?: string
 }
 
-export function VideoPlayer({ src, poster, autoPlay = false, width, height }: VideoPlayerProps) {
+export function VideoPlayer({ src, poster, autoPlay = false, width, height, onStart, videoId }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const hasStartedRef = useRef(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -35,7 +39,22 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height }: Vi
     const updateTime = () => setCurrentTime(video.currentTime)
     const updateDuration = () => setDuration(video.duration)
     const handleEnded = () => setIsPlaying(false)
-    const handlePlay = () => setIsPlaying(true)
+    const handlePlay = async () => {
+        setIsPlaying(true)
+        if (!hasStartedRef.current) {
+            hasStartedRef.current = true
+            
+            if (onStart) onStart()
+            
+            if (videoId) {
+                try {
+                    await supabase.rpc('increment_views', { video_id: videoId })
+                } catch (err) {
+                    console.error("Failed to increment views:", err)
+                }
+            }
+        }
+    }
     const handlePause = () => setIsPlaying(false)
     const handleError = () => {
       setError("视频加载失败，请检查网络或稍后重试")

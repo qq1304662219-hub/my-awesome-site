@@ -94,18 +94,40 @@ export default function AnalyticsPage() {
           }))
         setTopVideos(sortedByViews as any)
 
-        // Mock Daily Views Data (Since we don't have a daily views table yet, we simulate a trend)
-        // In a real app, this would come from a 'video_analytics' or 'daily_stats' table
+        // 5. Fetch Daily Stats (Real Data)
         const days = 7;
-        const mockDailyData = Array.from({ length: days }).map((_, i) => {
-            const date = new Date();
-            date.setDate(date.getDate() - (days - 1 - i));
-            return {
-                date: date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }),
-                views: Math.floor(totalViews / days + Math.random() * (totalViews / days * 0.5))
-            };
-        });
-        setDailyViews(mockDailyData);
+        const { data: dailyStats, error: statsError } = await supabase
+            .rpc('get_user_daily_stats', { p_user_id: user.id, p_days: days });
+
+        if (statsError) {
+             console.error("Error fetching daily stats:", statsError);
+             // Fallback to empty
+             const emptyData = Array.from({ length: days }).map((_, i) => {
+                const date = new Date();
+                date.setDate(date.getDate() - (days - 1 - i));
+                return {
+                    date: date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }),
+                    views: 0
+                };
+            });
+            setDailyViews(emptyData);
+        } else {
+             // Fill in missing days with 0
+            const filledDailyData = Array.from({ length: days }).map((_, i) => {
+                const dateObj = new Date();
+                dateObj.setDate(dateObj.getDate() - (days - 1 - i));
+                const dateStr = dateObj.toISOString().split('T')[0]; // YYYY-MM-DD
+                
+                // Find matching stat (ensure type safety if needed)
+                const found = dailyStats?.find((s: any) => s.date === dateStr);
+                
+                return {
+                    date: dateObj.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }),
+                    views: found ? Number(found.views) : 0
+                };
+            });
+            setDailyViews(filledDailyData);
+        }
 
       } catch (error) {
         console.error("Error fetching analytics:", error)

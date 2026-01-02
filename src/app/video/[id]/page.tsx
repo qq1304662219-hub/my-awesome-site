@@ -256,6 +256,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
               autoPlay={true}
               width={video.width}
               height={video.height}
+              videoId={video.id}
             />
 
             {/* Video Info */}
