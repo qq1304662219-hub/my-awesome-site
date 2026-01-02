@@ -5,8 +5,21 @@ import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { ProfileStats } from '@/components/dashboard/ProfileStats'
-import { Share2 } from 'lucide-react'
+import { 
+  Share2, 
+  Zap, 
+  ArrowRight, 
+  Eye, 
+  Download, 
+  Clock, 
+  Film, 
+  Wallet, 
+  Plus 
+} from 'lucide-react'
 import { toast } from 'sonner'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from "@/components/ui/badge"
+import { motion } from "framer-motion"
 
 interface VideoItem {
   id: string
@@ -92,93 +105,173 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-6 space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">创作者中心</h1>
-      </div>
-
-      {/* Referral Card */}
-      <div className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 border border-white/10 rounded-xl p-6 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <Share2 className="w-32 h-32 text-white" />
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto pb-24"
+    >
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1 className="text-3xl font-bold text-white mb-2">创作者中心</h1>
+            <p className="text-gray-400">欢迎回来，{username || 'Creator'}</p>
         </div>
-        <div className="relative z-10">
-          <h2 className="text-xl font-bold text-white mb-2">邀请好友，赚取奖励 🎁</h2>
-          <p className="text-gray-300 mb-4 max-w-2xl">
-            每邀请一位好友注册，您将获得 <span className="text-yellow-400 font-bold">50 A币</span> 奖励，好友也将获得 <span className="text-yellow-400 font-bold">20 A币</span> 新人礼包！
-          </p>
-          
-          <div className="flex items-center gap-4 max-w-xl bg-black/40 p-2 rounded-lg border border-white/10">
-            <code className="flex-1 text-blue-400 truncate px-2 font-mono">
-              {username && origin ? `${origin}/register?ref=${username}` : '正在加载...'}
-            </code>
-            <Button 
-              size="sm" 
-              variant="secondary"
-              onClick={() => {
-                const url = `${origin}/register?ref=${username}`;
-                navigator.clipboard.writeText(url);
-                toast.success('链接已复制');
-              }}
+        <div className="flex gap-3 w-full md:w-auto">
+             <Button 
+                variant="outline" 
+                className="flex-1 md:flex-none border-white/10 text-white hover:bg-white/5"
+                onClick={() => router.push('/dashboard/wallet')}
             >
-              复制链接
+                <Wallet className="mr-2 h-4 w-4" />
+                我的钱包
             </Button>
-          </div>
+            <Button 
+                className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20"
+                onClick={() => router.push('/dashboard/upload')}
+            >
+                <Plus className="mr-2 h-4 w-4" />
+                发布作品
+            </Button>
         </div>
       </div>
 
+      {/* Profile Stats Overview */}
       <ProfileStats user={user} stats={stats} />
-      
-      {/* Recent Videos Preview */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white">最近上传</h2>
-          <Link href="/dashboard/videos">
-            <Button variant="link" className="text-blue-400">
-              查看全部
-            </Button>
-          </Link>
-        </div>
-        {videos.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {videos.slice(0, 3).map((video) => (
-              <div key={video.id} className="group relative bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:border-blue-500/50 transition-all">
-                <div className="aspect-video relative bg-black/50">
-                  {video.url.match(/\.(mp4|webm|ogg)$/i) ? (
-                      <video src={video.url} className="w-full h-full object-cover" />
-                  ) : (
-                      <img src={video.url} alt={video.title} className="w-full h-full object-cover" />
-                  )}
-                  <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 rounded text-xs text-white">
-                    {video.status === 'published' ? '🟢 已发布' : '🟡 审核中'}
-                  </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Recent Videos */}
+        <div className="lg:col-span-2 space-y-6">
+            <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-white">最近发布</h2>
+                <Link href="/dashboard/videos" className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                    查看全部 <ArrowRight className="h-4 w-4" />
+                </Link>
+            </div>
+
+            {videos.length > 0 ? (
+                <div className="grid gap-4">
+                    {videos.slice(0, 3).map((video) => (
+                        <div key={video.id} className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-[#1e293b]/50 border border-white/5 hover:bg-[#1e293b] hover:border-white/10 transition-all">
+                            <div className="relative w-full sm:w-32 aspect-video rounded-lg overflow-hidden bg-black/20 shrink-0">
+                                <video 
+                                    src={video.url} 
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
+                            </div>
+                            <div className="flex-1 min-w-0 w-full">
+                                <h3 className="text-white font-medium truncate mb-1">{video.title}</h3>
+                                <div className="flex items-center gap-4 text-sm text-gray-500">
+                                    <span className="flex items-center gap-1">
+                                        <Eye className="h-3.5 w-3.5" /> {video.views || 0}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                        <Download className="h-3.5 w-3.5" /> {video.downloads || 0}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                        <Clock className="h-3.5 w-3.5" /> {new Date(video.created_at).toLocaleDateString()}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="text-left sm:text-right w-full sm:w-auto mt-2 sm:mt-0 flex flex-row sm:flex-col justify-between sm:justify-center items-center sm:items-end">
+                                <p className="text-white font-medium">¥{video.price}</p>
+                                <Badge variant="secondary" className={`mt-0 sm:mt-1 ${
+                                    video.status === 'approved' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
+                                    video.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 
+                                    'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                                }`}>
+                                    {video.status === 'approved' ? '已发布' : video.status === 'rejected' ? '已拒绝' : '审核中'}
+                                </Badge>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-                <div className="p-3">
-                  <h3 className="font-medium truncate text-white text-sm">{video.title}</h3>
-                  <div className="flex justify-between items-center mt-2">
-                    <p className="text-xs text-gray-500">
-                      {new Date(video.created_at).toLocaleDateString()}
-                    </p>
-                    <div className="flex gap-3 text-xs text-gray-400">
-                        <span>👁️ {video.views || 0}</span>
-                        <span>⬇️ {video.downloads || 0}</span>
+            ) : (
+                <div className="text-center py-12 rounded-xl bg-white/5 border border-dashed border-white/10">
+                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+                        <Film className="h-8 w-8 text-gray-500" />
                     </div>
-                  </div>
+                    <h3 className="text-lg font-medium text-white mb-2">还没有发布作品</h3>
+                    <p className="text-gray-400 mb-6 max-w-sm mx-auto">
+                        开始您的创作之旅，发布第一个 AI 视频作品，赚取收益。
+                    </p>
+                    <Button onClick={() => router.push('/dashboard/upload')} className="bg-blue-600 hover:bg-blue-700">
+                        立即发布
+                    </Button>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 text-gray-500 bg-white/5 rounded-lg border border-white/10 border-dashed">
-            <p className="mb-4">暂无作品，开始您的创作之旅吧</p>
-            <Link href="/dashboard/upload">
-                <Button variant="outline" className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10">
-                    立即上传
-                </Button>
-            </Link>
-          </div>
-        )}
+            )}
+        </div>
+
+        {/* Right Column: Quick Actions & Referral */}
+        <div className="space-y-6">
+             {/* Referral Card */}
+            <Card className="bg-gradient-to-br from-purple-600/20 to-blue-600/20 border-purple-500/20 overflow-hidden">
+                <CardContent className="p-6 relative">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                    
+                    <div className="relative z-10">
+                        <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center mb-4 shadow-lg shadow-purple-900/20">
+                            <Share2 className="h-5 w-5 text-white" />
+                        </div>
+                        <h3 className="text-lg font-bold text-white mb-2">邀请好友加入</h3>
+                        <p className="text-sm text-gray-300 mb-6">
+                            每邀请一位好友注册并发布作品，您和好友都将获得 <span className="text-yellow-400 font-bold">100</span> 积分奖励。
+                        </p>
+                        
+                        <div className="bg-black/20 rounded-lg p-3 flex items-center justify-between gap-2 mb-4 border border-white/5">
+                            <code className="text-sm text-purple-300 font-mono truncate">
+                                {origin}/invite/{user.id.slice(0, 8)}
+                            </code>
+                            <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="h-8 text-white hover:bg-white/10"
+                                onClick={() => {
+                                    navigator.clipboard.writeText(`${origin}/invite/${user.id.slice(0, 8)}`)
+                                    toast.success('邀请链接已复制')
+                                }}
+                            >
+                                复制
+                            </Button>
+                        </div>
+                        
+                        <Button className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/10">
+                            查看邀请详情
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Platform News or Tips */}
+            <Card className="bg-[#1e293b]/50 border-white/10">
+                <CardHeader>
+                    <CardTitle className="text-base text-white flex items-center gap-2">
+                        <Zap className="h-4 w-4 text-yellow-500" />
+                        创作贴士
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex gap-3 items-start">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
+                        <p className="text-sm text-gray-400">
+                            高质量的 <span className="text-gray-300">Prompt</span> 描述能显著提升 AI 视频生成的准确度。
+                        </p>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                        <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 shrink-0" />
+                        <p className="text-sm text-gray-400">
+                            上传 4K 分辨率的源视频可以获得更多的推荐流量。
+                        </p>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-2 shrink-0" />
+                        <p className="text-sm text-gray-400">
+                            完善个人主页信息有助于建立品牌形象，吸引粉丝。
+                        </p>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
       </div>
-    </div>
+    </motion.div>
   )
 }

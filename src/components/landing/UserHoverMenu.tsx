@@ -12,12 +12,16 @@ interface UserHoverMenuProps {
 }
 
 export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) {
+  // Prefer profile data over user metadata
+  const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url;
+  const displayName = profile?.full_name || user.user_metadata?.full_name || user.email?.split('@')[0];
+
   return (
     <div className="relative group h-full flex items-center px-2">
       {/* Trigger Area - Avatar */}
       <div className="cursor-pointer py-4">
         <Avatar className="h-9 w-9 border border-white/10 transition-transform group-hover:scale-105 group-hover:ring-2 group-hover:ring-blue-500/50">
-            <AvatarImage src={user.user_metadata?.avatar_url} />
+            <AvatarImage src={avatarUrl} />
             <AvatarFallback className="bg-blue-600 text-white">
                 {user.email?.[0]?.toUpperCase()}
             </AvatarFallback>
@@ -30,7 +34,7 @@ export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) 
             {/* Profile Info */}
             <div className="flex items-start gap-4 mb-6 relative">
                 <Avatar className="h-14 w-14 border-2 border-white/10">
-                    <AvatarImage src={user.user_metadata?.avatar_url} />
+                    <AvatarImage src={avatarUrl} />
                     <AvatarFallback className="bg-blue-600 text-white text-xl">
                         {user.email?.[0]?.toUpperCase()}
                     </AvatarFallback>
@@ -38,7 +42,7 @@ export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) 
                 <div className="flex-1 min-w-0 pt-1">
                     <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-bold text-white truncate text-base">
-                            {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                            {displayName}
                         </h3>
                         <div className="flex items-center gap-1">
                             <span className="bg-blue-500/20 text-[10px] px-1.5 py-0.5 rounded text-blue-300 border border-blue-500/10">

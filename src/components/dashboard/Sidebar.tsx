@@ -99,106 +99,110 @@ export function DashboardSidebar() {
       if (!confirm) return
 
       try {
-          const { error } = await supabase
-              .from('profiles')
-              .update({ role: 'super_admin' }) // Ensure super_admin
-              .eq('id', user.id)
-
-          if (error) throw error
-
-          toast.success("提权成功！正在刷新页面...")
-          setTimeout(() => {
-              window.location.reload()
-          }, 1500)
-      } catch (e: any) {
-          toast.error("提权失败: " + e.message)
-          console.error(e)
+        const { error } = await supabase.from('profiles').update({ role: 'super_admin' }).eq('id', user.id)
+        if (error) throw error
+        toast.success('已提升为超级管理员，请刷新页面')
+        window.location.reload()
+      } catch (error: any) {
+        toast.error('操作失败: ' + error.message)
       }
-  }
-
-  const isActive = (href: string) => {
-      if (href === '/dashboard' && pathname === '/dashboard') return true
-      // Special case for Wallet/Transactions
-      if (href === '/dashboard/wallet' && (pathname === '/dashboard/wallet' || pathname === '/dashboard/transactions')) return true
-      if (href !== '/dashboard' && pathname.startsWith(href)) return true
-      return false
   }
 
   return (
     <>
-        {/* Mobile Overlay */}
-        {isMobileMenuOpen && (
-            <div 
-                className="fixed inset-0 bg-black/50 z-30 md:hidden"
-                onClick={closeMobileMenu}
-            />
-        )}
-        
-        <div className={cn(
-            "fixed inset-y-0 left-0 z-40 w-64 bg-[#050B14] border-r border-white/5 transition-transform duration-300 md:relative md:translate-x-0 flex flex-col",
-            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
-            // Adjust top position for mobile to account for navbar if needed, or z-index above it
-            "top-16 md:top-0 h-[calc(100vh-4rem)] md:h-full"
-        )}>
-      {/* User Info */}
-      <div className="p-6 flex flex-col items-center border-b border-white/5">
-        <Avatar className="h-20 w-20 mb-4 border-2 border-blue-500/20">
-          <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url} />
-          <AvatarFallback className="bg-blue-600 text-xl">
-            {profile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <h3 className="font-semibold text-white truncate max-w-full">
-          {profile?.full_name || user?.email?.split('@')[0]}
-        </h3>
-        <p className="text-xs text-gray-500 mt-1">
-          {profile?.role === 'super_admin' ? '👑 超级管理员' : 
-           profile?.role === 'admin' ? '🛡️ 管理员' : '✨ 创作者'}
-        </p>
-      </div>
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden"
+          onClick={closeMobileMenu}
+        />
+      )}
 
-      {/* Upload Button */}
-      <div className="p-4">
-        <Link href="/dashboard/upload">
-          <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-900/20">
-            <Plus className="mr-2 h-4 w-4" />
-            上传新作品
-          </Button>
-        </Link>
-      </div>
+      <div className={cn(
+        "fixed inset-y-0 left-0 z-50 w-64 bg-[#0B1120] h-full border-r border-white/5 flex flex-col transition-transform duration-300 md:relative md:translate-x-0",
+        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        {/* Mobile Header (Close Button) */}
+        <div className="md:hidden p-4 flex justify-end">
+           {/* Add a close button if needed, or rely on overlay click */}
+        </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-2 space-y-1 py-4">
-        {menuItems.map((item) => (
-          <Link key={item.id} href={item.href}>
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full justify-start relative overflow-hidden",
-                isActive(item.href)
-                  ? "bg-white/5 text-blue-400 after:absolute after:left-0 after:top-0 after:h-full after:w-1 after:bg-blue-500" 
-                  : "text-gray-400 hover:text-white hover:bg-white/5"
-              )}
-            >
-              <item.icon className={cn("mr-3 h-4 w-4", isActive(item.href) ? "text-blue-400" : "text-gray-500")} />
-              {item.label}
-            </Button>
-          </Link>
-        ))}
-      </nav>
+        {/* Create Button */}
+        <div className="p-4 pb-2 pt-6 md:pt-4">
+           <Link href="/dashboard/upload" onClick={() => closeMobileMenu()}>
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg shadow-blue-900/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                  <Plus className="mr-2 h-4 w-4" />
+                  发布作品
+              </Button>
+           </Link>
+        </div>
 
-      {/* Logout */}
-      <div className="p-4 border-t border-white/5 space-y-2">
-        <Button 
-          variant="ghost" 
-          className="w-full justify-start text-red-500 hover:text-red-400 hover:bg-red-500/10"
-          onClick={handleSignOut}
-        >
-          <LogOut className="mr-3 h-4 w-4" />
-          退出登录
-        </Button>
+        {/* Menu Items */}
+        <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+          {menuItems.map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link key={item.id} href={item.href} onClick={() => closeMobileMenu()}>
+                <div
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative overflow-hidden",
+                    isActive 
+                      ? "text-white bg-white/5" 
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  )}
+                >
+                  {isActive && (
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 rounded-r-full" />
+                  )}
+                  <item.icon className={cn("h-5 w-5 transition-colors", isActive ? "text-blue-500" : "text-gray-500 group-hover:text-gray-300")} />
+                  {item.label}
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* User Profile Mini Section */}
+        <div className="p-4 border-t border-white/5 bg-[#0f172a]/50">
+          <div className="flex items-center gap-3 mb-4">
+              <Avatar className="h-9 w-9 border border-white/10">
+                  <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url} />
+                  <AvatarFallback className="bg-blue-900/50 text-blue-200 text-xs">
+                      {user?.email?.[0]?.toUpperCase()}
+                  </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">
+                      {profile?.full_name || user?.user_metadata?.full_name || 'Creator'}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                      {user?.email}
+                  </p>
+              </div>
+          </div>
+
+          <div className="space-y-1">
+               <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-500/10 h-8 text-xs"
+                  onClick={handleSignOut}
+              >
+                  <LogOut className="mr-2 h-3 w-3" />
+                  退出登录
+              </Button>
+              
+              {/* Dev Helper */}
+              <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-gray-600 hover:text-gray-400 hover:bg-white/5 h-6 text-[10px]"
+                  onClick={handleForceAdmin}
+              >
+                  <ShieldAlert className="mr-2 h-3 w-3" />
+                  Dev: Force Admin
+              </Button>
+          </div>
+        </div>
       </div>
-    </div>
     </>
   )
 }

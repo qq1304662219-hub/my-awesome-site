@@ -14,18 +14,22 @@ interface LicenseSelectorProps {
   videoId: string
   title: string
   thumbnail: string
+  price?: number
 }
 
-export function LicenseSelector({ videoId, title, thumbnail }: LicenseSelectorProps) {
+export function LicenseSelector({ videoId, title, thumbnail, price = 0 }: LicenseSelectorProps) {
   const router = useRouter()
   const { user } = useAuthStore()
   const [license, setLicense] = useState("personal")
   const [addingToCart, setAddingToCart] = useState(false)
   
+  // Use price from props as base price, default to 70 if 0 or undefined
+  const basePrice = price > 0 ? price : 70;
+
   const prices = {
-    personal: 70,
-    enterprise: 280,
-    enterprise_plus: 700
+    personal: basePrice,
+    enterprise: basePrice * 3,
+    enterprise_plus: basePrice * 10
   }
 
   const currentPrice = prices[license as keyof typeof prices]
@@ -75,7 +79,7 @@ export function LicenseSelector({ videoId, title, thumbnail }: LicenseSelectorPr
   }
 
   return (
-    <div className="bg-[#0f172a] border border-white/10 rounded-xl p-6 sticky top-24">
+    <div className="bg-[#0f172a] border border-white/10 rounded-xl p-6">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-semibold text-white">选择授权类型</h3>
         <span className="text-xs text-blue-400 cursor-pointer hover:underline">企业授权服务商折上优惠</span>

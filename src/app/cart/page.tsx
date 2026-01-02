@@ -197,7 +197,7 @@ export default function CartPage() {
           <div className="text-center py-20 bg-white/5 rounded-2xl border border-white/10">
             <ShoppingCart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
             <p className="text-gray-400 mb-6">购物车是空的</p>
-            <Button onClick={() => router.push('/videos')} variant="outline" className="border-white/10 text-white hover:bg-white/10">
+            <Button onClick={() => router.push('/explore')} variant="outline" className="border-white/10 text-white hover:bg-white/10">
               去逛逛
             </Button>
           </div>

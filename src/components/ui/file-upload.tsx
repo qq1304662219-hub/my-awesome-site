@@ -4,15 +4,16 @@ import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Upload, Loader2, CheckCircle, AlertCircle, RefreshCw, X } from 'lucide-react'
+import { Upload, Loader2, CheckCircle, AlertCircle, RefreshCw, X, FileVideo, ChevronRight, ChevronLeft } from 'lucide-react'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Link from 'next/link'
 import { Progress } from "@/components/ui/progress"
 import { toast } from "sonner"
 import { useAuthStore } from "@/store/useAuthStore"
 import { Badge } from "@/components/ui/badge"
-
+import { motion, AnimatePresence } from "framer-motion"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
 
 const SCENARIOS = [
   { value: "Live", label: "直播背景" },
@@ -96,128 +97,156 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0]
-      setFile(selectedFile)
-      setPreviewUrl(URL.createObjectURL(selectedFile))
-      
-      // Auto-set title
-      const name = selectedFile.name.replace(/\.[^/.]+$/, "")
-      setTitle(name)
-      
-      setStep(2)
+  const [isDragging, setIsDragging] = useState(false)
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const droppedFile = e.dataTransfer.files[0]
+    if (droppedFile && droppedFile.type.startsWith('video/')) {
+        handleFileSelect(droppedFile)
+    } else {
+        toast.error('请上传视频文件')
     }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleFileSelect(e.target.files[0])
+    }
+  }
+
+  const handleFileSelect = (selectedFile: File) => {
+    if (selectedFile.size > 500 * 1024 * 1024) { // 500MB limit
+        toast.error('文件大小不能超过 500MB')
+        return
+    }
+    setFile(selectedFile)
+    setPreviewUrl(URL.createObjectURL(selectedFile))
+    setTitle(selectedFile.name.replace(/\.[^/.]+$/, "")) // Remove extension
+    setStep(2)
+    // Reset other fields if needed
+    setMessage(null)
   }
 
   const handleCaptureCover = () => {
-    const video = videoRef.current
-    if (video) {
-      const canvas = document.createElement('canvas')
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-      canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height)
-      setCoverUrl(canvas.toDataURL('image/jpeg'))
-    }
+      if (videoRef.current) {
+          const canvas = document.createElement('canvas')
+          canvas.width = videoRef.current.videoWidth
+          canvas.height = videoRef.current.videoHeight
+          const ctx = canvas.getContext('2d')
+          ctx?.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height)
+          setCoverUrl(canvas.toDataURL('image/jpeg'))
+          toast.success('封面已截取')
+      }
   }
 
-  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleTagKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && tagInput.trim()) {
         e.preventDefault()
-        const newTag = tagInput.trim()
-        if (newTag && !tags.includes(newTag)) {
-            setTags([...tags, newTag])
-            setTagInput('')
+        if (!tags.includes(tagInput.trim())) {
+            setTags([...tags, tagInput.trim()])
         }
+        setTagInput('')
     }
   }
 
-  const removeTag = (indexToRemove: number) => {
-    setTags(tags.filter((_, index) => index !== indexToRemove))
+  const removeTag = (index: number) => {
+      setTags(tags.filter((_, i) => i !== index))
   }
 
   const handleUpload = async () => {
     if (!file || !userId) return
-    
-    if (user && !user.email_confirmed_at) {
-        toast.error("请先验证邮箱才能发布作品")
+    if (!coverUrl) {
+        toast.error('请先截取封面')
+        return
+    }
+    if (!title.trim()) {
+        toast.error('请输入标题')
         return
     }
 
     setUploading(true)
     setMessage(null)
+    setProgress(0)
 
     try {
       // 1. Upload Video
       const fileExt = file.name.split('.').pop()
       const fileName = `${userId}/${Date.now()}.${fileExt}`
       
-      // Simulate progress since Supabase JS client doesn't support it directly in simple upload
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-            if (prev >= 90) return prev;
-            return prev + 5;
+      const { data: videoUploadData, error: videoUploadError } = await supabase.storage
+        .from('videos')
+        .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
         })
-      }, 500);
 
-      const { error: uploadError } = await supabase.storage
-        .from('uploads')
-        .upload(fileName, file)
-      
-      clearInterval(progressInterval);
-      setProgress(100);
+      if (videoUploadError) throw videoUploadError
+      setProgress(50)
 
-      if (uploadError) throw uploadError
+      // 2. Upload Cover
+      const coverBlob = await (await fetch(coverUrl)).blob()
+      const coverName = `${userId}/${Date.now()}_cover.jpg`
+      const { data: coverUploadData, error: coverUploadError } = await supabase.storage
+        .from('covers')
+        .upload(coverName, coverBlob)
 
-      // 2. Upload Cover (if exists)
-      let coverStoragePath = null
-      if (coverUrl) {
-        const coverBlob = await (await fetch(coverUrl)).blob()
-        const coverName = `${userId}/${Date.now()}_cover.jpg`
-        const { error: coverError } = await supabase.storage
-            .from('uploads')
-            .upload(coverName, coverBlob)
-        
-        if (!coverError) {
-             const { data: { publicUrl } } = supabase.storage
-            .from('uploads')
-            .getPublicUrl(coverName)
-            coverStoragePath = publicUrl
-        }
-      }
+      if (coverUploadError) throw coverUploadError
+      setProgress(80)
 
-      // 3. Get Public URL (or Signed URL logic later)
-      const { data: { publicUrl } } = supabase.storage
-        .from('uploads')
-        .getPublicUrl(fileName)
+      // 3. Get Public URLs
+      const { data: { publicUrl: videoUrl } } = supabase.storage.from('videos').getPublicUrl(fileName)
+      const { data: { publicUrl: coverPublicUrl } } = supabase.storage.from('covers').getPublicUrl(coverName)
 
-      // 4. Save metadata
+      // 4. Insert into Database
       const { data: videoData, error: dbError } = await supabase
         .from('videos')
         .insert({
-          title: title || file.name,
-          description: description,
-          url: publicUrl,
-          thumbnail_url: coverStoragePath, // Save generated cover
           user_id: userId,
-          category: category,
-          style: style,
-          ratio: ratio,
+          title,
+          description,
+          url: videoUrl,
+          cover_url: coverPublicUrl,
           price: parseFloat(price) || 0,
-          tags: tags, // Fix: tags is already an array
-          prompt: prompt,
+          status: 'pending', // Default to pending
+          tags,
+          category,
+          style,
+          ratio,
+          duration: durationSec,
           ai_model: aiModel,
-          status: 'pending',
-          download_url: '',
-          duration: durationSec // Use numeric duration (seconds)
+          prompt
         })
         .select()
         .single()
 
       if (dbError) throw dbError
+      setProgress(100)
 
       // 5. Notify Followers
       try {
+        // Self notification
+        await supabase.from('notifications').insert({
+            user_id: userId,
+            actor_id: userId,
+            type: 'system',
+            resource_id: videoData.id.toString(),
+            resource_type: 'video',
+            content: `您的视频 "${title || file.name}" 已上传成功`,
+            is_read: false
+        });
+
         const { data: followers } = await supabase
             .from('follows')
             .select('follower_id')
@@ -256,145 +285,168 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
     }
   }
 
-  if (step === 3) {
-    // Success view
-    return (
-        <div className="space-y-6 py-4">
-            <div className="flex flex-col items-center justify-center text-center space-y-2">
-                <div className="h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center mb-2">
-                    <CheckCircle className="h-6 w-6 text-green-500" />
-                </div>
-                <h3 className="text-xl font-bold text-white">发布成功</h3>
-                <p className="text-gray-400">您的作品已提交审核，感谢您的贡献！</p>
-            </div>
-
-            <div className="flex flex-col gap-3">
-                <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 h-11 text-base">
-                    <Link href="/dashboard/videos">
-                        管理我的作品
-                    </Link>
-                </Button>
-                <Button 
-                    onClick={() => {
-                        setStep(1); 
-                        setFile(null); 
-                        setPreviewUrl(null); 
-                        setCoverUrl(null);
-                        setMessage(null);
-                    }} 
-                    variant="outline" 
-                    className="w-full border-white/10 hover:bg-white/5 text-gray-300 hover:text-white h-11"
+  return (
+    <div className="w-full">
+      <AnimatePresence mode="wait">
+        {step === 1 && (
+            <motion.div 
+                key="step1"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="space-y-5"
+            >
+                <div 
+                    className={`border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center text-center transition-all cursor-pointer group min-h-[300px] ${isDragging ? 'border-blue-500 bg-blue-500/10' : 'border-white/10 hover:border-blue-500/50 hover:bg-blue-500/5'}`}
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
                 >
-                    继续上传
-                </Button>
-            </div>
-        </div>
-    )
-  }
+                    <div className="h-20 w-20 rounded-full bg-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-blue-500/5">
+                        <Upload className="h-10 w-10 text-blue-500" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">点击或拖拽上传视频</h3>
+                    <p className="text-sm text-gray-400 mb-6 max-w-sm">
+                        支持 MP4, MOV, WebM 格式。建议上传 1080p 或 4K 分辨率的高质量视频。
+                    </p>
+                    <div className="flex flex-col gap-2">
+                        <Input 
+                            id="file-upload" 
+                            type="file" 
+                            accept="video/*" 
+                            className="hidden" 
+                            onChange={handleFileChange}
+                        />
+                        <Button variant="secondary" className="px-8">选择文件</Button>
+                        <p className="text-xs text-gray-500 mt-2">最大支持 500MB</p>
+                    </div>
+                </div>
+            </motion.div>
+        )}
 
-  if (step === 2 && file) {
-      return (
-          <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Left: Preview & Cover */}
-                  <div className="space-y-4">
-                      <Label className="text-gray-300">视频预览 & 封面截取</Label>
-                      <div className="aspect-video bg-black rounded-lg overflow-hidden border border-white/10 relative group">
-                          {previewUrl && (
-                              <video 
-                                ref={videoRef}
-                                src={previewUrl} 
-                                className="w-full h-full object-contain" 
-                                controls 
-                                onLoadedMetadata={handleMetadataLoaded}
-                                onSeeked={handleSeeked}
-                              />
-                          )}
-                      </div>
-                      <div className="flex gap-2">
-                          <Button size="sm" variant="secondary" onClick={handleCaptureCover} type="button">
-                              📸 截取当前帧为封面
-                          </Button>
-                      </div>
-                      {coverUrl && (
-                          <div className="space-y-2">
-                              <Label className="text-gray-300 text-xs">当前封面预览</Label>
-                              <div className="w-32 aspect-video bg-black rounded border border-white/10 overflow-hidden">
-                                  <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
-                              </div>
-                          </div>
-                      )}
-                  </div>
+        {step === 2 && file && (
+            <motion.div 
+                key="step2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-6"
+            >
+                <div className="flex items-center justify-between">
+                    <Button variant="ghost" onClick={() => { setStep(1); setFile(null); }} className="text-gray-400 hover:text-white pl-0 gap-1">
+                        <ChevronLeft className="h-4 w-4" /> 返回重选
+                    </Button>
+                    <Badge variant="outline" className="text-blue-400 border-blue-500/30">正在编辑: {file.name}</Badge>
+                </div>
 
-                  {/* Right: Metadata Form */}
-                  <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="title" className="text-gray-300">标题</Label>
-                        <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="bg-black/20 border-white/10 text-white" />
-                      </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Left: Preview & Cover */}
+                    <div className="space-y-6">
+                        <div className="space-y-2">
+                            <Label className="text-gray-300 flex items-center gap-2">
+                                <FileVideo className="h-4 w-4 text-blue-500" />
+                                视频预览 & 封面
+                            </Label>
+                            <div className="aspect-video bg-black rounded-xl overflow-hidden border border-white/10 relative group shadow-2xl">
+                                {previewUrl && (
+                                    <video 
+                                    ref={videoRef}
+                                    src={previewUrl} 
+                                    className="w-full h-full object-contain" 
+                                    controls 
+                                    onLoadedMetadata={handleMetadataLoaded}
+                                    onSeeked={handleSeeked}
+                                    />
+                                )}
+                            </div>
+                        </div>
 
-                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-4 p-4 rounded-lg bg-white/5 border border-white/10">
+                            <div className="text-sm text-gray-400">
+                                封面是用户看到的第一眼，请选择精彩的一帧。
+                            </div>
+                            <Button size="sm" variant="secondary" onClick={handleCaptureCover} type="button" className="shrink-0">
+                                📸 截取当前帧
+                            </Button>
+                        </div>
+                        
+                        {coverUrl && (
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="space-y-2"
+                            >
+                                <Label className="text-gray-300 text-xs uppercase tracking-wider">当前封面预览</Label>
+                                <div className="w-40 aspect-video bg-black rounded-lg border border-white/10 overflow-hidden shadow-lg">
+                                    <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
+                                </div>
+                            </motion.div>
+                        )}
+                    </div>
+
+                    {/* Right: Metadata Form */}
+                    <div className="space-y-5">
+                        <div className="space-y-2">
+                        <Label htmlFor="title" className="text-gray-300">标题 <span className="text-red-500">*</span></Label>
+                        <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="bg-black/20 border-white/10 text-white focus:border-blue-500/50" />
+                        </div>
+
+                        <div className="space-y-2">
                         <Label htmlFor="desc" className="text-gray-300">描述</Label>
-                        <Input id="desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="简单介绍一下视频内容..." className="bg-black/20 border-white/10 text-white" />
-                      </div>
+                        <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="简单介绍一下视频内容..." className="bg-black/20 border-white/10 text-white min-h-[80px] focus:border-blue-500/50" />
+                        </div>
 
-                      <div className="space-y-2">
+                        <div className="space-y-2">
                         <Label className="text-gray-300">Prompt (提示词)</Label>
-                        <Input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="生成该视频使用的提示词..." className="bg-black/20 border-white/10 text-white" />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label className="text-gray-300">AI Model (使用的模型)</Label>
-                        <Select value={aiModel} onValueChange={setAiModel}>
-                            <SelectTrigger className="bg-black/20 border-white/10 text-white"><SelectValue placeholder="选择 AI 模型" /></SelectTrigger>
-                            <SelectContent className="bg-[#1e293b] border-white/10 text-white">
-                                {AI_MODELS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label className="text-gray-300">分类</Label>
-                            <Select value={category} onValueChange={setCategory}>
-                                <SelectTrigger className="bg-black/20 border-white/10 text-white"><SelectValue /></SelectTrigger>
-                                <SelectContent className="bg-[#1e293b] border-white/10 text-white">
-                                    {SCENARIOS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
+                        <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="生成该视频使用的提示词..." className="bg-black/20 border-white/10 text-white min-h-[60px] focus:border-blue-500/50" />
                         </div>
-                        <div className="space-y-2">
-                            <Label className="text-gray-300">风格</Label>
-                            <Select value={style} onValueChange={setStyle}>
-                                <SelectTrigger className="bg-black/20 border-white/10 text-white"><SelectValue /></SelectTrigger>
-                                <SelectContent className="bg-[#1e293b] border-white/10 text-white">
-                                    {STYLES.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-gray-300">AI Model</Label>
+                                <Select value={aiModel} onValueChange={setAiModel}>
+                                    <SelectTrigger className="bg-black/20 border-white/10 text-white"><SelectValue placeholder="选择 AI 模型" /></SelectTrigger>
+                                    <SelectContent className="bg-[#1e293b] border-white/10 text-white">
+                                        {AI_MODELS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-gray-300">分类</Label>
+                                <Select value={category} onValueChange={setCategory}>
+                                    <SelectTrigger className="bg-black/20 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                                    <SelectContent className="bg-[#1e293b] border-white/10 text-white">
+                                        {SCENARIOS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
-                      </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label className="text-gray-300">价格 (A币)</Label>
-                            <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="bg-black/20 border-white/10 text-white" min="0" />
-                          </div>
-                          <div className="space-y-2">
-                             <Label className="text-gray-300">比例</Label>
-                             <Select value={ratio} onValueChange={setRatio}>
-                                <SelectTrigger className="bg-black/20 border-white/10 text-white"><SelectValue /></SelectTrigger>
-                                <SelectContent className="bg-[#1e293b] border-white/10 text-white">
-                                    {RATIOS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                          </div>
-                      </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-gray-300">价格 (A币)</Label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">¥</span>
+                                    <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="bg-black/20 border-white/10 text-white pl-7" min="0" />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-gray-300">比例</Label>
+                                <Select value={ratio} onValueChange={setRatio}>
+                                    <SelectTrigger className="bg-black/20 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                                    <SelectContent className="bg-[#1e293b] border-white/10 text-white">
+                                        {RATIOS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
 
-                      <div className="space-y-2">
+                        <div className="space-y-2">
                         <Label className="text-gray-300">标签 (输入后回车添加)</Label>
-                        <div className="flex flex-wrap gap-2 mb-2">
+                        <div className="flex flex-wrap gap-2 mb-2 min-h-[32px]">
                             {tags.map((tag, index) => (
-                                <Badge key={index} variant="secondary" className="gap-1 pr-1 bg-white/10 hover:bg-white/20 text-gray-200">
+                                <Badge key={index} variant="secondary" className="gap-1 pr-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-blue-500/20">
                                     {tag}
                                     <X className="h-3 w-3 cursor-pointer hover:text-red-400" onClick={() => removeTag(index)} />
                                 </Badge>
@@ -407,25 +459,25 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                             placeholder="例如: 4K, 自然, 延时摄影" 
                             className="bg-black/20 border-white/10 text-white" 
                         />
-                      </div>
-                  </div>
-              </div>
+                        </div>
+                    </div>
+                </div>
 
-              {message?.type === 'error' && (
-                  <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>错误</AlertTitle>
-                      <AlertDescription>{message.text}</AlertDescription>
-                  </Alert>
-              )}
+                {message?.type === 'error' && (
+                    <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>错误</AlertTitle>
+                        <AlertDescription>{message.text}</AlertDescription>
+                    </Alert>
+                )}
 
-              <div className="flex justify-end gap-3 pt-4">
-                  <Button variant="ghost" onClick={() => { setStep(1); setFile(null); }} disabled={uploading} className="text-gray-300 hover:text-white hover:bg-white/10">
-                      取消
-                  </Button>
-                  <div className="flex flex-col gap-2 w-full max-w-[200px]">
+                <div className="flex justify-end gap-3 pt-6 border-t border-white/5">
+                    <Button variant="ghost" onClick={() => { setStep(1); setFile(null); }} disabled={uploading} className="text-gray-300 hover:text-white hover:bg-white/10">
+                        取消
+                    </Button>
+                    <div className="flex flex-col gap-2 w-full max-w-[200px]">
                     {uploading && <Progress value={progress} className="h-2" />}
-                    <Button onClick={handleUpload} disabled={uploading} className="bg-blue-600 hover:bg-blue-700 w-full">
+                    <Button onClick={handleUpload} disabled={uploading} className="bg-blue-600 hover:bg-blue-700 w-full shadow-lg shadow-blue-900/20">
                         {uploading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -438,29 +490,53 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                             </>
                         )}
                     </Button>
-                  </div>
-              </div>
-          </div>
-      )
-  }
+                    </div>
+                </div>
+            </motion.div>
+        )}
 
-  return (
-    <div className="space-y-5">
-      <div className="border-2 border-dashed border-white/10 rounded-xl p-10 flex flex-col items-center justify-center text-center hover:border-blue-500/50 hover:bg-blue-500/5 transition-all cursor-pointer group" onClick={() => document.getElementById('file-upload')?.click()}>
-          <div className="h-16 w-16 rounded-full bg-blue-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Upload className="h-8 w-8 text-blue-500" />
-          </div>
-          <h3 className="text-lg font-medium text-white mb-1">点击或拖拽上传视频</h3>
-          <p className="text-sm text-gray-400 mb-6">支持 MP4, MOV, WebM 格式</p>
-          <Input 
-              id="file-upload" 
-              type="file" 
-              accept="video/*" 
-              className="hidden" 
-              onChange={handleFileChange}
-          />
-          <Button variant="secondary">选择文件</Button>
-      </div>
+        {step === 3 && (
+            <motion.div 
+                key="step3"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="space-y-6 py-12"
+            >
+                <div className="flex flex-col items-center justify-center text-center space-y-4">
+                    <div className="h-20 w-20 rounded-full bg-green-500/10 flex items-center justify-center mb-2 ring-4 ring-green-500/5">
+                        <CheckCircle className="h-10 w-10 text-green-500" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white">发布成功！</h3>
+                    <p className="text-gray-400 max-w-md">您的作品已提交审核，审核通过后将自动上架。感谢您对社区的贡献！</p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+                    <Button asChild className="bg-blue-600 hover:bg-blue-700 h-11 px-8 text-base shadow-lg shadow-blue-900/20">
+                        <Link href="/dashboard/videos">
+                            管理我的作品
+                        </Link>
+                    </Button>
+                    <Button 
+                        onClick={() => {
+                            setStep(1); 
+                            setFile(null); 
+                            setPreviewUrl(null); 
+                            setCoverUrl(null);
+                            setMessage(null);
+                            setTitle('');
+                            setDescription('');
+                            setTags([]);
+                            setPrice('0');
+                        }} 
+                        variant="outline" 
+                        className="border-white/10 hover:bg-white/5 text-gray-300 hover:text-white h-11 px-8"
+                    >
+                        继续上传
+                    </Button>
+                </div>
+            </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

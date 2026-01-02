@@ -2,11 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
-import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { useAuthStore } from "@/store/useAuthStore"
 import { Button } from "@/components/ui/button"
-import { FolderPlus, Lock, Globe, Trash2, Video, Plus } from "lucide-react"
+import { FolderPlus, Lock, Globe, Trash2, Video, Plus, Search, MoreHorizontal, Folder } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 import {
@@ -15,9 +13,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
+  DialogClose
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { motion, AnimatePresence } from "framer-motion"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Card, CardContent } from "@/components/ui/card"
 
 export default function MyCollectionsPage() {
   const { user } = useAuthStore()
@@ -26,6 +34,7 @@ export default function MyCollectionsPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [newCollectionName, setNewCollectionName] = useState("")
   const [isPublic, setIsPublic] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
     if (user) {
@@ -81,6 +90,8 @@ export default function MyCollectionsPage() {
   }
 
   const handleDelete = async (id: number) => {
+    // Note: In a real app, you might want a custom confirmation dialog.
+    // For now, browser confirm is okay, or we could use a state for a delete dialog.
     if (!confirm("确定要删除这个收藏夹吗？其中的视频不会被删除。")) return
 
     try {
@@ -99,29 +110,45 @@ export default function MyCollectionsPage() {
     }
   }
 
+  const filteredCollections = collections.filter(c => 
+    c.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   return (
-    <div className="min-h-screen bg-[#020817] text-white flex flex-col">
-      <Navbar />
-      
-      <div className="container mx-auto px-4 pt-32 pb-12 flex-1">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-bold mb-2">我的收藏夹</h1>
-            <p className="text-gray-400">管理您收藏的视频素材</p>
+    <div className="p-6 md:p-8 space-y-8 min-h-screen bg-transparent text-white">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+      >
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">我的收藏夹</h1>
+          <p className="text-gray-400 mt-1">管理您收藏的视频素材，支持公开分享与私密保存</p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input 
+              placeholder="搜索收藏夹..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 bg-black/20 border-white/10 w-[200px] focus:w-[250px] transition-all"
+            />
           </div>
           
           <Dialog open={createOpen} onOpenChange={setCreateOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20">
                 <Plus className="h-4 w-4 mr-2" />
                 新建收藏夹
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-[#0B1120] border-white/10 text-white">
+            <DialogContent className="bg-[#1e293b] border-white/10 text-white sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>新建收藏夹</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 mt-4">
+              <div className="space-y-6 mt-4">
                 <div className="space-y-2">
                   <Label>名称</Label>
                   <Input 
@@ -131,78 +158,132 @@ export default function MyCollectionsPage() {
                     className="bg-black/20 border-white/10 text-white"
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className={isPublic ? "border-blue-500 text-blue-400" : "border-white/10 text-gray-400"}
-                    onClick={() => setIsPublic(true)}
-                  >
-                    <Globe className="h-4 w-4 mr-2" />
-                    公开
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className={!isPublic ? "border-blue-500 text-blue-400" : "border-white/10 text-gray-400"}
-                    onClick={() => setIsPublic(false)}
-                  >
-                    <Lock className="h-4 w-4 mr-2" />
-                    私密
-                  </Button>
+                <div className="space-y-2">
+                  <Label>可见性</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div 
+                      className={`cursor-pointer rounded-lg border p-3 flex items-center justify-center gap-2 transition-all ${isPublic ? 'bg-blue-500/10 border-blue-500 text-blue-400' : 'border-white/10 hover:bg-white/5 text-gray-400'}`}
+                      onClick={() => setIsPublic(true)}
+                    >
+                      <Globe className="h-4 w-4" />
+                      公开
+                    </div>
+                    <div 
+                      className={`cursor-pointer rounded-lg border p-3 flex items-center justify-center gap-2 transition-all ${!isPublic ? 'bg-blue-500/10 border-blue-500 text-blue-400' : 'border-white/10 hover:bg-white/5 text-gray-400'}`}
+                      onClick={() => setIsPublic(false)}
+                    >
+                      <Lock className="h-4 w-4" />
+                      私密
+                    </div>
+                  </div>
                 </div>
                 <Button onClick={handleCreate} className="w-full bg-blue-600 hover:bg-blue-700">
-                  创建
+                  创建收藏夹
                 </Button>
               </div>
             </DialogContent>
           </Dialog>
         </div>
+      </motion.div>
 
-        {loading ? (
-          <div className="text-center py-20 text-gray-500">加载中...</div>
-        ) : collections.length === 0 ? (
-          <div className="text-center py-20 bg-white/5 rounded-xl border border-white/10">
-            <FolderPlus className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-300">暂无收藏夹</h3>
-            <p className="text-gray-500 mt-2">快去探索视频并添加到收藏夹吧</p>
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-40 bg-white/5 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : filteredCollections.length === 0 ? (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center justify-center py-20 bg-white/5 rounded-2xl border border-white/10 border-dashed"
+        >
+          <div className="h-20 w-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
+            <FolderPlus className="h-10 w-10 text-gray-500" />
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {collections.map(collection => (
-              <div key={collection.id} className="bg-[#0B1120] border border-white/10 rounded-xl overflow-hidden hover:border-blue-500/50 transition-colors group relative">
-                <Link href={`/dashboard/collections/${collection.id}`} className="block p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400">
-                      <FolderPlus className="h-6 w-6" />
-                    </div>
-                    {collection.is_public ? (
-                      <Globe className="h-4 w-4 text-gray-500" />
-                    ) : (
-                      <Lock className="h-4 w-4 text-gray-500" />
-                    )}
-                  </div>
-                  <h3 className="text-lg font-bold mb-1 group-hover:text-blue-400 transition-colors">{collection.name}</h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-400">
-                    <Video className="h-3 w-3" />
-                    {collection.collection_items[0]?.count || 0} 个视频
-                  </div>
-                </Link>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="absolute top-4 right-4 text-gray-500 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => handleDelete(collection.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
+          <h3 className="text-xl font-medium text-white mb-2">暂无收藏夹</h3>
+          <p className="text-gray-400 max-w-sm text-center mb-6">
+            {searchTerm ? "没有找到匹配的收藏夹" : "创建一个收藏夹来整理您喜欢的视频素材"}
+          </p>
+          {!searchTerm && (
+            <Button onClick={() => setCreateOpen(true)} variant="secondary">
+              立即创建
+            </Button>
+          )}
+        </motion.div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <AnimatePresence>
+            {filteredCollections.map((collection, index) => (
+              <motion.div
+                key={collection.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm overflow-hidden hover:border-blue-500/50 hover:bg-[#1e293b]/80 transition-all group">
+                  <Link href={`/dashboard/collections/${collection.id}`}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-6">
+                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-500/5">
+                          <Folder className="h-7 w-7 fill-current" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-white hover:bg-white/10">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-[#1e293b] border-white/10 text-white">
+                              <DropdownMenuItem 
+                                className="text-red-400 focus:text-red-400 focus:bg-red-500/10 cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleDelete(collection.id)
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                删除
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors truncate" title={collection.name}>
+                          {collection.name}
+                        </h3>
+                        <div className="flex items-center justify-between text-sm text-gray-400">
+                          <div className="flex items-center gap-1.5">
+                            <Video className="h-3.5 w-3.5" />
+                            <span>{collection.collection_items[0]?.count || 0} 个视频</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
+                            {collection.is_public ? (
+                              <>
+                                <Globe className="h-3 w-3" />
+                                <span className="text-xs">公开</span>
+                              </>
+                            ) : (
+                              <>
+                                <Lock className="h-3 w-3" />
+                                <span className="text-xs">私密</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              </motion.div>
             ))}
-          </div>
-        )}
-      </div>
-
-      <Footer />
+          </AnimatePresence>
+        </div>
+      )}
     </div>
   )
 }

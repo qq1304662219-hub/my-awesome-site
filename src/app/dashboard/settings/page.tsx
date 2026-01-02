@@ -10,8 +10,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { Loader2, User, Save, Upload, Camera } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
+import { Card, CardContent } from "@/components/ui/card"
 
 export default function SettingsPage() {
+  const router = useRouter()
   const { profile, setProfile } = useAuthStore()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -121,7 +125,16 @@ export default function SettingsPage() {
           setProfile({ ...profile, ...updates })
       }
 
+      // Sync metadata for better compatibility
+      await supabase.auth.updateUser({
+        data: {
+          full_name: formData.full_name,
+          avatar_url: formData.avatar_url
+        }
+      });
+
       toast.success("保存成功")
+      router.refresh();
     } catch (error: any) {
       console.error("Save error:", error)
       toast.error("保存失败: " + error.message)
@@ -133,97 +146,102 @@ export default function SettingsPage() {
   if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-blue-500" /></div>
 
   return (
-    <div className="max-w-4xl mx-auto p-8 space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">账号设置</h1>
-        <p className="text-gray-400">管理您的个人资料和账号信息</p>
-      </div>
+    <div className="max-w-4xl mx-auto p-6 md:p-8 space-y-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">账号设置</h1>
+          <p className="text-gray-400 mt-1">管理您的个人资料和账号信息</p>
+        </div>
 
-      <div className="bg-[#0B1120] border border-white/10 rounded-xl p-8 space-y-8">
-        
-        {/* Avatar Section */}
-        <div className="flex items-center gap-8 pb-8 border-b border-white/10">
-            <div className="relative group">
-                <Avatar className="h-24 w-24 border-2 border-white/10">
-                    <AvatarImage src={formData.avatar_url} />
-                    <AvatarFallback className="bg-blue-600 text-2xl">
-                        {formData.full_name?.[0]?.toUpperCase() || <User />}
-                    </AvatarFallback>
-                </Avatar>
-                <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                    {uploadingAvatar ? (
-                        <Loader2 className="w-6 h-6 animate-spin text-white" />
-                    ) : (
-                        <Camera className="w-6 h-6 text-white" />
-                    )}
-                    <input 
-                        type="file" 
-                        accept="image/*" 
-                        className="hidden" 
-                        onChange={handleAvatarUpload}
-                        disabled={uploadingAvatar}
+        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm overflow-hidden">
+          <CardContent className="p-8 space-y-8">
+            {/* Avatar Section */}
+            <div className="flex items-center gap-8 pb-8 border-b border-white/10">
+                <div className="relative group">
+                    <Avatar className="h-24 w-24 border-2 border-white/10 ring-4 ring-white/5 transition-all group-hover:ring-blue-500/20">
+                        <AvatarImage src={formData.avatar_url} />
+                        <AvatarFallback className="bg-blue-600 text-2xl">
+                            {formData.full_name?.[0]?.toUpperCase() || <User />}
+                        </AvatarFallback>
+                    </Avatar>
+                    <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-all backdrop-blur-sm">
+                        {uploadingAvatar ? (
+                            <Loader2 className="w-6 h-6 animate-spin text-white" />
+                        ) : (
+                            <Camera className="w-6 h-6 text-white" />
+                        )}
+                        <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            onChange={handleAvatarUpload}
+                            disabled={uploadingAvatar}
+                        />
+                    </label>
+                </div>
+                <div className="flex-1">
+                    <h3 className="font-bold text-lg mb-1 text-white">头像</h3>
+                    <p className="text-sm text-gray-400">
+                        点击图片上传新头像。支持 JPG, PNG, GIF 格式。
+                    </p>
+                </div>
+            </div>
+
+            {/* Form Section */}
+            <div className="space-y-6">
+                <div className="grid gap-2">
+                    <Label htmlFor="full_name" className="text-gray-300">昵称</Label>
+                    <Input 
+                        id="full_name"
+                        value={formData.full_name}
+                        onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                        className="bg-black/20 border-white/10 text-white focus:border-blue-500/50"
+                        placeholder="您的昵称"
                     />
-                </label>
-            </div>
-            <div className="flex-1">
-                <h3 className="font-bold text-lg mb-1">头像</h3>
-                <p className="text-sm text-gray-400">
-                    点击图片上传新头像。支持 JPG, PNG, GIF 格式。
-                </p>
-            </div>
-        </div>
+                </div>
 
-        {/* Form Section */}
-        <div className="space-y-6">
-            <div className="grid gap-2">
-                <Label htmlFor="full_name">昵称</Label>
-                <Input 
-                    id="full_name"
-                    value={formData.full_name}
-                    onChange={(e) => setFormData({...formData, full_name: e.target.value})}
-                    className="bg-black/20 border-white/10"
-                    placeholder="您的昵称"
-                />
-            </div>
+                <div className="grid gap-2">
+                    <Label htmlFor="bio" className="text-gray-300">个人简介</Label>
+                    <Textarea 
+                        id="bio"
+                        value={formData.bio}
+                        onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                        className="bg-black/20 border-white/10 min-h-[100px] text-white focus:border-blue-500/50"
+                        placeholder="介绍一下自己..."
+                    />
+                </div>
 
-            <div className="grid gap-2">
-                <Label htmlFor="bio">个人简介</Label>
-                <Textarea 
-                    id="bio"
-                    value={formData.bio}
-                    onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                    className="bg-black/20 border-white/10 min-h-[100px]"
-                    placeholder="介绍一下自己..."
-                />
-            </div>
+                <div className="grid gap-2">
+                    <Label htmlFor="website" className="text-gray-300">个人网站 / 社交链接</Label>
+                    <Input 
+                        id="website"
+                        value={formData.website}
+                        onChange={(e) => setFormData({...formData, website: e.target.value})}
+                        className="bg-black/20 border-white/10 text-white focus:border-blue-500/50"
+                        placeholder="https://..."
+                    />
+                </div>
 
-            <div className="grid gap-2">
-                <Label htmlFor="website">个人网站 / 社交链接</Label>
-                <Input 
-                    id="website"
-                    value={formData.website}
-                    onChange={(e) => setFormData({...formData, website: e.target.value})}
-                    className="bg-black/20 border-white/10"
-                    placeholder="https://..."
-                />
+                <div className="pt-4 flex justify-end">
+                    <Button 
+                        onClick={handleSave} 
+                        disabled={saving}
+                        className="bg-blue-600 hover:bg-blue-700 min-w-[120px] shadow-lg shadow-blue-500/20"
+                    >
+                        {saving ? (
+                            <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> 保存中...</>
+                        ) : (
+                            <><Save className="w-4 h-4 mr-2" /> 保存更改</>
+                        )}
+                    </Button>
+                </div>
             </div>
-
-            <div className="pt-4 flex justify-end">
-                <Button 
-                    onClick={handleSave} 
-                    disabled={saving}
-                    className="bg-blue-600 hover:bg-blue-700 min-w-[120px]"
-                >
-                    {saving ? (
-                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> 保存中...</>
-                    ) : (
-                        <><Save className="w-4 h-4 mr-2" /> 保存更改</>
-                    )}
-                </Button>
-            </div>
-        </div>
-
-      </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   )
 }

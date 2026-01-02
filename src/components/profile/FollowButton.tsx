@@ -75,6 +75,15 @@ export function FollowButton({ authorId, className }: FollowButtonProps) {
           following_id: authorId
         })
         if (error) throw error
+
+        // Notification
+        await supabase.from("notifications").insert({
+            user_id: authorId,
+            actor_id: user.id,
+            type: "follow",
+            content: "关注了你",
+            is_read: false
+        });
       } else {
         const { error } = await supabase.from('follows').delete()
           .eq('follower_id', user.id)

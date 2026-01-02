@@ -10,6 +10,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { ReportModal } from "./ReportModal";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const SENSITIVE_WORDS = ["暴力", "色情", "赌博", "诈骗", "违法", "fuck", "shit"];
 
@@ -149,6 +150,10 @@ const CommentItem = ({
 
 export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsProps) {
   const router = useRouter();
+  // Try to use store user first (client side), fallback to prop (server side)
+  const { user: storeUser } = useAuthStore();
+  const user = storeUser || currentUser;
+  
   const [comments, setComments] = useState<Comment[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [newComment, setNewComment] = useState("");
@@ -214,12 +219,12 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
   };
 
   const handleCommentSubmit = async (parentId: string | null = null) => {
-    if (!currentUser) {
+    if (!user) {
       router.push("/auth");
       return;
     }
 
-    // if (!currentUser.email_confirmed_at) {
+    // if (!user.email_confirmed_at) {
     //   toast.error("请先验证邮箱才能评论");
     //   return;
     // }
@@ -242,7 +247,7 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
         .from("comments")
         .insert({
           video_id: videoId,
-          user_id: currentUser.id,
+          user_id: user.id,
           content: content.trim(),
           parent_id: parentId
         })
@@ -252,10 +257,10 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
       if (error) throw error;
 
       // Trigger Notification if not self-comment
-      if (authorId && currentUser.id !== authorId) {
+      if (authorId && user.id !== authorId) {
           await supabase.from("notifications").insert({
               user_id: authorId,
-              actor_id: currentUser.id,
+              actor_id: user.id,
               type: "comment",
               resource_id: videoId.toString(),
               resource_type: "video",
@@ -286,10 +291,10 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
              parentAuthorId = parentComment.user_id;
           }
 
-          if (parentAuthorId && parentAuthorId !== currentUser.id && parentAuthorId !== authorId) {
+          if (parentAuthorId && parentAuthorId !== user.id && parentAuthorId !== authorId) {
              await supabase.from("notifications").insert({
                 user_id: parentAuthorId,
-                actor_id: currentUser.id,
+                actor_id: user.id,
                 type: "reply",
                 resource_id: videoId.toString(),
                 resource_type: "video",
@@ -331,21 +336,21 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
       {/* Comment Input */}
       <div className="flex gap-4">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={currentUser?.user_metadata?.avatar_url} />
-          <AvatarFallback>{currentUser ? "ME" : "?"}</AvatarFallback>
+          <AvatarImage src={user?.user_metadata?.avatar_url} />
+          <AvatarFallback>{user ? "ME" : "?"}</AvatarFallback>
         </Avatar>
         <div className="flex-1 space-y-2">
           <Textarea 
-            placeholder={currentUser ? "写下你的评论..." : "登录后发表评论"} 
+            placeholder={user ? "写下你的评论..." : "登录后发表评论"} 
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             className="bg-white/5 border-white/10 text-white min-h-[80px]"
-            disabled={!currentUser}
+            disabled={!user}
           />
           <div className="flex justify-end">
             <Button 
               onClick={() => handleCommentSubmit(null)} 
-              disabled={!newComment.trim() || submitting || !currentUser}
+              disabled={!newComment.trim() || submitting || !user}
               className="bg-blue-600 hover:bg-blue-700"
             >
               {submitting ? "发送中..." : "发表评论"}
@@ -366,7 +371,7 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
             <CommentItem
               key={comment.id}
               comment={comment}
-              currentUser={currentUser}
+              currentUser={user}
               replyingTo={replyingTo}
               setReplyingTo={setReplyingTo}
               replyContent={replyContent}

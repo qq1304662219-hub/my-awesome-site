@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { FileUpload } from '@/components/ui/file-upload'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 export default function UploadPage() {
   const [user, setUser] = useState<any>(null)
@@ -33,18 +34,31 @@ export default function UploadPage() {
   )
 
   return (
-    <div className="max-w-2xl mx-auto py-8">
-        <Card className="bg-white/5 border-white/10 backdrop-blur-sm">
-            <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+    <div className="p-8 space-y-8 max-w-7xl mx-auto pb-24">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+            <h1 className="text-3xl font-bold text-white mb-2">上传作品</h1>
+            <p className="text-gray-400">分享您的 AI 视频作品，设置价格并赚取收益。</p>
+        </div>
+      </div>
+
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm overflow-hidden">
+            <CardHeader className="bg-black/20 border-b border-white/5">
+                <CardTitle className="text-white flex items-center gap-2 text-lg">
                     <Plus className="h-5 w-5 text-blue-500" />
-                    上传新作品
+                    创建新发布
                 </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6 md:p-8">
                 <FileUpload userId={user.id} />
             </CardContent>
         </Card>
+      </motion.div>
     </div>
   )
 }

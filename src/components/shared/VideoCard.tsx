@@ -91,6 +91,18 @@ export function VideoCard({
         await supabase.from('likes').insert({ user_id: user.id, video_id: id });
         setHasLiked(true);
         toast.success("已点赞");
+
+        if (user_id && user.id !== user_id) {
+            await supabase.from("notifications").insert({
+                user_id: user_id,
+                actor_id: user.id,
+                type: "like",
+                resource_id: id,
+                resource_type: "video",
+                content: `赞了你的视频${title ? `: ${title}` : ''}`,
+                is_read: false
+            });
+        }
     }
   };
 

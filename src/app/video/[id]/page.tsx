@@ -354,19 +354,19 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                 <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 bg-white/5 rounded-xl p-6 border border-white/10">
                     <div>
                         <span className="text-xs text-gray-500 block mb-1">分辨率</span>
-                        <span className="text-white font-medium">{video.width || 1920} x {video.height || 1080}</span>
+                        <span className="text-white font-medium">{video.width && video.height ? `${video.width} x ${video.height}` : "--"}</span>
                     </div>
                     <div>
                         <span className="text-xs text-gray-500 block mb-1">时长</span>
-                        <span className="text-white font-medium">{video.duration || 15} 秒</span>
+                        <span className="text-white font-medium">{video.duration ? `${video.duration} 秒` : "--"}</span>
                     </div>
                     <div>
                         <span className="text-xs text-gray-500 block mb-1">格式</span>
-                        <span className="text-white font-medium uppercase">{video.format || "MP4"}</span>
+                        <span className="text-white font-medium uppercase">{video.format || "--"}</span>
                     </div>
                     <div>
                         <span className="text-xs text-gray-500 block mb-1">大小</span>
-                        <span className="text-white font-medium">{video.size ? (video.size / 1024 / 1024).toFixed(1) + ' MB' : '12.5 MB'}</span>
+                        <span className="text-white font-medium">{video.size ? (video.size / 1024 / 1024).toFixed(1) + ' MB' : "--"}</span>
                     </div>
                 </div>
                 
@@ -388,6 +388,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                 videoId={video.id} 
                 title={video.title} 
                 thumbnail={video.thumbnail_url || video.url} 
+                price={video.price}
             />
 
             {/* Related Videos */}

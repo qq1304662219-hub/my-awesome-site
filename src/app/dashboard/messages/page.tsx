@@ -4,7 +4,11 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Loader2 } from 'lucide-react'
+import { Loader2, MessageSquare, Search } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Input } from '@/components/ui/input'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 interface Conversation {
   userId: string
@@ -16,6 +20,7 @@ interface Conversation {
 export default function MessagesList() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     fetchConversations()
@@ -83,62 +88,116 @@ export default function MessagesList() {
     setLoading(false)
   }
 
+  const filteredConversations = conversations.filter(conv => 
+    conv.user?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    conv.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    conv.lastMessage?.content?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   if (loading) {
     return (
-        <div className="flex items-center justify-center h-96">
+        <div className="flex items-center justify-center h-screen w-full">
             <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
         </div>
     )
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-white mb-6">我的私信</h1>
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="p-6 max-w-4xl mx-auto space-y-6"
+    >
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <MessageSquare className="h-6 w-6 text-blue-500" />
+            我的私信
+          </h1>
+          <p className="text-gray-400 mt-1 text-sm">
+            管理您的所有对话和消息
+          </p>
+        </div>
+        
+        <div className="relative w-full md:w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input 
+            placeholder="搜索对话..." 
+            className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-blue-500/50 focus:ring-blue-500/20"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
       
-      <div className="bg-[#0B1120] border border-white/10 rounded-xl overflow-hidden">
-        {conversations.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">
-                <p>暂无消息记录</p>
+      <div className="bg-[#0f172a]/50 border border-white/10 rounded-xl overflow-hidden backdrop-blur-sm min-h-[500px]">
+        {filteredConversations.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-[500px] text-gray-500">
+                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                  <MessageSquare className="h-8 w-8 text-gray-600" />
+                </div>
+                <p className="text-lg font-medium text-white/50 mb-2">暂无消息记录</p>
+                <p className="text-sm text-gray-500">
+                   {searchQuery ? "没有找到匹配的对话" : "当有人给您发消息时，它们会显示在这里"}
+                </p>
             </div>
         ) : (
             <div className="divide-y divide-white/5">
-                {conversations.map((conv) => (
-                    <Link 
-                        key={conv.userId} 
-                        href={`/dashboard/messages/${conv.userId}`}
-                        className="flex items-center gap-4 p-4 hover:bg-white/5 transition-colors group"
-                    >
-                        <Avatar className="w-12 h-12 border border-white/10">
-                            <AvatarImage src={conv.user?.avatar_url} />
-                            <AvatarFallback>{conv.user?.full_name?.[0] || 'U'}</AvatarFallback>
-                        </Avatar>
-                        
-                        <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-baseline mb-1">
-                                <h3 className="font-medium text-white group-hover:text-blue-400 transition-colors truncate">
-                                    {conv.user?.full_name || conv.user?.email || '未知用户'}
-                                </h3>
-                                <span className="text-xs text-gray-500">
-                                    {new Date(conv.lastMessage.created_at).toLocaleDateString()}
+                <AnimatePresence>
+                  {filteredConversations.map((conv, index) => (
+                      <motion.div
+                        key={conv.userId}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ delay: index * 0.05 }}
+                      >
+                        <Link 
+                            href={`/dashboard/messages/${conv.userId}`}
+                            className="flex items-center gap-4 p-4 hover:bg-white/5 transition-all group relative overflow-hidden"
+                        >
+                            {/* Hover Highlight */}
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                            <div className="relative">
+                              <Avatar className="w-12 h-12 border border-white/10 group-hover:border-blue-500/50 transition-colors">
+                                  <AvatarImage src={conv.user?.avatar_url} />
+                                  <AvatarFallback className="bg-blue-600/20 text-blue-200">
+                                    {conv.user?.full_name?.[0] || conv.user?.email?.[0]?.toUpperCase() || 'U'}
+                                  </AvatarFallback>
+                              </Avatar>
+                              {conv.unreadCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center border border-[#0f172a]">
+                                    {conv.unreadCount}
                                 </span>
+                              )}
                             </div>
-                            <div className="flex justify-between items-center">
-                                <p className="text-sm text-gray-400 truncate max-w-[80%]">
-                                    {conv.lastMessage.sender_id === conv.userId ? '' : '我: '}
-                                    {conv.lastMessage.content}
-                                </p>
-                                {conv.unreadCount > 0 && (
-                                    <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
-                                        {conv.unreadCount}
+                            
+                            <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-baseline mb-1">
+                                    <h3 className="font-medium text-white group-hover:text-blue-400 transition-colors truncate">
+                                        {conv.user?.full_name || conv.user?.email || '未知用户'}
+                                    </h3>
+                                    <span className="text-xs text-gray-500 group-hover:text-gray-400">
+                                        {new Date(conv.lastMessage.created_at).toLocaleDateString() === new Date().toLocaleDateString() 
+                                          ? new Date(conv.lastMessage.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                                          : new Date(conv.lastMessage.created_at).toLocaleDateString()}
                                     </span>
-                                )}
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <p className={`text-sm truncate max-w-[85%] ${conv.unreadCount > 0 ? 'text-gray-300 font-medium' : 'text-gray-500'}`}>
+                                        {conv.lastMessage.sender_id === conv.userId ? '' : <span className="text-blue-400/70 mr-1">我:</span>}
+                                        {conv.lastMessage.content}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                    </Link>
-                ))}
+                        </Link>
+                      </motion.div>
+                  ))}
+                </AnimatePresence>
             </div>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }

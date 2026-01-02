@@ -83,6 +83,19 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
             video_id: videoId,
             user_id: effectiveUser.id
             });
+
+        // Notification for Like
+        if (authorId && effectiveUser.id !== authorId) {
+            await supabase.from("notifications").insert({
+                user_id: authorId,
+                actor_id: effectiveUser.id,
+                type: "like",
+                resource_id: videoId,
+                resource_type: "video",
+                content: `赞了你的视频${videoTitle ? `: ${videoTitle}` : ''}`,
+                is_read: false
+            });
+        }
       }
     } catch (error) {
       // Revert on error
@@ -104,6 +117,19 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
                 video_id: videoId
             });
             if (error) console.error("Error recording download history:", error);
+
+            // Notification for Download
+            if (authorId && effectiveUser.id !== authorId) {
+                await supabase.from("notifications").insert({
+                    user_id: authorId,
+                    actor_id: effectiveUser.id,
+                    type: "system",
+                    resource_id: videoId,
+                    resource_type: "video",
+                    content: `下载了你的视频${videoTitle ? `: ${videoTitle}` : ''}`,
+                    is_read: false
+                });
+            }
         }
     } catch (error) {
       console.error("Error incrementing downloads:", error);

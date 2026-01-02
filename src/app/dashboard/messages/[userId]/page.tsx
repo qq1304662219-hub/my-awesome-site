@@ -5,10 +5,11 @@ import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Send, ArrowLeft, Loader2 } from 'lucide-react'
+import { Send, ArrowLeft, Loader2, MoreVertical } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface Message {
   id: number
@@ -147,6 +148,17 @@ export default function ChatPage({ params }: { params: Promise<{ userId: string 
 
         if (error) throw error
 
+        // Notification for Message
+        await supabase.from("notifications").insert({
+            user_id: userId, // receiver
+            actor_id: currentUser.id,
+            type: "system",
+            resource_id: currentUser.id,
+            resource_type: "user",
+            content: `给你发了一条私信: ${newMessage.trim().substring(0, 20)}${newMessage.trim().length > 20 ? '...' : ''}`,
+            is_read: false
+        });
+
         setMessages((prev) => [...prev, data])
         setNewMessage('')
         scrollToBottom()
@@ -176,21 +188,35 @@ export default function ChatPage({ params }: { params: Promise<{ userId: string 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] bg-[#020817] text-white">
       {/* Header */}
-      <div className="h-16 border-b border-white/10 flex items-center px-4 bg-[#0B1120]">
-        <Link href="/dashboard/messages" className="mr-4 hover:bg-white/10 p-2 rounded-full transition-colors">
-            <ArrowLeft className="w-5 h-5 text-gray-400" />
-        </Link>
-        <Avatar className="w-10 h-10 border border-white/10 mr-3">
-            <AvatarImage src={otherUser?.avatar_url} />
-            <AvatarFallback>{otherUser?.full_name?.[0] || otherUser?.email?.[0]}</AvatarFallback>
-        </Avatar>
-        <div>
-            <h2 className="font-semibold">{otherUser?.full_name || otherUser?.email}</h2>
-            <p className="text-xs text-gray-400">
-                {otherUser?.role === 'admin' ? '管理员' : '在线'}
-            </p>
+      <motion.div 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="h-16 border-b border-white/10 flex items-center justify-between px-4 bg-[#0B1120]/80 backdrop-blur-md z-10"
+      >
+        <div className="flex items-center">
+            <Link href="/dashboard/messages" className="mr-3 hover:bg-white/10 p-2 rounded-full transition-colors group">
+                <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-white" />
+            </Link>
+            <Avatar className="w-10 h-10 border border-white/10 mr-3">
+                <AvatarImage src={otherUser?.avatar_url} />
+                <AvatarFallback className="bg-blue-600/20 text-blue-200">
+                    {otherUser?.full_name?.[0] || otherUser?.email?.[0]}
+                </AvatarFallback>
+            </Avatar>
+            <div>
+                <h2 className="font-semibold text-sm md:text-base">{otherUser?.full_name || otherUser?.email}</h2>
+                <div className="flex items-center gap-1.5">
+                    <div className={`w-1.5 h-1.5 rounded-full ${otherUser?.role === 'admin' ? 'bg-yellow-500' : 'bg-green-500'}`} />
+                    <p className="text-xs text-gray-400">
+                        {otherUser?.role === 'admin' ? '管理员' : '在线'}
+                    </p>
+                </div>
+            </div>
         </div>
-      </div>
+        <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white hover:bg-white/10">
+            <MoreVertical className="w-5 h-5" />
+        </Button>
+      </motion.div>
 
       {/* Messages Area */}
       <div 
@@ -199,29 +225,43 @@ export default function ChatPage({ params }: { params: Promise<{ userId: string 
       >
         {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 animate-pulse">
+                    <Send className="w-6 h-6 text-gray-600" />
+                </div>
                 <p>暂无消息，打个招呼吧！</p>
             </div>
         ) : (
-            messages.map((msg) => {
+            messages.map((msg, index) => {
                 const isMe = msg.sender_id === currentUser.id
                 return (
-                    <div 
+                    <motion.div 
                         key={msg.id} 
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ duration: 0.2 }}
                         className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                     >
+                        {!isMe && (
+                             <Avatar className="w-8 h-8 border border-white/10 mr-2 mt-1 hidden md:block">
+                                <AvatarImage src={otherUser?.avatar_url} />
+                                <AvatarFallback className="bg-blue-600/20 text-blue-200 text-xs">
+                                    {otherUser?.full_name?.[0]}
+                                </AvatarFallback>
+                            </Avatar>
+                        )}
                         <div 
-                            className={`max-w-[70%] px-4 py-3 rounded-2xl text-sm ${
+                            className={`max-w-[85%] md:max-w-[70%] px-4 py-3 rounded-2xl text-sm shadow-lg ${
                                 isMe 
                                 ? 'bg-blue-600 text-white rounded-br-none' 
-                                : 'bg-[#1E293B] text-gray-200 rounded-bl-none'
+                                : 'bg-[#1E293B] text-gray-200 rounded-bl-none border border-white/5'
                             }`}
                         >
-                            <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                            <p className="whitespace-pre-wrap break-words leading-relaxed">{msg.content}</p>
                             <div className={`text-[10px] mt-1 opacity-70 ${isMe ? 'text-blue-200' : 'text-gray-500'} text-right`}>
                                 {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 )
             })
         )}
@@ -236,16 +276,18 @@ export default function ChatPage({ params }: { params: Promise<{ userId: string 
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="输入消息..."
-                    className="bg-black/20 border-white/10 text-white pr-10 min-h-[44px]"
+                    className="bg-black/20 border-white/10 text-white pr-10 min-h-[44px] focus-visible:ring-blue-500/50"
                 />
             </div>
-            <Button 
-                onClick={handleSend} 
-                disabled={sending || !newMessage.trim()}
-                className="bg-blue-600 hover:bg-blue-700 h-[44px] w-[44px] p-0 rounded-lg"
-            >
-                {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-            </Button>
+            <motion.div whileTap={{ scale: 0.95 }}>
+                <Button 
+                    onClick={handleSend} 
+                    disabled={sending || !newMessage.trim()}
+                    className="bg-blue-600 hover:bg-blue-700 h-[44px] w-[44px] p-0 rounded-lg shadow-lg shadow-blue-900/20 transition-all"
+                >
+                    {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                </Button>
+            </motion.div>
         </div>
       </div>
     </div>

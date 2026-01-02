@@ -25,4 +25,6 @@ export interface Video {
     avatar_url: string | null;
   };
   views_count?: number;
+  ai_model?: string;
+  prompt?: string;
 }
