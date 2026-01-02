@@ -51,7 +51,6 @@ export function VideoCard({
   price = 0,
   ai_model,
 }: VideoCardProps) {
-  const { t } = useI18n()
   const [isHovered, setIsHovered] = useState(false);
   const isVideoUrl = url?.match(/\.(mp4|webm|mov)$/i);
   // Prioritize image (thumbnail), fallback to url if it's an image
@@ -278,13 +277,13 @@ export function VideoCard({
                             size="icon" 
                             variant="secondary" 
                             className={`h-8 w-8 rounded-full backdrop-blur-md hover:bg-white hover:text-black border border-white/10 transition-colors ${hasLiked ? 'bg-blue-500 text-white' : 'bg-black/60'}`}
-                            aria-label={t.common.collect}
+                            aria-label="收藏"
                             onClick={handleLike}
                         >
                             <Heart className={`h-4 w-4 ${hasLiked ? 'fill-white' : ''}`} />
                         </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>{hasLiked ? "取消收藏" : t.common.collect}</p></TooltipContent>
+                    <TooltipContent side="bottom"><p>{hasLiked ? "取消收藏" : "收藏"}</p></TooltipContent>
                 </Tooltip>
                 <AddToCollectionModal 
                     videoId={id}
@@ -293,7 +292,7 @@ export function VideoCard({
                             size="icon" 
                             variant="secondary" 
                             className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md hover:bg-white hover:text-black border border-white/10 transition-colors" 
-                            aria-label={t.common.watch_later}
+                            aria-label="稍后观看"
                             onClick={(e) => {
                                 e.stopPropagation(); 
                             }}
