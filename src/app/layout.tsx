@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { SITE_CONFIG } from "@/lib/constants";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { FloatingActionButton } from "@/components/FloatingActionButton";
 
 const inter = Inter({ subsets: ["latin"] });
 

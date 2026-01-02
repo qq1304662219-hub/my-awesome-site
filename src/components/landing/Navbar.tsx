@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUIStore } from "@/store/useUIStore";
+import { useCartStore } from "@/store/useCartStore";
 import { useI18n } from "@/lib/i18n";
 import {
   DropdownMenu,
@@ -27,9 +28,16 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
   const router = useRouter();
   const { user, setUser, profile, setProfile } = useAuthStore();
   const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
+  const { count: cartCount, fetchCartCount } = useCartStore();
   const { t, locale, setLocale } = useI18n();
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      fetchCartCount();
+    }
+  }, [user, fetchCartCount]);
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -147,6 +155,11 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
                     <Link href="/cart" className="relative group">
                         <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
                             <ShoppingCart className="h-5 w-5" />
+                            {cartCount > 0 && (
+                              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-[#020817]">
+                                {cartCount > 99 ? '99+' : cartCount}
+                              </span>
+                            )}
                         </Button>
                     </Link>
 

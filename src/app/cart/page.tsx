@@ -9,6 +9,7 @@ import { Loader2, Trash2, ShoppingCart } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
 import { useAuthStore } from "@/store/useAuthStore"
+import { useCartStore } from "@/store/useCartStore"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 
@@ -31,6 +32,7 @@ export default function CartPage() {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [processing, setProcessing] = useState(false)
   const { user, profile, setProfile } = useAuthStore()
+  const { fetchCartCount } = useCartStore()
   const router = useRouter()
 
   useEffect(() => {
@@ -91,6 +93,7 @@ export default function CartPage() {
         return next
       })
       toast.success("已移除商品")
+      fetchCartCount()
     } catch (error) {
       toast.error("移除失败")
     }
@@ -164,6 +167,7 @@ export default function CartPage() {
         setProfile({ ...profile, balance: balance - total })
       }
 
+      await fetchCartCount()
       toast.success("支付成功！")
       router.push("/dashboard/orders")
     } catch (error: any) {

@@ -29,6 +29,7 @@ export default function ChatPage({ params }: { params: Promise<{ userId: string 
   const [otherUser, setOtherUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [showEmoji, setShowEmoji] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
@@ -303,24 +304,22 @@ export default function ChatPage({ params }: { params: Promise<{ userId: string 
                 >
                     <Smile className="w-5 h-5" />
                 </Button>
-
-                <Input
+                <Input 
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="输入消息..."
-                    className="bg-black/20 border-white/10 text-white pl-12 pr-4 min-h-[44px] focus-visible:ring-blue-500/50"
+                    className="pl-12 pr-4 bg-[#1E293B] border-white/10 focus:border-blue-500/50 min-h-[50px] py-3 rounded-xl"
+                    disabled={sending}
                 />
             </div>
-            <motion.div whileTap={{ scale: 0.95 }}>
-                <Button 
-                    onClick={handleSend} 
-                    disabled={sending || !newMessage.trim()}
-                    className="bg-blue-600 hover:bg-blue-700 h-[44px] w-[44px] p-0 rounded-lg shadow-lg shadow-blue-900/20 transition-all"
-                >
-                    {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                </Button>
-            </motion.div>
+            <Button 
+                onClick={handleSend} 
+                disabled={!newMessage.trim() || sending}
+                className="h-[50px] w-[50px] rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-900/20"
+            >
+                {sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+            </Button>
         </div>
       </div>
     </div>

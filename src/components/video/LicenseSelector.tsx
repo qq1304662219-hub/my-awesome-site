@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
 import { useAuthStore } from "@/store/useAuthStore"
+import { useCartStore } from "@/store/useCartStore"
 
 interface LicenseSelectorProps {
   videoId: string
@@ -20,6 +21,7 @@ interface LicenseSelectorProps {
 export function LicenseSelector({ videoId, title, thumbnail, price = 0 }: LicenseSelectorProps) {
   const router = useRouter()
   const { user } = useAuthStore()
+  const { fetchCartCount } = useCartStore()
   const [license, setLicense] = useState("personal")
   const [addingToCart, setAddingToCart] = useState(false)
   
@@ -68,6 +70,7 @@ export function LicenseSelector({ videoId, title, thumbnail, price = 0 }: Licens
           throw error
         }
       } else {
+        await fetchCartCount()
         toast.success("已加入购物车")
       }
     } catch (error) {
