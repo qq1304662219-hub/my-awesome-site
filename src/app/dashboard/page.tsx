@@ -35,7 +35,7 @@ interface VideoItem {
 import { useAuthStore } from '@/store/useAuthStore'
 
 export default function Dashboard() {
-  const { user, isLoading: authLoading } = useAuthStore()
+  const { user, profile, isLoading: authLoading } = useAuthStore()
   const [username, setUsername] = useState<string>('')
   const [videos, setVideos] = useState<VideoItem[]>([])
   const [totalIncome, setTotalIncome] = useState(0)
@@ -135,7 +135,7 @@ export default function Dashboard() {
       </div>
 
       {/* Profile Stats Overview */}
-      <ProfileStats user={user} stats={stats} />
+      <ProfileStats user={user} profile={profile} stats={stats} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Recent Videos */}

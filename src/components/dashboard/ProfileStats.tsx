@@ -10,6 +10,7 @@ import { motion } from "framer-motion"
 
 interface ProfileStatsProps {
   user: any
+  profile?: any
   stats: {
     videoCount: number
     totalViews: number
@@ -18,9 +19,13 @@ interface ProfileStatsProps {
   }
 }
 
-export function ProfileStats({ user, stats }: ProfileStatsProps) {
+export function ProfileStats({ user, profile, stats }: ProfileStatsProps) {
   const joinDate = user?.created_at ? new Date(user.created_at) : new Date()
   const daysJoined = Math.floor((new Date().getTime() - joinDate.getTime()) / (1000 * 3600 * 24))
+  
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0]
+  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url
+  const bio = profile?.bio || user?.user_metadata?.bio
   
   return (
     <motion.div 
@@ -39,7 +44,7 @@ export function ProfileStats({ user, stats }: ProfileStatsProps) {
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-75 group-hover:opacity-100 transition duration-500 blur"></div>
                 <Avatar className="h-24 w-24 border-2 border-[#0B1120] relative">
-                    <AvatarImage src={user?.user_metadata?.avatar_url} />
+                    <AvatarImage src={avatarUrl} />
                     <AvatarFallback className="text-3xl bg-[#1e293b] text-blue-400 font-bold">
                     {user?.email?.[0]?.toUpperCase()}
                     </AvatarFallback>
@@ -49,11 +54,11 @@ export function ProfileStats({ user, stats }: ProfileStatsProps) {
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
                   <h1 className="text-3xl font-bold text-white tracking-tight">
-                    {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+                    {displayName}
                   </h1>
                   <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1">
-                    {user?.role === 'super_admin' ? '👑 超级管理员' : 
-                     user?.role === 'admin' ? '🛡️ 管理员' : '✨ 创作者'}
+                    {profile?.role === 'super_admin' ? '👑 超级管理员' : 
+                     profile?.role === 'admin' ? '🛡️ 管理员' : '✨ 创作者'}
                   </Badge>
                 </div>
                 
@@ -62,9 +67,9 @@ export function ProfileStats({ user, stats }: ProfileStatsProps) {
                     <CalendarDays className="h-3.5 w-3.5" />
                     已加入 {daysJoined} 天
                   </span>
-                  {user?.user_metadata?.bio && (
+                  {bio && (
                      <span className="truncate max-w-xs block">
-                      {user.user_metadata.bio}
+                      {bio}
                      </span>
                   )}
                 </div>

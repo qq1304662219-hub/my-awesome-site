@@ -36,6 +36,7 @@ interface VideoCommentsProps {
 const CommentItem = ({ 
   comment, 
   currentUser, 
+  currentUserProfile,
   replyingTo, 
   setReplyingTo, 
   replyContent, 
@@ -90,7 +91,7 @@ const CommentItem = ({
              {isReplying && (
                 <div className="mt-3 flex gap-3 animate-in fade-in slide-in-from-top-2">
                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={currentUser?.user_metadata?.avatar_url} />
+                      <AvatarImage src={currentUserProfile?.avatar_url || currentUser?.user_metadata?.avatar_url} />
                       <AvatarFallback>ME</AvatarFallback>
                    </Avatar>
                    <div className="flex-1 space-y-2">
@@ -132,6 +133,7 @@ const CommentItem = ({
                    key={reply.id} 
                    comment={reply} 
                    currentUser={currentUser}
+                   currentUserProfile={currentUserProfile}
                    replyingTo={replyingTo}
                    setReplyingTo={setReplyingTo}
                    replyContent={replyContent}
@@ -151,7 +153,7 @@ const CommentItem = ({
 export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsProps) {
   const router = useRouter();
   // Try to use store user first (client side), fallback to prop (server side)
-  const { user: storeUser } = useAuthStore();
+  const { user: storeUser, profile } = useAuthStore();
   const user = storeUser || currentUser;
   
   const [comments, setComments] = useState<Comment[]>([]);
@@ -170,21 +172,36 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
 
   const fetchComments = async () => {
     try {
-      const { data, error } = await supabase
+      // 1. Fetch comments first
+      const { data: commentsData, error: commentsError } = await supabase
         .from("comments")
-        .select(`
-          *,
-          profiles:user_id (
-            full_name,
-            avatar_url
-          )
-        `)
+        .select("*")
         .eq("video_id", videoId)
         .order("created_at", { ascending: true });
 
-      if (error) throw error;
+      if (commentsError) throw commentsError;
+
+      // 2. Fetch profiles for these comments
+      const userIds = Array.from(new Set(commentsData.map(c => c.user_id)));
       
-      const rawComments = data as Comment[];
+      let profilesMap = new Map();
+      
+      if (userIds.length > 0) {
+        const { data: profilesData, error: profilesError } = await supabase
+          .from("profiles")
+          .select("id, full_name, avatar_url")
+          .in("id", userIds);
+          
+        if (!profilesError && profilesData) {
+          profilesData.forEach(p => profilesMap.set(p.id, p));
+        }
+      }
+      
+      const rawComments = commentsData.map(c => ({
+        ...c,
+        profiles: profilesMap.get(c.user_id) || null
+      })) as Comment[];
+
       setTotalCount(rawComments.length);
       const commentMap = new Map<string, Comment>();
       const rootComments: Comment[] = [];
@@ -213,6 +230,7 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
       setComments(rootComments);
     } catch (error) {
       console.error("Error fetching comments:", error);
+      toast.error("加载评论失败");
     } finally {
       setLoadingComments(false);
     }
@@ -336,7 +354,7 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
       {/* Comment Input */}
       <div className="flex gap-4">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={user?.user_metadata?.avatar_url} />
+          <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url} />
           <AvatarFallback>{user ? "ME" : "?"}</AvatarFallback>
         </Avatar>
         <div className="flex-1 space-y-2">
@@ -372,6 +390,7 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
               key={comment.id}
               comment={comment}
               currentUser={user}
+              currentUserProfile={profile}
               replyingTo={replyingTo}
               setReplyingTo={setReplyingTo}
               replyContent={replyContent}

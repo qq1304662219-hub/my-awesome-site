@@ -84,16 +84,13 @@ export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) 
                     <span>账号设置</span>
                 </Link>
                 <Link href="/dashboard/wallet" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
-                    <span>充值中心</span>
+                    <span>我的钱包</span>
                 </Link>
                 <Link href="/cart" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
                     <span>我的购物车</span>
                 </Link>
                 <Link href="/invite" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
                     <span className="text-yellow-400 font-medium">邀请有礼</span>
-                </Link>
-                <Link href="/dashboard/wallet" className="flex items-center justify-between px-2 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/5 rounded-md transition-colors cursor-pointer group/item">
-                    <span>财务管理 (提现)</span>
                 </Link>
             </div>
 
