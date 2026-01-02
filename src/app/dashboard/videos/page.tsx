@@ -150,7 +150,7 @@ export default function MyVideos() {
   const filteredVideos = videos.filter(v => {
     const matchesSearch = v.title.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === 'all' || 
-      (statusFilter === 'published' && v.status === 'approved') ||
+      (statusFilter === 'published' && v.status === 'published') ||
       (statusFilter === 'pending' && v.status === 'pending') ||
       (statusFilter === 'rejected' && v.status === 'rejected')
     return matchesSearch && matchesStatus
@@ -280,7 +280,7 @@ export default function MyVideos() {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                    {video.status === 'approved' ? (
+                                    {video.status === 'published' ? (
                                         <Badge className="bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20 gap-1">
                                             <CheckCircle className="h-3 w-3" /> 已发布
                                         </Badge>

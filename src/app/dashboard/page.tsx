@@ -175,11 +175,11 @@ export default function Dashboard() {
                             <div className="text-left sm:text-right w-full sm:w-auto mt-2 sm:mt-0 flex flex-row sm:flex-col justify-between sm:justify-center items-center sm:items-end">
                                 <p className="text-white font-medium">¥{video.price}</p>
                                 <Badge variant="secondary" className={`mt-0 sm:mt-1 ${
-                                    video.status === 'approved' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
+                                    video.status === 'published' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
                                     video.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 
                                     'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
                                 }`}>
-                                    {video.status === 'approved' ? '已发布' : video.status === 'rejected' ? '已拒绝' : '审核中'}
+                                    {video.status === 'published' ? '已发布' : video.status === 'rejected' ? '已拒绝' : '审核中'}
                                 </Badge>
                             </div>
                         </div>
