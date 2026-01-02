@@ -11,6 +11,7 @@ import { toast } from "sonner"
 import Image from "next/image"
 import { supabase } from "@/lib/supabase"
 import { useAuthStore } from "@/store/useAuthStore"
+import { PaymentQRCodeDialog } from "@/components/checkout/PaymentQRCodeDialog"
 
 function CheckoutContent() {
   const searchParams = useSearchParams()
@@ -199,15 +200,25 @@ function CheckoutContent() {
                     </Button>
                 ) : (
                     <div className="space-y-3">
-                         <Button 
+                        <Button 
                             className="w-full h-12 bg-black hover:bg-gray-800 text-white font-bold rounded-full text-lg"
                             onClick={handleRecharge}
                         >
                             去充值
                         </Button>
-                        <Button variant="outline" className="w-full h-12 rounded-full border-black/10 hover:bg-gray-50">
-                            扫码支付
-                        </Button>
+                        <PaymentQRCodeDialog 
+                            amount={price} 
+                            userId={user?.id || ''} 
+                            onSuccess={() => {
+                                toast.success("充值申请已提交，请前往钱包查看状态")
+                                router.push('/dashboard/wallet')
+                            }}
+                            trigger={
+                                <Button variant="outline" className="w-full h-12 rounded-full border-black/10 hover:bg-gray-50 text-black">
+                                    扫码支付
+                                </Button>
+                            }
+                        />
                     </div>
                 )}
             </div>

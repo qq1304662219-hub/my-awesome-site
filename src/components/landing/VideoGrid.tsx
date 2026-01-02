@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { VideoCard } from "@/components/shared/VideoCard"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
-import { AlertTriangle, RefreshCw } from "lucide-react"
+import { AlertTriangle, RefreshCw, Loader2 } from "lucide-react"
 
 interface FilterState {
   category: string | null;
@@ -174,7 +174,7 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
             <p className="text-gray-400">没有找到相关视频</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
           <AnimatePresence>
             {videos.map((video, index) => (
               <motion.div
@@ -195,6 +195,7 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
                   url={video.url}
                   price={video.price}
                   created_at={video.created_at}
+                  ai_model={video.ai_model}
                 />
               </motion.div>
             ))}

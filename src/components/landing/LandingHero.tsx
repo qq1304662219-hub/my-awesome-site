@@ -4,113 +4,145 @@ import { motion } from "framer-motion"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ArrowRight, Sparkles } from "lucide-react"
+import { ArrowRight, Sparkles, Search, PlayCircle, Zap } from "lucide-react"
+import { SearchInput, SearchInputHandle } from "@/components/shared/SearchInput"
+import { useEffect, useState, useRef } from "react"
+import { supabase } from "@/lib/supabase"
 
 export function LandingHero() {
   const router = useRouter()
+  const searchInputRef = useRef<SearchInputHandle>(null)
+  const [mounted, setMounted] = useState(false)
+  const [stats, setStats] = useState({
+    videos: "10W+",
+    creators: "5000+", 
+    time: "24h"
+  })
+
+  useEffect(() => {
+    setMounted(true)
+    const fetchStats = async () => {
+      try {
+        const { count: videoCount } = await supabase
+          .from('videos')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'published')
+          
+        const { count: creatorCount } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .eq('role', 'creator')
+          
+        if (videoCount !== null || creatorCount !== null) {
+          setStats(prev => ({
+            ...prev,
+            videos: videoCount ? (videoCount > 10000 ? `${(videoCount/10000).toFixed(1)}W+` : `${videoCount}+`) : "0+",
+            creators: creatorCount ? (creatorCount > 1000 ? `${(creatorCount/1000).toFixed(1)}k+` : `${creatorCount}+`) : "0+"
+          }))
+        }
+      } catch (e) {
+        console.error('Error fetching stats:', e)
+      }
+    }
+    fetchStats()
+  }, [])
 
   const handleLearnMore = () => {
-    router.push('/explore')
+    if (searchInputRef.current) {
+      searchInputRef.current.search()
+    } else {
+      router.push('/explore')
+    }
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20 bg-[#020817]">
-      {/* Background Effects */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Deep Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-blue-900/20 blur-[120px] rounded-full opacity-60" />
+    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-background">
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 z-0">
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--muted-foreground)/0.1)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--muted-foreground)/0.1)_1px,transparent_1px)] bg-[size:24px_24px]"></div>
         
-        {/* Flowing Lines SVG */}
-        <svg className="absolute w-full h-full opacity-40 scale-125" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M-200 600 C 200 400, 600 800, 1600 200" stroke="url(#grad1)" strokeWidth="2" className="animate-pulse" />
-            <path d="M-200 750 C 300 550, 700 950, 1600 350" stroke="url(#grad1)" strokeWidth="2" strokeDasharray="20 20" />
-            <path d="M-200 450 C 100 250, 500 650, 1600 50" stroke="url(#grad2)" strokeWidth="1.5" />
-            <path d="M-200 900 C 400 700, 800 1000, 1600 500" stroke="url(#grad2)" strokeWidth="2" opacity="0.5" />
-            <defs>
-                <linearGradient id="grad1" x1="0" y1="0" x2="1440" y2="900" gradientUnits="userSpaceOnUse">
-                    <stop offset="0" stopColor="#3b82f6" stopOpacity="0"/>
-                    <stop offset="0.5" stopColor="#8b5cf6" />
-                    <stop offset="1" stopColor="#ec4899" stopOpacity="0"/>
-                </linearGradient>
-                <linearGradient id="grad2" x1="0" y1="0" x2="1440" y2="900" gradientUnits="userSpaceOnUse">
-                    <stop offset="0" stopColor="#6366f1" stopOpacity="0"/>
-                    <stop offset="0.5" stopColor="#d946ef" />
-                    <stop offset="1" stopColor="#8b5cf6" stopOpacity="0"/>
-                </linearGradient>
-            </defs>
-        </svg>
-
-        {/* Particles */}
-        <div className="absolute inset-0">
-            {[...Array(15)].map((_, i) => (
-            <motion.div
-                key={i}
-                className="absolute bg-white rounded-full blur-[1px]"
-                initial={{ 
-                    x: Math.random() * 100 + "%", 
-                    y: Math.random() * 100 + "%", 
-                    opacity: Math.random() * 0.3 + 0.1, 
-                    scale: Math.random() * 0.5 + 0.5 
-                }}
-                animate={{ 
-                    y: [null, Math.random() * -50 - 50],
-                    opacity: [null, 0]
-                }}
-                transition={{ 
-                    duration: Math.random() * 10 + 15, 
-                    repeat: Infinity, 
-                    ease: "linear" 
-                }}
-                style={{
-                    width: Math.random() * 3 + 1 + "px",
-                    height: Math.random() * 3 + 1 + "px",
-                    left: Math.random() * 100 + "%",
-                    top: Math.random() * 100 + "%",
-                }}
-            />
-            ))}
-        </div>
+        {/* Radial Gradient */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_200px,hsl(var(--primary)/0.15),transparent)]"></div>
+        
+        {/* Moving Gradient Orbs */}
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-1000"></div>
       </div>
 
-      <div className="container relative z-10 px-4 text-center">
+      <div className="container relative z-10 px-4 text-center max-w-5xl mx-auto pt-20">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="space-y-8"
+          transition={{ duration: 0.6 }}
+          className="flex flex-col items-center"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300 mb-4 backdrop-blur-sm shadow-lg shadow-purple-500/10">
-            <Sparkles className="h-4 w-4 text-purple-400" />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-200 to-gray-400">AI 驱动的下一代视觉创意平台</span>
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 dark:text-blue-300 mb-8 backdrop-blur-sm hover:bg-blue-500/20 transition-all cursor-pointer group">
+            <Zap className="h-4 w-4 fill-blue-500/50 group-hover:fill-blue-500 transition-colors" />
+            <span className="text-sm font-medium">AI 视频生成与素材交易平台</span>
+            <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
           </div>
 
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white drop-shadow-2xl">
-            <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80 filter drop-shadow-lg">AI 驱动的</span>
-            <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 filter drop-shadow-[0_0_25px_rgba(168,85,247,0.4)] animate-gradient-x bg-[length:200%_auto]">
-              视觉灵感库
+          {/* Main Title */}
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground mb-6 leading-tight">
+            <span className="block">创意无界</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 animate-gradient-x">
+              AI Vision
             </span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
-            探索、创作、分享。数百万 AI 生成的视频与图像素材，
-            为你的创意项目提供无限可能。
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+            汇聚全球顶尖 AI 创作者，探索 Sora, Midjourney, Runway 等前沿模型生成的 4K 视频素材。
+            <br className="hidden md:block" />
+            为您的创意项目注入无限灵感。
           </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8"
-          >
-            <Button 
-                size="lg" 
-                className="h-12 px-8 text-base rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-500 hover:to-purple-500 transition-all shadow-lg shadow-blue-900/20"
-                onClick={handleLearnMore}
-            >
-              开始探索
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </motion.div>
+          {/* Search Section */}
+          <div className="w-full max-w-3xl mx-auto relative group">
+             <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
+             <div className="relative bg-card/80 backdrop-blur-xl rounded-2xl border border-border p-2 flex items-center shadow-2xl">
+                <Search className="h-6 w-6 text-muted-foreground ml-4" />
+                <SearchInput 
+                    ref={searchInputRef}
+                    className="flex-1"
+                    inputClassName="!bg-transparent !border-none !text-lg !h-14 !text-foreground !placeholder:text-muted-foreground !shadow-none !rounded-none focus:!ring-0"
+                    placeholder="搜索: 赛博朋克, 自然风光, 商业广告, 4K..."
+                    showIcon={false}
+                />
+                <Button onClick={handleLearnMore} size="lg" className="h-12 px-8 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium shadow-lg shadow-blue-500/25 transition-all hover:scale-105">
+                    搜索
+                </Button>
+             </div>
+          </div>
+
+          {/* Trending Tags */}
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+             <span className="text-muted-foreground text-sm py-1.5">热门趋势:</span>
+             {['Sora', 'Runway Gen-3', 'Midjourney V6', 'Cyberpunk', 'Nature', 'Abstract'].map((tag, i) => (
+                <Link key={tag} href={`/explore?q=${tag}`}>
+                    <span className="px-3 py-1.5 rounded-lg bg-muted border border-border text-muted-foreground text-sm hover:bg-muted/80 hover:text-foreground hover:border-foreground/20 transition-all cursor-pointer">
+                        {tag}
+                    </span>
+                </Link>
+             ))}
+          </div>
+
+          {/* Stats / Trust Indicators */}
+          <div className="mt-20 grid grid-cols-3 gap-8 md:gap-16 border-t border-border pt-10">
+              <div className="text-center">
+                  <h4 className="text-3xl font-bold text-foreground mb-1">{stats.videos}</h4>
+                  <p className="text-sm text-muted-foreground">优质素材</p>
+              </div>
+              <div className="text-center">
+                  <h4 className="text-3xl font-bold text-foreground mb-1">{stats.creators}</h4>
+                  <p className="text-sm text-muted-foreground">认证创作者</p>
+              </div>
+              <div className="text-center">
+                  <h4 className="text-3xl font-bold text-foreground mb-1">{stats.time}</h4>
+                  <p className="text-sm text-muted-foreground">极速审核</p>
+              </div>
+          </div>
         </motion.div>
       </div>
     </section>

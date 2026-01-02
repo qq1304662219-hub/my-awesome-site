@@ -9,24 +9,13 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CheckCircle, Trophy, MapPin, Users, Video, Search, ArrowRight } from "lucide-react"
+import { CheckCircle, Trophy, MapPin, Users, Video, Search, MessageSquare, Plus, Filter } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 import { useAuthStore } from "@/store/useAuthStore"
-
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { CreatorSidebar } from "@/components/creators/CreatorSidebar"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 interface Creator {
     id: string
@@ -38,6 +27,7 @@ interface Creator {
     verified_title: string
     badges: string[]
     location: string
+    job_title: string
     works_count: number
     followers_count: number
     views_count: number
@@ -47,21 +37,19 @@ interface Creator {
 export default function CreatorsPage() {
     const [creators, setCreators] = useState<Creator[]>([])
     const [loading, setLoading] = useState(true)
-    const [filter, setFilter] = useState("all") // all, verified, award
-    const { user } = useAuthStore()
-    const [isApplyOpen, setIsApplyOpen] = useState(false)
-    const [applicationForm, setApplicationForm] = useState({
-        portfolio: "",
-        bio: "",
-        social: ""
+    const [filters, setFilters] = useState({
+        role: "all",
+        location: "all",
+        verified: "all",
+        honors: "all"
     })
+    const { user } = useAuthStore()
 
     useEffect(() => {
         fetchCreators()
-    }, [filter])
+    }, [filters])
 
     const fetchCreators = async () => {
-        // ... (existing code)
         setLoading(true)
         try {
             let query = supabase
@@ -69,10 +57,26 @@ export default function CreatorsPage() {
                 .select('*')
                 .order('created_at', { ascending: false })
 
-            if (filter === 'verified') {
+            // Apply filters
+            if (filters.verified === 'verified') {
                 query = query.eq('is_verified', true)
-            } else if (filter === 'award') {
-                query = query.contains('badges', ['award_winner'])
+            }
+            if (filters.role !== 'all') {
+                query = query.eq('job_title', filters.role)
+            }
+            if (filters.location !== 'all') {
+                query = query.eq('location', filters.location)
+            }
+            if (filters.honors !== 'all') {
+                // Assuming badges is a text array or jsonb containing the tag
+                // Since Supabase filtering on arrays can be tricky with simple 'eq',
+                // we might need 'cs' (contains) for array column.
+                // Assuming 'badges' is a text[] column.
+                if (filters.honors === 'award_winner') {
+                    query = query.contains('badges', ['award_winner'])
+                } else if (filters.honors === 'recommended') {
+                    query = query.contains('badges', ['recommended'])
+                }
             }
 
             const { data, error } = await query
@@ -111,37 +115,32 @@ export default function CreatorsPage() {
         }
     }
 
-    const handleApply = () => {
+    const handleFilterChange = (key: string, value: string) => {
+        setFilters(prev => ({ ...prev, [key]: value }))
+    }
+
+    const handleFollow = async (creatorId: string) => {
         if (!user) {
             toast.error("请先登录")
             return
         }
-        setIsApplyOpen(true)
-    }
-
-    const submitApplication = async () => {
-        if (!applicationForm.portfolio || !applicationForm.bio) {
-             toast.error("请填写完整信息")
-             return
-        }
+        if (user.id === creatorId) return;
 
         try {
-            const { error } = await supabase
-                .from('creator_applications')
-                .insert({
-                    user_id: user!.id,
-                    portfolio_url: applicationForm.portfolio,
-                    bio: applicationForm.bio,
-                    social_links: { other: applicationForm.social }
-                })
-            
-            if (error) throw error
-            
-            toast.success("申请已提交，请等待审核")
-            setIsApplyOpen(false)
+            // Check if already following (simplified for UI demo)
+            // Real implementation should check state or DB first
+            await supabase.from('follows').insert({
+                follower_id: user.id,
+                following_id: creatorId
+            })
+            toast.success("关注成功")
+            // Ideally update local state to reflect change
         } catch (e) {
-            console.error(e)
-            toast.error("提交失败")
+            // Assume duplicate key error means already following, so unfollow
+            await supabase.from('follows').delete()
+                .eq('follower_id', user.id)
+                .eq('following_id', creatorId)
+            toast.success("已取消关注")
         }
     }
 
@@ -151,7 +150,7 @@ export default function CreatorsPage() {
             <Navbar />
             
             {/* Hero Section */}
-            <section className="relative pt-32 pb-20 overflow-hidden">
+            <section className="relative pt-24 pb-12 overflow-hidden border-b border-white/5">
                 <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-transparent pointer-events-none" />
                 <div className="container mx-auto px-4 text-center relative z-10">
                     <motion.div
@@ -159,188 +158,175 @@ export default function CreatorsPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                     >
-                        <Badge className="mb-4 bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/20 px-4 py-1">
-                            <Trophy className="w-3 h-3 mr-2" />
-                            汇聚全球顶尖 AI 创作者
-                        </Badge>
-                        <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-gray-400 bg-clip-text text-transparent">
-                            发现 AI 影像的未来力量
+                        <h1 className="text-3xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white via-blue-100 to-gray-400 bg-clip-text text-transparent">
+                            优质创作者生态
                         </h1>
-                        <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10">
-                            加入我们的优质创作者生态，展示您的作品，与行业领袖交流，获取商业机会。
+                        <p className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto mb-6">
+                            汇聚全球顶尖 AI 影像创作者，发现无限创意可能
                         </p>
                         <div className="flex justify-center gap-4">
-                            <Button size="lg" className="bg-blue-600 hover:bg-blue-700" onClick={handleApply}>
-                                申请入驻认证
-                            </Button>
-                            <Button size="lg" variant="outline" className="border-white/10 hover:bg-white/5">
-                                了解权益
-                            </Button>
+                            <Link href="/certification">
+                                <Button className="bg-blue-600 hover:bg-blue-700">
+                                    <Trophy className="w-4 h-4 mr-2" />
+                                    申请认证
+                                </Button>
+                            </Link>
                         </div>
                     </motion.div>
                 </div>
             </section>
 
-            {/* Filter & Search */}
-            <section className="container mx-auto px-4 mb-12">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                    <Tabs defaultValue="all" onValueChange={setFilter} className="w-full md:w-auto">
-                        <TabsList className="bg-white/5 border border-white/10">
-                            <TabsTrigger value="all">全部创作者</TabsTrigger>
-                            <TabsTrigger value="verified">认证创作者</TabsTrigger>
-                            <TabsTrigger value="award">获奖者</TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                    <div className="relative w-full md:w-72">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                        <Input 
-                            placeholder="搜索创作者..." 
-                            className="bg-white/5 border-white/10 pl-10 text-white placeholder:text-gray-500"
-                        />
+            <div className="container mx-auto px-4 py-8">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    {/* Sidebar */}
+                    <div className="md:col-span-3 hidden md:block">
+                        <div className="sticky top-24">
+                            <CreatorSidebar filters={filters} onFilterChange={handleFilterChange} />
+                        </div>
                     </div>
-                </div>
-            </section>
 
-            {/* Creators Grid */}
-            <section className="container mx-auto px-4 pb-20">
-                {loading ? (
-                    <div className="text-center py-20 text-gray-500">加载中...</div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {creators.map((creator, index) => (
-                            <motion.div
-                                key={creator.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                            >
-                                <Card className="bg-[#0f172a] border-white/10 overflow-hidden hover:border-blue-500/30 transition-all duration-300 group h-full flex flex-col">
-                                    <div className="p-6 pb-4 flex items-start justify-between">
-                                        <div className="flex gap-4">
-                                            <Link href={`/profile/${creator.id}`}>
-                                                <Avatar className="w-16 h-16 border-2 border-white/10 group-hover:border-blue-500 transition-colors">
-                                                    <AvatarImage src={creator.avatar_url} />
-                                                    <AvatarFallback>{creator.username?.[0]?.toUpperCase()}</AvatarFallback>
-                                                </Avatar>
-                                            </Link>
-                                            <div>
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <Link href={`/profile/${creator.id}`} className="font-bold text-lg text-white hover:text-blue-400 transition-colors">
-                                                        {creator.full_name || creator.username}
+                    {/* Main Content */}
+                    <div className="md:col-span-9">
+                        {/* Mobile Filter & Search */}
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+                            <div className="md:hidden w-full">
+                                {/* Mobile Filter Trigger could go here, for now just hidden on mobile */}
+                            </div>
+                            <div className="relative w-full sm:w-72 ml-auto">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                                <Input 
+                                    placeholder="搜索创作者..." 
+                                    className="bg-white/5 border-white/10 pl-10 text-white placeholder:text-gray-500 focus:border-blue-500 transition-colors"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Creators Grid */}
+                        {loading ? (
+                            <div className="flex flex-col space-y-6">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div key={i} className="h-[240px] bg-white/5 animate-pulse rounded-xl" />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col space-y-6">
+                                {creators.map((creator, index) => (
+                                    <motion.div
+                                        key={creator.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.05 }}
+                                    >
+                                        <div className="flex flex-col md:flex-row bg-[#0f172a] border border-white/10 rounded-xl overflow-hidden hover:border-blue-500/30 transition-all duration-300 group">
+                                            {/* Left: Profile Info */}
+                                            <div className="p-6 md:w-[280px] flex flex-col gap-5 border-b md:border-b-0 md:border-r border-white/10 shrink-0 bg-[#0f172a] relative">
+                                                <div className="flex items-center gap-4">
+                                                    <Link href={`/profile/${creator.id}`}>
+                                                        <Avatar className="w-14 h-14 border-2 border-white/10 group-hover:border-blue-500 transition-colors">
+                                                            <AvatarImage src={creator.avatar_url} />
+                                                            <AvatarFallback>{creator.username?.[0]?.toUpperCase()}</AvatarFallback>
+                                                        </Avatar>
                                                     </Link>
-                                                    {creator.is_verified && (
-                                                        <CheckCircle className="w-4 h-4 text-blue-500 fill-blue-500/20" />
+                                                    <div className="flex flex-col min-w-0">
+                                                        <div className="flex items-center gap-1.5 mb-1">
+                                                            <Link href={`/profile/${creator.id}`} className="font-bold text-lg text-white hover:text-blue-400 transition-colors truncate">
+                                                                {creator.full_name || creator.username}
+                                                            </Link>
+                                                            {creator.is_verified && (
+                                                                <CheckCircle className="w-4 h-4 text-blue-500 fill-blue-500/20" />
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center text-xs text-gray-400 truncate">
+                                                            {creator.location || '未知'}
+                                                            <span className="mx-1">|</span>
+                                                            {creator.job_title || '创作者'}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center justify-between text-sm text-gray-400 py-3 border-t border-b border-white/5">
+                                                    <div className="text-center flex-1 border-r border-white/5">
+                                                        <span className="text-white font-bold block text-lg mb-0.5">{creator.works_count || 0}</span>
+                                                        <span className="text-xs">创作</span>
+                                                    </div>
+                                                    <div className="text-center flex-1">
+                                                        <span className="text-white font-bold block text-lg mb-0.5">{creator.followers_count || 0}</span>
+                                                        <span className="text-xs">粉丝</span>
+                                                    </div>
+                                                </div>
+
+                                                <Button 
+                                                    className="w-full bg-[#F5B502] hover:bg-[#D9A102] text-black font-medium transition-colors"
+                                                    onClick={() => handleFollow(creator.id)}
+                                                >
+                                                    立即咨询
+                                                </Button>
+                                            </div>
+
+                                            {/* Right: Works */}
+                                            <div className="flex-1 p-5 bg-black/20 min-w-0 flex flex-col justify-center">
+                                                <div className="flex items-center justify-between mb-4 px-1">
+                                                    <span className="text-sm text-gray-400 font-medium">Ta的作品</span>
+                                                    <Link href={`/profile/${creator.id}`} className="text-xs text-blue-400 hover:text-blue-300 flex items-center transition-colors">
+                                                        查看全部 <span className="ml-0.5 text-[10px]">&gt;</span>
+                                                    </Link>
+                                                </div>
+                                                
+                                                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x">
+                                                    {creator.recent_works && creator.recent_works.length > 0 ? (
+                                                        creator.recent_works.map((work: any) => (
+                                                            <Link 
+                                                                href={`/video/${work.id}`} 
+                                                                key={work.id} 
+                                                                className="shrink-0 w-[200px] group/work snap-start"
+                                                            >
+                                                                <div className="aspect-video rounded-lg overflow-hidden relative bg-gray-800 border border-white/5">
+                                                                    {work.thumbnail_url ? (
+                                                                        <img 
+                                                                            src={work.thumbnail_url} 
+                                                                            alt={work.title || 'video'} 
+                                                                            className="w-full h-full object-cover group-hover/work:scale-105 transition-transform duration-500" 
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-600">
+                                                                            <Video className="w-8 h-8" />
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/work:opacity-100 transition-opacity flex items-center justify-center">
+                                                                        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                                                            <Video className="w-5 h-5 text-white fill-white" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <h4 className="text-sm text-gray-300 mt-2 truncate group-hover/work:text-blue-400 transition-colors px-1">
+                                                                    {work.title || '无标题'}
+                                                                </h4>
+                                                            </Link>
+                                                        ))
+                                                    ) : (
+                                                        <div className="w-full h-[112px] flex flex-col items-center justify-center text-gray-500 bg-white/5 rounded-lg border border-dashed border-white/10">
+                                                            <Video className="w-8 h-8 mb-2 opacity-50" />
+                                                            <span className="text-xs">暂无作品</span>
+                                                        </div>
                                                     )}
                                                 </div>
-                                                {creator.verified_title && (
-                                                    <div className="text-xs text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full inline-block mb-2">
-                                                        {creator.verified_title}
-                                                    </div>
-                                                )}
-                                                <p className="text-sm text-gray-400 line-clamp-2 min-h-[40px]">
-                                                    {creator.bio || "这个创作者很懒，什么都没写"}
-                                                </p>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    {/* Stats */}
-                                    <div className="px-6 py-2 flex gap-6 text-sm text-gray-500 border-b border-white/5">
-                                        <div className="flex items-center gap-1.5">
-                                            <Video className="w-3.5 h-3.5" />
-                                            <span>{creator.works_count || creator.recent_works?.length || 0} 作品</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <Users className="w-3.5 h-3.5" />
-                                            <span>{creator.followers_count} 粉丝</span>
-                                        </div>
-                                        {creator.location && (
-                                            <div className="flex items-center gap-1.5 ml-auto">
-                                                <MapPin className="w-3.5 h-3.5" />
-                                                <span>{creator.location}</span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Recent Works Showcase */}
-                                    <div className="p-4 bg-black/20 mt-auto">
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {creator.recent_works && creator.recent_works.length > 0 ? (
-                                                creator.recent_works.map((work: any) => (
-                                                    <Link href={`/video/${work.id}`} key={work.id} className="relative aspect-video rounded-md overflow-hidden bg-white/5 group/work">
-                                                        {work.thumbnail_url ? (
-                                                            <img src={work.thumbnail_url} alt={work.title} className="w-full h-full object-cover group-hover/work:scale-110 transition-transform duration-500" />
-                                                        ) : (
-                                                            <video src={work.url} className="w-full h-full object-cover" muted />
-                                                        )}
-                                                    </Link>
-                                                ))
-                                            ) : (
-                                                <div className="col-span-3 text-center py-4 text-xs text-gray-600">
-                                                    暂无公开作品
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </Card>
-                            </motion.div>
-                        ))}
+                                    </motion.div>
+                                ))}
+                            </div>
+                        )}
+                        
+                        {!loading && creators.length === 0 && (
+                            <div className="text-center py-20 text-gray-500">
+                                没有找到符合条件的创作者
+                            </div>
+                        )}
                     </div>
-                )}
-            </section>
+                </div>
+            </div>
 
             <Footer />
-
-            <Dialog open={isApplyOpen} onOpenChange={setIsApplyOpen}>
-                <DialogContent className="bg-[#1a1f2e] border-white/10 text-white">
-                    <DialogHeader>
-                        <DialogTitle>申请成为认证创作者</DialogTitle>
-                        <DialogDescription className="text-gray-400">
-                            请填写您的创作经历和作品集链接，我们将尽快审核。
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="portfolio">作品集链接 (Behance, VJshi, etc)</Label>
-                            <Input
-                                id="portfolio"
-                                value={applicationForm.portfolio}
-                                onChange={(e) => setApplicationForm({ ...applicationForm, portfolio: e.target.value })}
-                                className="bg-white/5 border-white/10"
-                                placeholder="https://..."
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="bio">个人简介 / 创作风格</Label>
-                            <Textarea
-                                id="bio"
-                                value={applicationForm.bio}
-                                onChange={(e) => setApplicationForm({ ...applicationForm, bio: e.target.value })}
-                                className="bg-white/5 border-white/10"
-                                placeholder="专注于科幻风格 AI 视频创作..."
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="social">其他社交媒体 (可选)</Label>
-                            <Input
-                                id="social"
-                                value={applicationForm.social}
-                                onChange={(e) => setApplicationForm({ ...applicationForm, social: e.target.value })}
-                                className="bg-white/5 border-white/10"
-                                placeholder="Twitter / Instagram / Bilibili"
-                            />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsApplyOpen(false)} className="border-white/10 hover:bg-white/5">
-                            取消
-                        </Button>
-                        <Button onClick={submitApplication} className="bg-blue-600 hover:bg-blue-700">
-                            提交申请
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </main>
     )
 }

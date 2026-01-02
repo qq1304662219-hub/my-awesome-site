@@ -11,7 +11,6 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUIStore } from "@/store/useUIStore";
 import { useCartStore } from "@/store/useCartStore";
-import { useI18n } from "@/lib/i18n";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,13 +22,13 @@ import {
 import { NotificationsPopover } from "@/components/layout/NotificationsPopover";
 import { UserHoverMenu } from "@/components/landing/UserHoverMenu";
 import { SearchInput } from "@/components/shared/SearchInput";
+import { ModeToggle } from "@/components/shared/ModeToggle";
 
 export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boolean; showMobileMenu?: boolean }) {
   const router = useRouter();
   const { user, setUser, profile, setProfile } = useAuthStore();
   const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
   const { count: cartCount, fetchCartCount } = useCartStore();
-  const { t, locale, setLocale } = useI18n();
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
@@ -49,12 +48,12 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
-    toast.success(t.auth.sign_out_success);
+    toast.success("已退出登录");
     router.refresh();
   };
 
   return (
-    <nav className="fixed top-0 w-full z-50 border-b border-white/10 bg-[#020817]/80 backdrop-blur-md">
+    <nav className="fixed top-0 w-full z-50 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-8">
@@ -67,52 +66,24 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
           
           {/* Desktop Nav - Only show if not simple mode */}
           {!simple && (
-            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-300">
-              <Link href="/explore" className="hover:text-white transition-colors font-semibold text-white">{t.nav.explore}</Link>
+            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+              <Link href="/discover" className="hover:text-foreground transition-colors font-semibold text-foreground">发现</Link>
               
-              <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center gap-1 hover:text-white transition-colors outline-none">
-                    {t.nav.categories} <ChevronDown className="h-4 w-4" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-[#1a1f2e] border-white/10 text-gray-300">
-                    <div className="px-2 py-1.5 text-xs font-semibold text-gray-500">{t.categories.scene}</div>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Live')}>{t.categories.live_bg}</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Commerce')}>{t.categories.ecommerce}</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Game')}>{t.categories.game}</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?category=Wallpaper')}>{t.categories.wallpaper}</DropdownMenuItem>
-                    
-                    <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 border-t border-white/10 mt-1 pt-2">{t.categories.style}</div>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Sci-Fi')}>{t.categories.cyberpunk}</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Chinese')}>{t.categories.chinese}</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Anime')}>{t.categories.anime}</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?style=Realistic')}>{t.categories.realistic}</DropdownMenuItem>
+              <Link href="/explore?category=All" className="hover:text-foreground transition-colors font-semibold">素材</Link>
+              
+              <Link href="/creators" className="hover:text-foreground transition-colors font-semibold bg-gradient-to-r from-amber-200 to-yellow-500 bg-clip-text text-transparent">创作者</Link>
 
-                    <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 border-t border-white/10 mt-1 pt-2">{t.categories.ratio}</div>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?ratio=16:9')}>{t.categories.horizontal}</DropdownMenuItem>
-                    <DropdownMenuItem className="hover:bg-white/10 hover:text-white cursor-pointer" onClick={() => router.push('/explore?ratio=9:16')}>{t.categories.vertical}</DropdownMenuItem>
-                  </DropdownMenuContent>
-              </DropdownMenu>
-
-              <Link href="/creators" className="hover:text-white transition-colors font-semibold bg-gradient-to-r from-amber-200 to-yellow-500 bg-clip-text text-transparent">创作者</Link>
-              <Link href="/events" className="hover:text-white transition-colors">{t.nav.events}</Link>
-              <Link href="/requests" className="hover:text-white transition-colors">{t.nav.requests}</Link>
-              <Link href="/classroom" className="hover:text-white transition-colors">{t.nav.classroom}</Link>
-              <Link href="/models" className="hover:text-white transition-colors">{t.nav.models}</Link>
+              <Link href="/events" className="hover:text-foreground transition-colors">活动</Link>
+              <Link href="/requests" className="hover:text-foreground transition-colors">悬赏任务</Link>
+              <Link href="/classroom" className="hover:text-foreground transition-colors">课堂</Link>
+              <Link href="/models" className="hover:text-foreground transition-colors">大模型</Link>
             </div>
           )}
         </div>
         
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
-            {/* Language Switcher */}
-            <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setLocale(locale === 'zh' ? 'en' : 'zh')}
-                className="text-gray-400 hover:text-white"
-            >
-                {locale === 'zh' ? 'EN' : '中'}
-            </Button>
+            <ModeToggle />
 
             {!simple && (
               <div className="hidden lg:block">
@@ -126,7 +97,7 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
                     {/* Balance Display */}
                     {!simple && (
                       <Link id="u-balance" href="/dashboard/wallet" className="hidden md:flex flex-col items-end mr-2 cursor-pointer hover:opacity-80 transition-opacity">
-                <span className="text-xs text-gray-400">余额</span>
+                <span className="text-xs text-muted-foreground">余额</span>
                 <span className="text-sm font-bold text-yellow-400">
                   {profile?.balance ? `¥${profile.balance}` : "¥0"}
                 </span>
@@ -137,7 +108,7 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
                       <Link href="/dashboard">
                           <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full">
                           <Upload className="mr-2 h-4 w-4" />
-                          {t.nav.upload}
+                          上传作品
                           </Button>
                       </Link>
                     )}
@@ -146,7 +117,7 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
                       <Link href="/admin/videos">
                         <Button size="sm" variant="destructive" className="hidden md:flex">
                           <span className="mr-2">🛡️</span>
-                          {t.nav.admin}
+                          管理后台
                         </Button>
                       </Link>
                     )}
@@ -154,10 +125,10 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
                     <UserHoverMenu user={user} profile={profile} onSignOut={handleSignOut} />
                     
                     <Link href="/cart" className="relative group">
-                        <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                        <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
                             <ShoppingCart className="h-5 w-5" />
                             {cartCount > 0 && (
-                              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-[#020817]">
+                              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-background">
                                 {cartCount > 99 ? '99+' : cartCount}
                               </span>
                             )}
@@ -170,8 +141,8 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
             ) : (
                 <div className="flex items-center gap-3">
                     <Link href="/auth?tab=login">
-                        <Button variant="ghost" className="text-gray-300 hover:text-white hover:bg-white/10">
-                            {t.nav.login}
+                        <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent">
+                            登录
                         </Button>
                     </Link>
                     <Link href="/auth?tab=register">
@@ -185,8 +156,9 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
 
         {/* Mobile Menu Button & Search */}
         <div className="md:hidden flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)} aria-label={t.common.search}>
-                <Search className="h-5 w-5 text-gray-300" />
+            <ModeToggle />
+            <Button variant="ghost" size="icon" onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)} aria-label="搜索">
+                <Search className="h-5 w-5 text-muted-foreground" />
             </Button>
             <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Toggle menu">
                 {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -196,58 +168,58 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
 
       {/* Mobile Search Bar */}
       {isMobileSearchOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full bg-[#020817] p-4 border-b border-white/10 animate-in slide-in-from-top-2 duration-200 z-40">
+        <div className="md:hidden absolute top-16 left-0 w-full bg-background p-4 border-b border-border animate-in slide-in-from-top-2 duration-200 z-40">
            <SearchInput className="w-full" autoFocus />
         </div>
       )}
 
       {/* Mobile Menu */}
       {showMobileMenu && isMobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full bg-[#020817] border-b border-white/10 p-4 flex flex-col gap-2 shadow-xl animate-in slide-in-from-top-5 duration-200">
-            <Link href="/" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">首页</Link>
-            <Link href="/explore?category=All" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">视频素材</Link>
-            <Link href="/requests" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">悬赏任务</Link>
-            <Link href="/events" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">活动</Link>
-            <Link href="/classroom" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">课堂</Link>
-            <Link href="/models" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-3 px-2 border-b border-white/5 hover:bg-white/5 rounded-md transition-colors">大模型</Link>
+        <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b border-border p-4 flex flex-col gap-2 shadow-xl animate-in slide-in-from-top-5 duration-200">
+            <Link href="/" onClick={closeMobileMenu} className="text-muted-foreground hover:text-foreground py-3 px-2 border-b border-border hover:bg-accent rounded-md transition-colors">首页</Link>
+            <Link href="/explore?category=All" onClick={closeMobileMenu} className="text-muted-foreground hover:text-foreground py-3 px-2 border-b border-border hover:bg-accent rounded-md transition-colors">素材</Link>
+            <Link href="/requests" onClick={closeMobileMenu} className="text-muted-foreground hover:text-foreground py-3 px-2 border-b border-border hover:bg-accent rounded-md transition-colors">悬赏任务</Link>
+            <Link href="/events" onClick={closeMobileMenu} className="text-muted-foreground hover:text-foreground py-3 px-2 border-b border-border hover:bg-accent rounded-md transition-colors">活动</Link>
+            <Link href="/classroom" onClick={closeMobileMenu} className="text-muted-foreground hover:text-foreground py-3 px-2 border-b border-border hover:bg-accent rounded-md transition-colors">课堂</Link>
+            <Link href="/models" onClick={closeMobileMenu} className="text-muted-foreground hover:text-foreground py-3 px-2 border-b border-border hover:bg-accent rounded-md transition-colors">大模型</Link>
             
             {user ? (
                 <div className="pt-4 flex flex-col gap-3">
                     <div className="flex items-center gap-3 px-2 pb-2">
-                        <Avatar className="h-10 w-10 border border-white/10">
+                        <Avatar className="h-10 w-10 border border-border">
                             <AvatarImage src={user.user_metadata?.avatar_url} />
                             <AvatarFallback>{user.email?.[0]?.toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                            <span className="text-white font-medium truncate max-w-[200px]">{user.email}</span>
+                            <span className="text-foreground font-medium truncate max-w-[200px]">{user.email}</span>
                             <span className="text-xs text-yellow-400">余额: {profile?.balance ? `¥${profile.balance}` : "¥0"}</span>
                         </div>
                     </div>
-                    <Link href="/dashboard" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2 px-2 hover:bg-white/5 rounded-md">
+                    <Link href="/dashboard" onClick={closeMobileMenu} className="text-muted-foreground hover:text-foreground py-2 px-2 hover:bg-accent rounded-md">
                         <Upload className="inline w-4 h-4 mr-2" /> 上传作品
                     </Link>
-                    <Link href="/cart" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2 px-2 hover:bg-white/5 rounded-md">
+                    <Link href="/cart" onClick={closeMobileMenu} className="text-muted-foreground hover:text-foreground py-2 px-2 hover:bg-accent rounded-md">
                         <ShoppingCart className="inline w-4 h-4 mr-2" /> 购物车
                     </Link>
                     {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
-                        <Link href="/admin/videos" onClick={closeMobileMenu} className="text-red-400 hover:text-red-300 py-2 px-2 hover:bg-white/5 rounded-md">
+                        <Link href="/admin/videos" onClick={closeMobileMenu} className="text-red-400 hover:text-red-300 py-2 px-2 hover:bg-accent rounded-md">
                             <span className="inline-block w-4 h-4 mr-2 text-center">🛡️</span> 管理后台
                         </Link>
                     )}
-                    <Link href={`/profile/${user.id}`} onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2 px-2 hover:bg-white/5 rounded-md">
+                    <Link href={`/profile/${user.id}`} onClick={closeMobileMenu} className="text-muted-foreground hover:text-foreground py-2 px-2 hover:bg-accent rounded-md">
                         <UserIcon className="inline w-4 h-4 mr-2" /> 个人主页
                     </Link>
-                    <Link href="/settings" onClick={closeMobileMenu} className="text-gray-300 hover:text-white py-2 px-2 hover:bg-white/5 rounded-md">
+                    <Link href="/settings" onClick={closeMobileMenu} className="text-muted-foreground hover:text-foreground py-2 px-2 hover:bg-accent rounded-md">
                         账号设置
                     </Link>
-                    <button onClick={() => { handleSignOut(); closeMobileMenu(); }} className="text-left text-gray-300 hover:text-white py-2 px-2 hover:bg-white/5 rounded-md w-full">
+                    <button onClick={() => { handleSignOut(); closeMobileMenu(); }} className="text-left text-muted-foreground hover:text-foreground py-2 px-2 hover:bg-accent rounded-md w-full">
                         <LogOut className="inline w-4 h-4 mr-2" /> 退出登录
                     </button>
                 </div>
             ) : (
                 <div className="pt-4 flex flex-col gap-3">
                     <Link href="/auth?tab=login" onClick={closeMobileMenu}>
-                        <Button variant="ghost" className="w-full text-gray-300 hover:text-white hover:bg-white/10 justify-start">
+                        <Button variant="ghost" className="w-full text-muted-foreground hover:text-foreground hover:bg-accent justify-start">
                             登录
                         </Button>
                     </Link>

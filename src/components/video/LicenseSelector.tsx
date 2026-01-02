@@ -16,14 +16,20 @@ interface LicenseSelectorProps {
   title: string
   thumbnail: string
   price?: number
+  selected?: string
+  onChange?: (value: string) => void
+  minimal?: boolean
 }
 
-export function LicenseSelector({ videoId, title, thumbnail, price = 0 }: LicenseSelectorProps) {
+export function LicenseSelector({ videoId, title, thumbnail, price = 0, selected, onChange, minimal = false }: LicenseSelectorProps) {
   const router = useRouter()
   const { user } = useAuthStore()
   const { fetchCartCount } = useCartStore()
-  const [license, setLicense] = useState("personal")
+  const [internalLicense, setInternalLicense] = useState("personal")
   const [addingToCart, setAddingToCart] = useState(false)
+  
+  const license = selected || internalLicense
+  const setLicense = onChange || setInternalLicense
   
   // Use price from props as base price, default to 70 if 0 or undefined
   const basePrice = price > 0 ? price : 70;
@@ -114,67 +120,71 @@ export function LicenseSelector({ videoId, title, thumbnail, price = 0 }: Licens
         </div>
       </RadioGroup>
 
-      <div className="space-y-3 mb-8">
-        <Button className="w-full h-12 bg-white text-black hover:bg-gray-200 font-bold text-base rounded-full" onClick={handleBuyNow}>
-          立即购买
-        </Button>
-        <Button variant="outline" className="w-full h-12 border-white/20 text-white hover:bg-white/10 rounded-full" onClick={handleAddToCart} disabled={addingToCart}>
-          {addingToCart ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShoppingCart className="mr-2 h-4 w-4" />} 加入购物车
-        </Button>
-      </div>
+      {!minimal && (
+        <>
+          <div className="space-y-3 mb-8">
+            <Button className="w-full h-12 bg-white text-black hover:bg-gray-200 font-bold text-base rounded-full" onClick={handleBuyNow}>
+              立即购买
+            </Button>
+            <Button variant="outline" className="w-full h-12 border-white/20 text-white hover:bg-white/10 rounded-full" onClick={handleAddToCart} disabled={addingToCart}>
+              {addingToCart ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShoppingCart className="mr-2 h-4 w-4" />} 加入购物车
+            </Button>
+          </div>
 
-      <div className="space-y-4">
-        <div className="flex justify-between items-center text-sm">
-          <span className="text-gray-400">包含权益</span>
-          <span className="text-blue-400 text-xs cursor-pointer">授权范围 &gt;</span>
-        </div>
-        
-        <div className="space-y-3 text-sm text-gray-300">
-          <div className="flex items-center gap-2">
-            <div className="h-5 w-5 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                <Check className="h-3 w-3 text-blue-400" />
+          <div className="space-y-4">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-400">包含权益</span>
+              <span className="text-blue-400 text-xs cursor-pointer">授权范围 &gt;</span>
             </div>
-            <span>企业/个人 永久商业授权</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-5 w-5 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                <ShieldCheck className="h-3 w-3 text-blue-400" />
-            </div>
-            <span>企业只拥有使用权/播放权/排他权</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-5 w-5 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                <Globe className="h-3 w-3 text-blue-400" />
-            </div>
-            <span>赛事/游戏/综艺/影视/专题/新闻插图</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-5 w-5 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                <Zap className="h-3 w-3 text-blue-400" />
-            </div>
-            <span>极速下载原始高清视频源文件</span>
-          </div>
-        </div>
-      </div>
-      
-      {/* 版权材料预览 - 静态图片占位 */}
-      <div className="mt-8 pt-6 border-t border-white/10">
-        <h4 className="text-sm font-medium text-gray-400 mb-3">版权材料</h4>
-        <div className="grid grid-cols-2 gap-3">
-             <div className="aspect-[3/4] bg-white/5 border border-white/10 rounded flex items-center justify-center relative overflow-hidden group cursor-pointer">
-                <div className="text-[10px] text-gray-500 text-center p-2">数字版权证书<br/>(示例)</div>
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Eye className="h-4 w-4 text-white" />
+            
+            <div className="space-y-3 text-sm text-gray-300">
+              <div className="flex items-center gap-2">
+                <div className="h-5 w-5 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                    <Check className="h-3 w-3 text-blue-400" />
                 </div>
-             </div>
-             <div className="aspect-[3/4] bg-white/5 border border-white/10 rounded flex items-center justify-center relative overflow-hidden group cursor-pointer">
-                <div className="text-[10px] text-gray-500 text-center p-2">肖像权授权书<br/>(示例)</div>
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Eye className="h-4 w-4 text-white" />
+                <span>企业/个人 永久商业授权</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-5 w-5 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                    <ShieldCheck className="h-3 w-3 text-blue-400" />
                 </div>
-             </div>
-        </div>
-      </div>
+                <span>企业只拥有使用权/播放权/排他权</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-5 w-5 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                    <Globe className="h-3 w-3 text-blue-400" />
+                </div>
+                <span>赛事/游戏/综艺/影视/专题/新闻插图</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-5 w-5 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                    <Zap className="h-3 w-3 text-blue-400" />
+                </div>
+                <span>极速下载原始高清视频源文件</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* 版权材料预览 - 静态图片占位 */}
+          <div className="mt-8 pt-6 border-t border-white/10">
+            <h4 className="text-sm font-medium text-gray-400 mb-3">版权材料</h4>
+            <div className="grid grid-cols-2 gap-3">
+                 <div className="aspect-[3/4] bg-white/5 border border-white/10 rounded flex items-center justify-center relative overflow-hidden group cursor-pointer">
+                    <div className="text-[10px] text-gray-500 text-center p-2">数字版权证书<br/>(示例)</div>
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Eye className="h-4 w-4 text-white" />
+                    </div>
+                 </div>
+                 <div className="aspect-[3/4] bg-white/5 border border-white/10 rounded flex items-center justify-center relative overflow-hidden group cursor-pointer">
+                    <div className="text-[10px] text-gray-500 text-center p-2">肖像权授权书<br/>(示例)</div>
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Eye className="h-4 w-4 text-white" />
+                    </div>
+                 </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

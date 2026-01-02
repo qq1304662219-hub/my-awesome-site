@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react"
 import { Search, X, History, Video } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
@@ -8,11 +8,24 @@ import { supabase } from "@/lib/supabase"
 interface SearchInputProps {
   initialQuery?: string;
   className?: string;
+  inputClassName?: string;
   placeholder?: string;
   autoFocus?: boolean;
+  showIcon?: boolean;
 }
 
-export function SearchInput({ initialQuery = "", className, placeholder = "搜索素材...", autoFocus }: SearchInputProps) {
+export interface SearchInputHandle {
+  search: () => void;
+}
+
+export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(({ 
+  initialQuery = "", 
+  className, 
+  inputClassName,
+  placeholder = "搜索素材...", 
+  autoFocus,
+  showIcon = true 
+}, ref) => {
   const router = useRouter()
   const [query, setQuery] = useState(initialQuery)
   const [history, setHistory] = useState<string[]>([])
@@ -20,6 +33,10 @@ export function SearchInput({ initialQuery = "", className, placeholder = "搜�
   const [isOpen, setIsOpen] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  useImperativeHandle(ref, () => ({
+    search: () => handleSearch(query)
+  }))
 
   useEffect(() => {
     const saved = localStorage.getItem("search_history")
@@ -91,7 +108,7 @@ export function SearchInput({ initialQuery = "", className, placeholder = "搜�
 
   return (
     <div ref={containerRef} className={`relative group ${className}`}>
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+        {showIcon && <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />}
         <input 
             ref={inputRef}
             type="text" 
@@ -101,7 +118,7 @@ export function SearchInput({ initialQuery = "", className, placeholder = "搜�
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
-            className="bg-white/5 border border-white/10 rounded-full py-1.5 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-blue-500/50 w-full transition-all placeholder:text-gray-500"
+            className={`bg-muted border border-border rounded-full py-1.5 ${showIcon ? 'pl-9' : 'pl-4'} pr-4 text-sm focus:outline-none focus:border-primary w-full transition-all placeholder:text-muted-foreground ${inputClassName}`}
         />
         {query && (
           <button 
@@ -141,28 +158,28 @@ export function SearchInput({ initialQuery = "", className, placeholder = "搜�
 
                 {history.length > 0 && (
                   <div>
-                    <div className="px-3 py-2 text-xs font-medium text-gray-500 border-b border-white/5 flex justify-between items-center bg-white/5">
+                    <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b border-border flex justify-between items-center bg-muted/50">
                         <span>搜索历史</span>
                         <button onClick={() => {
                             setHistory([])
                             localStorage.removeItem("search_history")
-                        }} className="hover:text-red-400">
+                        }} className="hover:text-destructive">
                             清空
                         </button>
                     </div>
                     {history.map((item, index) => (
                         <div 
                             key={index}
-                            className="px-3 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white cursor-pointer flex justify-between items-center group/item"
+                            className="px-3 py-2 text-sm text-foreground hover:bg-muted cursor-pointer flex justify-between items-center group/item"
                             onClick={() => handleSearch(item)}
                         >
                             <div className="flex items-center gap-2">
-                                <History className="w-3 h-3 text-gray-500" />
+                                <History className="w-3 h-3 text-muted-foreground" />
                                 <span>{item}</span>
                             </div>
                             <button 
                                 onClick={(e) => removeHistory(e, item)}
-                                className="opacity-0 group-hover/item:opacity-100 text-gray-500 hover:text-red-400 p-1"
+                                className="opacity-0 group-hover/item:opacity-100 text-muted-foreground hover:text-destructive p-1"
                             >
                                 <X className="w-3 h-3" />
                             </button>
@@ -174,4 +191,6 @@ export function SearchInput({ initialQuery = "", className, placeholder = "搜�
         )}
     </div>
   )
-}
+})
+
+SearchInput.displayName = "SearchInput"

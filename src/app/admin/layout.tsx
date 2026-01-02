@@ -3,7 +3,7 @@
 import { useAuthStore } from "@/store/useAuthStore"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Users, Video, LogOut, FileQuestion, GraduationCap, AlertTriangle, Wallet, CreditCard, LayoutDashboard, Settings } from "lucide-react"
+import { Users, Video, LogOut, FileQuestion, GraduationCap, AlertTriangle, Wallet, CreditCard, LayoutDashboard, Settings, UserCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AuthGuard } from "@/components/auth/AuthGuard"
@@ -32,6 +32,12 @@ function AdminContent({ children }: { children: React.ReactNode }) {
       href: "/admin/videos",
       icon: Video,
       show: true // Everyone (admins) can see
+    },
+    {
+      name: "创作者审核",
+      href: "/admin/creators",
+      icon: UserCheck,
+      show: true
     },
     {
       name: "举报处理",

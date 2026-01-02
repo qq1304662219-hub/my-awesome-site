@@ -131,6 +131,7 @@ export default async function PublicCollectionPage({ params }: { params: Promise
                     <VideoCard 
                         key={video.id} 
                         {...video} 
+                        ai_model={video.ai_model}
                         author={collection.profiles?.username} // Show collection owner or video owner? VideoCard expects video author usually.
                         // Actually VideoCard might fetch its own author if not provided, or show nothing.
                         // Ideally we show the video's author.

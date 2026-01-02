@@ -13,7 +13,8 @@ import {
   FolderPlus,
   MessageSquare,
   Download,
-  BarChart3
+  BarChart3,
+  X
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"

@@ -5,7 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { SITE_CONFIG } from "@/lib/constants";
 import { AuthProvider } from "@/components/auth/AuthProvider";
-import { FloatingActionButton } from "@/components/FloatingActionButton";
+import { FloatingToolbar } from "@/components/layout/FloatingToolbar";
+import { Footer } from "@/components/layout/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -53,13 +54,18 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
+          defaultTheme="system"
+          enableSystem
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
-            <FloatingActionButton />
+            <div className="flex min-h-screen flex-col">
+              <div className="flex-1">
+                {children}
+              </div>
+              <Footer />
+            </div>
+            <FloatingToolbar />
           </AuthProvider>
           <Toaster position="top-right" />
         </ThemeProvider>

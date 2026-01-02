@@ -16,7 +16,6 @@ import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useI18n } from "@/lib/i18n";
 import { AddToCollectionModal } from "@/components/video/AddToCollectionModal";
 
 export interface VideoCardProps {
@@ -33,6 +32,7 @@ export interface VideoCardProps {
   created_at?: string;
   showRank?: boolean;
   price?: number;
+  ai_model?: string;
 }
 
 export function VideoCard({
@@ -49,6 +49,7 @@ export function VideoCard({
   created_at,
   showRank = false,
   price = 0,
+  ai_model,
 }: VideoCardProps) {
   const { t } = useI18n()
   const [isHovered, setIsHovered] = useState(false);
@@ -166,12 +167,21 @@ export function VideoCard({
   return (
     <div 
       ref={containerRef}
-      className="group relative bg-[#0f172a] rounded-xl overflow-hidden border border-white/5 hover:border-white/20 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+      className="group relative bg-card rounded-xl overflow-hidden border border-border hover:border-foreground/20 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
       onMouseEnter={() => !isMobile && setIsHovered(true)}
       onMouseLeave={() => !isMobile && setIsHovered(false)}
     >
       {/* Thumbnail Area */}
-      <div className="aspect-video relative overflow-hidden bg-black/50">
+      <div className="aspect-video relative overflow-hidden bg-muted">
+            {/* AI Model Badge */}
+          {ai_model && (
+            <div className="absolute bottom-2 left-2 z-20">
+                <Badge variant="secondary" className="bg-black/60 hover:bg-black/70 text-white backdrop-blur-sm border border-white/10 text-[10px] px-1.5 py-0.5 shadow-sm">
+                    {ai_model}
+                </Badge>
+            </div>
+        )}
+        
         <Link href={`/video/${id}`} className="block w-full h-full" prefetch={true}>
           {/* Show Video on Hover if available */}
           {isVideoUrl && isHovered ? (
@@ -303,7 +313,7 @@ export function VideoCard({
              <div className="flex-shrink-0 pt-0.5">
                 {user_id ? (
                      <Link href={`/profile/${user_id}`} onClick={(e) => e.stopPropagation()}>
-                        <Avatar className="h-8 w-8 border border-white/10 hover:border-blue-500 transition-colors">
+                        <Avatar className="h-8 w-8 border border-border hover:border-blue-500 transition-colors">
                             <AvatarImage src={user_avatar} />
                             <AvatarFallback className="bg-blue-600 text-[10px] text-white">
                                 {author?.[0]?.toUpperCase() || "U"}
@@ -311,9 +321,9 @@ export function VideoCard({
                         </Avatar>
                      </Link>
                 ) : (
-                    <Avatar className="h-8 w-8 border border-white/10">
+                    <Avatar className="h-8 w-8 border border-border">
                         <AvatarImage src={user_avatar} />
-                        <AvatarFallback className="bg-gray-600 text-[10px] text-white">U</AvatarFallback>
+                        <AvatarFallback className="bg-muted text-[10px] text-muted-foreground">U</AvatarFallback>
                     </Avatar>
                 )}
              </div>
@@ -321,19 +331,19 @@ export function VideoCard({
              {/* Info */}
              <div className="flex-1 min-w-0">
                 <Link href={`/video/${id}`} className="block group/title">
-                    <h3 className="text-sm font-medium text-gray-200 group-hover/title:text-blue-400 transition-colors line-clamp-2 leading-tight mb-1">
+                    <h3 className="text-sm font-medium text-foreground group-hover/title:text-blue-400 transition-colors line-clamp-2 leading-tight mb-1">
                         {title}
                     </h3>
                 </Link>
                 
-                <div className="flex items-center justify-between text-[11px] text-gray-500">
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                     <div className="flex items-center gap-2">
                          {user_id ? (
                             <Link href={`/profile/${user_id}`} className="hover:text-blue-400 transition-colors cursor-pointer truncate" onClick={(e) => e.stopPropagation()}>
                                 {author || "Unknown"}
                             </Link>
                          ) : (
-                            <span className="hover:text-gray-300 transition-colors cursor-pointer truncate">
+                            <span className="hover:text-foreground transition-colors cursor-pointer truncate">
                                 {author || "Unknown"}
                             </span>
                          )}
@@ -342,7 +352,7 @@ export function VideoCard({
                 </div>
                 
                 <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-muted-foreground">
                         {created_at ? new Date(created_at).toLocaleDateString() : ''}
                     </span>
                     {price > 0 ? (

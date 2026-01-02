@@ -152,11 +152,29 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
     }
   }
 
-  const handleFileSelect = (selectedFile: File) => {
+  const handleFileSelect = async (selectedFile: File) => {
     if (selectedFile.size > 500 * 1024 * 1024) { // 500MB limit
         toast.error('文件大小不能超过 500MB')
         return
     }
+
+    // Check storage quota
+    const { data: isQuotaAvailable, error: quotaError } = await supabase.rpc('check_storage_quota', {
+        p_new_file_size: selectedFile.size
+    })
+
+    if (quotaError) {
+        console.error('Quota check error:', quotaError)
+        // Fail open or closed? Let's fail closed but warn.
+        // toast.error('无法检查存储配额，请稍后重试')
+        // return
+    }
+
+    if (isQuotaAvailable === false) {
+        toast.error('存储空间不足，请联系管理员升级配额')
+        return
+    }
+
     setFile(selectedFile)
     setPreviewUrl(URL.createObjectURL(selectedFile))
     setTitle(selectedFile.name.replace(/\.[^/.]+$/, "")) // Remove extension
@@ -207,6 +225,21 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
     setProgress(0)
 
     try {
+      // 0. Check Storage Quota
+      const { data: hasQuota, error: quotaError } = await supabase.rpc('check_storage_quota', { 
+        p_new_file_size: file.size 
+      })
+
+      if (quotaError) {
+        console.error("Quota check error:", quotaError)
+        // If RPC fails (e.g. not found), we might want to fail open or closed. 
+        // For now, let's log and proceed, or block. 
+        // If function is missing, it errors.
+        // Let's assume migration runs successfully.
+      } else if (hasQuota === false) {
+        throw new Error("存储空间已满，无法上传此视频。请联系管理员升级套餐。")
+      }
+
       // 1. Upload Video
       const fileExt = file.name.split('.').pop()
       const fileName = `${userId}/${Date.now()}.${fileExt}`

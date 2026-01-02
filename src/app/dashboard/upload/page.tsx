@@ -34,7 +34,7 @@ export default function UploadPage() {
   )
 
   return (
-    <div className="p-8 space-y-8 max-w-7xl mx-auto pb-24">
+    <div className="p-4 md:p-8 space-y-6 md:space-y-8 max-w-7xl mx-auto pb-24">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
             <h1 className="text-3xl font-bold text-white mb-2">上传作品</h1>
