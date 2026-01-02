@@ -83,6 +83,20 @@ export default function AdminVideosPage() {
             .eq('id', id)
 
         if (error) throw error
+
+        // Notification
+        const video = videos.find(v => v.id === id)
+        if (video) {
+            await supabase.from('notifications').insert({
+                user_id: video.user_id,
+                type: 'system',
+                content: `您的视频 "${video.title}" 已通过审核并发布`,
+                is_read: false,
+                resource_id: id,
+                resource_type: 'video'
+            })
+        }
+
         toast.success("视频已发布")
         fetchVideos()
         setSelectedVideo(null)
@@ -102,6 +116,20 @@ export default function AdminVideosPage() {
             .eq('id', id)
         
         if (error) throw error
+
+        // Notification
+        const video = videos.find(v => v.id === id)
+        if (video) {
+            await supabase.from('notifications').insert({
+                user_id: video.user_id,
+                type: 'system',
+                content: `您的视频 "${video.title}" 未通过审核`,
+                is_read: false,
+                resource_id: id,
+                resource_type: 'video'
+            })
+        }
+
         toast.success("已拒绝")
         fetchVideos()
         setSelectedVideo(null)

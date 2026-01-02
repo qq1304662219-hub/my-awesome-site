@@ -36,7 +36,30 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     checkAuth()
-  }, [])
+
+    // Realtime subscription
+    const channel = supabase
+      .channel('notifications_page')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications'
+        },
+        (payload) => {
+          if (currentUser && payload.new.user_id === currentUser.id) {
+            fetchNotifications(currentUser.id)
+            toast.info("收到新通知")
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [currentUser?.id])
 
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser()

@@ -80,22 +80,23 @@ export function NotificationsPopover() {
     let channel: any
     let interval: any
 
-    const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+    const setupSubscription = async (userId: string) => {
+      // Clean up existing channel if any
+      if (channel) supabase.removeChannel(channel)
 
+      // Initial fetch
       fetchNotifications()
 
       // Realtime subscription
       channel = supabase
-        .channel('notifications')
+        .channel('notifications_popover')
         .on(
           'postgres_changes',
           {
             event: 'INSERT',
             schema: 'public',
             table: 'notifications',
-            filter: `user_id=eq.${user.id}`
+            filter: `user_id=eq.${userId}`
           },
           () => {
             fetchNotifications()
@@ -103,16 +104,25 @@ export function NotificationsPopover() {
           }
         )
         .subscribe()
-      
-      // Polling fallback (every 60s)
-      interval = setInterval(() => {
-        fetchUnreadCount()
-      }, 60000)
     }
 
-    init()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setupSubscription(session.user.id)
+      } else {
+        setNotifications([])
+        setUnreadCount(0)
+        if (channel) supabase.removeChannel(channel)
+      }
+    })
+
+    // Polling fallback (every 60s)
+    interval = setInterval(() => {
+      fetchUnreadCount()
+    }, 60000)
 
     return () => {
+      subscription.unsubscribe()
       if (channel) supabase.removeChannel(channel)
       if (interval) clearInterval(interval)
     }
@@ -155,7 +165,8 @@ export function NotificationsPopover() {
         }
         break
       case 'system':
-        // Maybe go to a system messages page or just stay
+        // Navigate to notifications page for system messages
+        router.push('/notifications')
         break
     }
   }

@@ -79,8 +79,9 @@ export default function SettingsPage() {
       if (!file) return
 
       const fileExt = file.name.split('.').pop()
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`
-      const filePath = `avatars/${fileName}`
+      const fileName = `avatar-${Date.now()}.${fileExt}`
+      // Use user ID as folder to match RLS policy
+      const filePath = `${user.id}/${fileName}`
 
       // Upload to 'uploads' bucket which is used for videos as well
       const { error: uploadError } = await supabase.storage
@@ -233,6 +234,14 @@ export default function SettingsPage() {
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="grid gap-2">
+                                <Label className="text-gray-300">邮箱</Label>
+                                <Input 
+                                    value={user?.email || ""}
+                                    disabled
+                                    className="bg-black/10 border-white/5 text-gray-400 cursor-not-allowed"
+                                />
+                            </div>
+                            <div className="grid gap-2">
                                 <Label htmlFor="full_name" className="text-gray-300">昵称</Label>
                                 <Input 
                                     id="full_name"
@@ -313,6 +322,29 @@ export default function SettingsPage() {
                                 <Key className="w-4 h-4 mr-2" />
                                 更新密码
                             </Button>
+                        </div>
+
+                        <div className="pt-8 border-t border-white/10">
+                            <h3 className="text-red-500 font-bold mb-2">危险区域</h3>
+                            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 flex items-center justify-between">
+                                <div>
+                                    <h4 className="text-white font-medium">删除账号</h4>
+                                    <p className="text-sm text-gray-400 mt-1">
+                                        删除账号后，您的所有数据将被永久清除且无法恢复。
+                                    </p>
+                                </div>
+                                <Button 
+                                    variant="destructive" 
+                                    className="bg-red-600 hover:bg-red-700"
+                                    onClick={() => {
+                                        if (confirm("确定要注销账号吗？此操作不可逆。")) {
+                                            toast.error("为了保障您的权益，请联系客服人工处理注销申请。")
+                                        }
+                                    }}
+                                >
+                                    删除账号
+                                </Button>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

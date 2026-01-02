@@ -73,6 +73,18 @@ export default function AdminWithdrawalsPage() {
         })
         
         if (error) throw error
+
+        // Notification
+        const tx = withdrawals.find(t => t.id === id)
+        if (tx) {
+            await supabase.from('notifications').insert({
+                user_id: tx.user_id,
+                type: 'system',
+                content: `您的 ¥${tx.amount} 提现申请被拒绝: ${reason || "管理员拒绝"}`,
+                is_read: false
+            })
+        }
+
         toast.success("已拒绝并退款")
         fetchWithdrawals()
       } catch (error: any) {

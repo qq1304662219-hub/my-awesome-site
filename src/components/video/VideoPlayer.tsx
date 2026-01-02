@@ -47,10 +47,15 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
             if (onStart) onStart()
             
             if (videoId) {
-                try {
-                    await supabase.rpc('increment_views', { video_id: videoId })
-                } catch (err) {
-                    console.error("Failed to increment views:", err)
+                // Check session storage to prevent duplicate views in same session
+                const viewedKey = `viewed_${videoId}`
+                if (!sessionStorage.getItem(viewedKey)) {
+                    try {
+                        await supabase.rpc('increment_views', { video_id: videoId })
+                        sessionStorage.setItem(viewedKey, 'true')
+                    } catch (err) {
+                        console.error("Failed to increment views:", err)
+                    }
                 }
             }
         }
@@ -217,6 +222,11 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setShowControls(false)}
     >
+      {/* Watermark Overlay */}
+      <div className="absolute top-4 right-4 z-10 pointer-events-none select-none opacity-50 text-white font-bold text-sm tracking-wider mix-blend-difference">
+        AI VISION
+      </div>
+
       <video
         ref={videoRef}
         src={src}

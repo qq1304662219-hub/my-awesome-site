@@ -72,6 +72,17 @@ export function ProfileView({ profile, videos, likedVideos, isOwnProfile: initia
                 follower_id: user.id,
                 following_id: profile.id
             });
+
+            // Notification for Follow
+            if (user.id !== profile.id) {
+                await supabase.from('notifications').insert({
+                    user_id: profile.id,
+                    actor_id: user.id,
+                    type: 'follow',
+                    content: '关注了你',
+                    is_read: false
+                });
+            }
         } else {
             await supabase.from('follows').delete()
                 .eq('follower_id', user.id)
@@ -87,7 +98,7 @@ export function ProfileView({ profile, videos, likedVideos, isOwnProfile: initia
   };
 
   const handleMessage = () => {
-    toast.info("私信功能开发中...");
+    router.push(`/dashboard/messages/${profile.id}`);
   };
 
   const handleShare = () => {
