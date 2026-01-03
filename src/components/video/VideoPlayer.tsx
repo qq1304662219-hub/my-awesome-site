@@ -217,7 +217,7 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
 
   return (
     <div 
-      className={`relative group bg-black rounded-xl overflow-hidden border border-white/10 shadow-2xl ${!width ? 'aspect-video' : ''}`}
+      className={`relative group bg-black rounded-xl overflow-hidden border border-border shadow-2xl ${!width ? 'aspect-video' : ''}`}
       style={aspectRatioStyle}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setShowControls(false)}
@@ -246,9 +246,9 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
       {/* Center Play Button (if paused) */}
       {!isPlaying && !error && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="bg-white/20 backdrop-blur-sm p-6 rounded-full">
-            <Play className="h-12 w-12 text-white fill-white" />
-          </div>
+          <div className="bg-black/50 backdrop-blur-sm p-6 rounded-full border border-white/10">
+          <Play className="h-12 w-12 text-white fill-white" />
+        </div>
         </div>
       )}
 
@@ -269,12 +269,12 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 md:gap-4">
-            <button onClick={togglePlay} className="text-white hover:text-blue-400 transition-colors">
+            <button onClick={togglePlay} className="text-white hover:text-primary transition-colors">
               {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
             </button>
 
             <div className="flex items-center gap-2 group/volume">
-              <button onClick={toggleMute} className="text-white hover:text-blue-400 transition-colors">
+              <button onClick={toggleMute} className="text-white hover:text-primary transition-colors">
                 {isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
               </button>
               <div className="w-0 overflow-hidden group-hover/volume:w-24 transition-all duration-300">
@@ -288,7 +288,7 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
               </div>
             </div>
 
-            <div className="text-sm text-gray-300 font-mono">
+            <div className="text-sm text-white/80 font-mono">
               {formatTime(currentTime)} / {formatTime(duration)}
             </div>
           </div>
@@ -296,16 +296,16 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
           <div className="flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="text-white hover:text-blue-400 transition-colors flex items-center gap-1 text-sm font-medium">
+                <button className="text-white hover:text-primary transition-colors flex items-center gap-1 text-sm font-medium">
                   {playbackRate}x <Settings className="h-4 w-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-[#1e293b] border-white/10 text-white">
+              <DropdownMenuContent align="end" className="bg-popover border-border text-popover-foreground">
                 {[0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => (
                   <DropdownMenuItem 
                     key={rate}
                     onClick={() => handlePlaybackRate(rate)}
-                    className="focus:bg-blue-600 focus:text-white cursor-pointer"
+                    className="focus:bg-accent focus:text-accent-foreground cursor-pointer"
                   >
                     {rate}x
                   </DropdownMenuItem>
@@ -315,7 +315,7 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
 
             <button 
                 onClick={toggleLoop} 
-                className={`transition-colors ${isLooping ? 'text-blue-500' : 'text-white hover:text-blue-400'}`}
+                className={`transition-colors ${isLooping ? 'text-primary' : 'text-white hover:text-primary'}`}
                 title="循环播放"
             >
                 <Repeat className="h-5 w-5" />
@@ -323,13 +323,13 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
 
             <button 
                 onClick={togglePip} 
-                className={`transition-colors ${isPip ? 'text-blue-500' : 'text-white hover:text-blue-400'}`}
+                className={`transition-colors ${isPip ? 'text-primary' : 'text-white hover:text-primary'}`}
                 title="画中画"
             >
                 <PictureInPicture className="h-5 w-5" />
             </button>
 
-            <button onClick={toggleFullscreen} className="text-white hover:text-blue-400 transition-colors">
+            <button onClick={toggleFullscreen} className="text-white hover:text-primary transition-colors">
               {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
             </button>
           </div>

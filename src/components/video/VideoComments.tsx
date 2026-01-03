@@ -50,7 +50,7 @@ const CommentItem = ({
   
   return (
     <div className={`space-y-3 ${depth > 0 ? 'mt-3' : ''}`}>
-       <div className={`flex gap-3 p-3 rounded-lg ${depth === 0 ? 'bg-white/5' : ''} border border-white/5 group relative`}>
+       <div className={`flex gap-3 p-3 rounded-lg ${depth === 0 ? 'bg-muted/30' : ''} border border-border/50 group relative`}>
           <Link href={`/profile/${comment.user_id}`}>
              <Avatar className={`${depth === 0 ? 'h-10 w-10' : 'h-8 w-8'} cursor-pointer hover:opacity-80 transition-opacity`}>
                 <AvatarImage src={comment.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.user_id}`} />
@@ -60,13 +60,13 @@ const CommentItem = ({
           
           <div className="flex-1">
              <div className="flex items-center justify-between mb-1">
-                <Link href={`/profile/${comment.user_id}`} className="font-semibold text-sm hover:text-blue-400 transition-colors">
+                <Link href={`/profile/${comment.user_id}`} className="font-semibold text-sm hover:text-blue-500 transition-colors text-foreground">
                    {comment.profiles?.full_name || `User ${comment.user_id.slice(0, 6)}`}
                 </Link>
-                <span className="text-xs text-gray-500 flex items-center gap-2">
+                <span className="text-xs text-muted-foreground flex items-center gap-2">
                    {new Date(comment.created_at).toLocaleDateString()}
                    <button 
-                      className="hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
+                      className="hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
                       onClick={() => {
                           setReplyingTo(isReplying ? null : comment.id);
                           setReplyContent("");
@@ -77,7 +77,7 @@ const CommentItem = ({
                       回复
                    </button>
                    <button 
-                      className="hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => onReport(comment.id)}
                       title="举报"
                    >
@@ -86,7 +86,7 @@ const CommentItem = ({
                 </span>
              </div>
              
-             <p className="text-gray-300 text-sm leading-relaxed">{comment.content}</p>
+             <p className="text-foreground/90 text-sm leading-relaxed">{comment.content}</p>
 
              {isReplying && (
                 <div className="mt-3 flex gap-3 animate-in fade-in slide-in-from-top-2">
@@ -99,7 +99,7 @@ const CommentItem = ({
                          placeholder={`回复 @${comment.profiles?.full_name || 'User'}...`}
                          value={replyContent}
                          onChange={(e) => setReplyContent(e.target.value)}
-                         className="bg-white/5 border-white/10 text-white min-h-[60px] text-sm"
+                         className="bg-muted/50 border-border text-foreground min-h-[60px] text-sm"
                          autoFocus
                       />
                       <div className="flex justify-end gap-2">
@@ -107,7 +107,7 @@ const CommentItem = ({
                             size="sm" 
                             variant="ghost" 
                             onClick={() => setReplyingTo(null)}
-                            className="text-gray-400 hover:text-white"
+                            className="text-muted-foreground hover:text-foreground"
                          >
                             取消
                          </Button>
@@ -127,7 +127,7 @@ const CommentItem = ({
        </div>
 
        {comment.replies && comment.replies.length > 0 && (
-          <div className={`pl-4 ${depth > 0 ? 'border-l border-white/10 ml-2' : ''}`}>
+          <div className={`pl-4 ${depth > 0 ? 'border-l border-border ml-2' : ''}`}>
              {comment.replies.map((reply: any) => (
                 <CommentItem 
                    key={reply.id} 
@@ -362,14 +362,14 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
             placeholder={user ? "写下你的评论..." : "登录后发表评论"} 
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            className="bg-white/5 border-white/10 text-white min-h-[80px]"
+            className="bg-muted/50 border-input text-foreground min-h-[80px]"
             disabled={!user}
           />
           <div className="flex justify-end">
             <Button 
               onClick={() => handleCommentSubmit(null)} 
               disabled={!newComment.trim() || submitting || !user}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-primary hover:bg-primary/90"
             >
               {submitting ? "发送中..." : "发表评论"}
               <Send className="h-4 w-4 ml-2" />
@@ -381,9 +381,9 @@ export function VideoComments({ videoId, currentUser, authorId }: VideoCommentsP
       {/* Comments List */}
       <div className="space-y-4">
         {loadingComments ? (
-          <p className="text-gray-500">加载评论中...</p>
+          <p className="text-muted-foreground">加载评论中...</p>
         ) : comments.length === 0 ? (
-          <p className="text-gray-500">还没有评论，抢沙发！</p>
+          <p className="text-muted-foreground">还没有评论，抢沙发！</p>
         ) : (
           comments.map((comment) => (
             <CommentItem

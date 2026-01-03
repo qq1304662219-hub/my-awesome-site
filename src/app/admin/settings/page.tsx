@@ -199,16 +199,16 @@ export default function AdminSettings() {
                   type="password"
                   value={settings.midjourneyKey}
                   onChange={(e) => setSettings({...settings, midjourneyKey: e.target.value})}
-                  className="bg-white/5 border-white/10 text-white" 
+                  className="bg-background border-input text-foreground" 
                 />
               </div>
               <div className="grid gap-2">
-                <Label className="text-white">Stripe Publishable Key</Label>
+                <Label className="text-foreground">Stripe Publishable Key</Label>
                 <Input 
                   type="password"
                   value={settings.stripeKey}
                   onChange={(e) => setSettings({...settings, stripeKey: e.target.value})}
-                  className="bg-white/5 border-white/10 text-white" 
+                  className="bg-background border-input text-foreground" 
                 />
               </div>
             </CardContent>
@@ -220,7 +220,7 @@ export default function AdminSettings() {
         <Button 
           onClick={handleSave} 
           disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 min-w-[120px]"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground min-w-[120px]"
         >
           {loading ? (
             <>保存中...</>

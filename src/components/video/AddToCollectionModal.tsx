@@ -146,87 +146,126 @@ export function AddToCollectionModal({ videoId, trigger }: AddToCollectionModalP
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-0">
+          <Button variant="secondary" className="bg-secondary/50 hover:bg-secondary text-secondary-foreground border-0">
             <FolderPlus className="h-4 w-4 mr-2" />
             收藏
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="bg-[#0B1120] border-white/10 text-white sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>添加到收藏夹</DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-4 mt-4">
-          {/* Create New Collection */}
-          <div className="flex gap-2 items-end">
-            <div className="flex-1 space-y-2">
-              <Label>新建收藏夹</Label>
-              <Input 
-                value={newCollectionName}
-                onChange={(e) => setNewCollectionName(e.target.value)}
-                placeholder="输入收藏夹名称..."
-                className="bg-black/20 border-white/10 text-white"
-              />
+    <DialogContent className="sm:max-w-md bg-card border-border">
+      <DialogHeader>
+        <DialogTitle className="text-xl font-bold text-foreground">添加到收藏夹</DialogTitle>
+      </DialogHeader>
+      
+      <div className="flex flex-col gap-4 py-4">
+        <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+          {/* Create New Collection Trigger */}
+          <button
+            onClick={() => setShowCreateInput(true)}
+            className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-border hover:bg-muted/50 transition-colors group text-left"
+          >
+            <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+              <Plus className="w-6 h-6 text-primary" />
             </div>
-            <Button 
-              variant="outline" 
-              size="icon"
-              className={cn("mb-0.5 border-white/10 hover:bg-white/10", isPublic ? "text-blue-400" : "text-gray-400")}
-              onClick={() => setIsPublic(!isPublic)}
-              title={isPublic ? "公开" : "私密"}
-            >
-              {isPublic ? <Globe className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-            </Button>
-            <Button 
-              onClick={handleCreateCollection}
-              disabled={!newCollectionName.trim() || creating}
-              className="mb-0.5 bg-blue-600 hover:bg-blue-700"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
+            <div>
+              <h3 className="font-medium text-foreground">新建收藏夹</h3>
+              <p className="text-sm text-muted-foreground">创建新的分类来整理视频</p>
+            </div>
+          </button>
 
-          <div className="h-[1px] bg-white/10 my-2" />
+          {/* Create New Collection Input */}
+          {showCreateInput && (
+            <div className="p-3 rounded-lg bg-muted/50 border border-border animate-in fade-in slide-in-from-top-2">
+              <div className="space-y-3">
+                <Input
+                  placeholder="收藏夹名称"
+                  value={newCollectionName}
+                  onChange={(e) => setNewCollectionName(e.target.value)}
+                  className="bg-background border-border"
+                  autoFocus
+                />
+                <div className="flex justify-end gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={() => setShowCreateInput(false)}
+                    className="hover:bg-muted"
+                  >
+                    取消
+                  </Button>
+                  <Button 
+                    size="sm"
+                    onClick={handleCreateCollection}
+                    disabled={!newCollectionName.trim() || creating}
+                  >
+                    {creating ? "创建中..." : "创建"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Collections List */}
-          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
-            {loading ? (
-              <p className="text-center text-gray-500 py-4">加载中...</p>
-            ) : collections.length === 0 ? (
-              <p className="text-center text-gray-500 py-4">暂无收藏夹</p>
-            ) : (
-              collections.map(collection => (
-                <div 
+          {loading ? (
+            <div className="text-center py-8 text-muted-foreground">加载中...</div>
+          ) : collections.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              还没有收藏夹，创建一个吧
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {collections.map((collection) => (
+                <button
                   key={collection.id}
                   onClick={() => toggleCollection(collection.id)}
-                  className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 cursor-pointer transition-colors group"
+                  className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all ${
+                    selectedCollections.includes(collection.id)
+                      ? "bg-primary/10 border-primary/50"
+                      : "bg-card border-border hover:bg-muted/50"
+                  }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded bg-blue-500/20 flex items-center justify-center text-blue-400">
-                      <FolderPlus className="h-5 w-5" />
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center transition-colors ${
+                      selectedCollections.includes(collection.id)
+                        ? "bg-primary/20"
+                        : "bg-muted"
+                    }`}>
+                      <FolderHeart className={`w-6 h-6 ${
+                        selectedCollections.includes(collection.id)
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                      }`} />
                     </div>
-                    <div>
-                      <div className="font-medium text-sm flex items-center gap-2">
-                        {collection.name}
-                        {!collection.is_public && <Lock className="h-3 w-3 text-gray-500" />}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {new Date(collection.created_at).toLocaleDateString()}
-                      </div>
+                    <div className="text-left">
+                      <h3 className={`font-medium ${
+                        selectedCollections.includes(collection.id)
+                          ? "text-primary"
+                          : "text-foreground"
+                      }`}>{collection.name}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        {collection.count || 0} 个视频
+                      </p>
                     </div>
                   </div>
                   {selectedCollections.includes(collection.id) && (
-                    <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
-                      <Check className="h-4 w-4 text-white" />
-                    </div>
+                    <Check className="w-5 h-5 text-primary" />
                   )}
-                </div>
-              ))
-            )}
-          </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-      </DialogContent>
+
+        <div className="flex justify-end gap-3 pt-4 border-t border-border">
+          <Button variant="ghost" onClick={() => setOpen(false)} className="hover:bg-muted">
+            取消
+          </Button>
+          <Button onClick={() => setOpen(false)} className="bg-primary hover:bg-primary/90">
+            完成
+          </Button>
+        </div>
+      </div>
+    </DialogContent>
     </Dialog>
   )
 }

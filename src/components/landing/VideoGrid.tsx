@@ -19,6 +19,7 @@ interface FilterState {
   resolution?: string | null;
   duration?: string | null;
   fps?: string | null;
+  movement?: string | null;
 }
 
 interface VideoGridProps {
@@ -93,18 +94,33 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
         query = query.eq('ai_model', filters.model)
       }
       if (filters.resolution) {
-        query = query.eq('resolution', filters.resolution)
+        if (filters.resolution === '720p_low') {
+          query = query.in('resolution', ['720p', '480p', '360p'])
+        } else {
+          query = query.eq('resolution', filters.resolution)
+        }
+      }
+      if (filters.movement) {
+        query = query.eq('movement', filters.movement)
       }
       if (filters.fps) {
-        query = query.eq('fps', parseInt(filters.fps))
+        if (filters.fps === 'under_24') {
+          query = query.lt('fps', 24)
+        } else if (filters.fps === 'over_60') {
+          query = query.gte('fps', 60)
+        } else {
+          query = query.eq('fps', parseInt(filters.fps))
+        }
       }
       if (filters.duration) {
-        if (filters.duration === 'short') { // < 15s
-          query = query.lt('duration', 15)
-        } else if (filters.duration === 'medium') { // 15-60s
-          query = query.gte('duration', 15).lte('duration', 60)
-        } else if (filters.duration === 'long') { // > 60s
-          query = query.gt('duration', 60)
+        if (filters.duration === 'under_3s') {
+          query = query.lt('duration', 3)
+        } else if (filters.duration === '3_5s') {
+          query = query.gte('duration', 3).lte('duration', 5)
+        } else if (filters.duration === '5_10s') {
+          query = query.gte('duration', 5).lte('duration', 10)
+        } else if (filters.duration === 'over_10s') {
+          query = query.gt('duration', 10)
         }
       }
 

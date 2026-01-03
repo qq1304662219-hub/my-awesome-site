@@ -76,73 +76,73 @@ export default function AdminReportsPage() {
   }
 
   if (loading) {
-    return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-blue-500" /></div>
+    return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-primary" /></div>
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">举报处理</h1>
-        <Badge variant="outline" className="text-gray-400">待处理: {reports.filter(r => r.status === 'pending').length}</Badge>
+        <h1 className="text-3xl font-bold text-foreground">举报处理</h1>
+        <Badge variant="outline" className="text-muted-foreground border-border">待处理: {reports.filter(r => r.status === 'pending').length}</Badge>
       </div>
 
-      <div className="bg-[#0B1120] border border-white/10 rounded-xl overflow-hidden">
+      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
         <Table>
-          <TableHeader className="bg-white/5">
-            <TableRow className="border-white/10 hover:bg-transparent">
-              <TableHead className="text-gray-400">举报类型</TableHead>
-              <TableHead className="text-gray-400">举报人</TableHead>
-              <TableHead className="text-gray-400">原因</TableHead>
-              <TableHead className="text-gray-400">关联内容</TableHead>
-              <TableHead className="text-gray-400">状态</TableHead>
-              <TableHead className="text-gray-400 text-right">操作</TableHead>
+          <TableHeader className="bg-muted/50">
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="text-muted-foreground">举报类型</TableHead>
+              <TableHead className="text-muted-foreground">举报人</TableHead>
+              <TableHead className="text-muted-foreground">原因</TableHead>
+              <TableHead className="text-muted-foreground">关联内容</TableHead>
+              <TableHead className="text-muted-foreground">状态</TableHead>
+              <TableHead className="text-muted-foreground text-right">操作</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {reports.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-gray-500">暂无举报记录</TableCell>
+                <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">暂无举报记录</TableCell>
               </TableRow>
             ) : (
               reports.map((report) => (
-                <TableRow key={report.id} className="border-white/10 hover:bg-white/5">
+                <TableRow key={report.id} className="border-border hover:bg-muted/50 transition-colors">
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      {report.video_id ? <Video className="w-4 h-4 text-blue-400" /> : <MessageSquare className="w-4 h-4 text-green-400" />}
-                      <span className="capitalize">{report.video_id ? '视频' : '评论'}</span>
+                      {report.video_id ? <Video className="w-4 h-4 text-primary" /> : <MessageSquare className="w-4 h-4 text-green-500" />}
+                      <span className="capitalize text-foreground">{report.video_id ? '视频' : '评论'}</span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col">
-                        <span>{report.profiles?.full_name || 'Unknown'}</span>
-                        <span className="text-xs text-gray-500">{new Date(report.created_at).toLocaleDateString()}</span>
+                        <span className="text-foreground">{report.profiles?.full_name || 'Unknown'}</span>
+                        <span className="text-xs text-muted-foreground">{new Date(report.created_at).toLocaleDateString()}</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-red-300 bg-red-500/10 px-2 py-1 rounded text-sm">{report.reason}</span>
+                    <span className="text-red-500 bg-red-500/10 px-2 py-1 rounded text-sm">{report.reason}</span>
                   </TableCell>
                   <TableCell>
                     {report.video_id && report.videos ? (
-                        <Link href={`/video/${report.video_id}`} target="_blank" className="flex items-center gap-1 text-blue-400 hover:underline">
+                        <Link href={`/video/${report.video_id}`} target="_blank" className="flex items-center gap-1 text-primary hover:underline">
                             {report.videos.title.substring(0, 20)}...
                             <ExternalLink className="w-3 h-3" />
                         </Link>
                     ) : report.comment_id && report.comments ? (
-                        <div className="text-sm text-gray-300 max-w-[200px] truncate" title={report.comments.content}>
+                        <div className="text-sm text-muted-foreground max-w-[200px] truncate" title={report.comments.content}>
                             "{report.comments.content}"
-                            <Link href={`/video/${report.comments.video_id}`} target="_blank" className="ml-2 inline-block text-blue-400 hover:underline">
+                            <Link href={`/video/${report.comments.video_id}`} target="_blank" className="ml-2 inline-block text-primary hover:underline">
                                 <ExternalLink className="w-3 h-3" />
                             </Link>
                         </div>
                     ) : (
-                        <span className="text-gray-600 italic">内容已删除</span>
+                        <span className="text-muted-foreground italic">内容已删除</span>
                     )}
                   </TableCell>
                   <TableCell>
                     <Badge className={
-                        report.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                        report.status === 'resolved' ? 'bg-green-500/20 text-green-400' :
-                        'bg-gray-500/20 text-gray-400'
+                        report.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30' :
+                        report.status === 'resolved' ? 'bg-green-500/20 text-green-500 hover:bg-green-500/30' :
+                        'bg-muted text-muted-foreground hover:bg-muted/80'
                     }>
                         {report.status === 'pending' ? '待处理' : report.status === 'resolved' ? '已解决' : '已驳回'}
                     </Badge>
@@ -154,7 +154,7 @@ export default function AdminReportsPage() {
                             <Button 
                                 size="sm" 
                                 variant="ghost" 
-                                className="h-8 w-8 p-0 text-green-400 hover:bg-green-500/20"
+                                className="h-8 w-8 p-0 text-green-500 hover:bg-green-500/20"
                                 title="标记为已解决"
                                 onClick={() => handleUpdateStatus(report.id, 'resolved')}
                             >
@@ -163,7 +163,7 @@ export default function AdminReportsPage() {
                             <Button 
                                 size="sm" 
                                 variant="ghost" 
-                                className="h-8 w-8 p-0 text-gray-400 hover:bg-gray-500/20"
+                                className="h-8 w-8 p-0 text-muted-foreground hover:bg-muted"
                                 title="驳回举报"
                                 onClick={() => handleUpdateStatus(report.id, 'dismissed')}
                             >
@@ -172,7 +172,7 @@ export default function AdminReportsPage() {
                             <Button 
                                 size="sm" 
                                 variant="ghost" 
-                                className="h-8 w-8 p-0 text-red-400 hover:bg-red-500/20"
+                                className="h-8 w-8 p-0 text-destructive hover:bg-destructive/20"
                                 title="删除违规内容"
                                 onClick={() => handleDeleteContent(report)}
                             >

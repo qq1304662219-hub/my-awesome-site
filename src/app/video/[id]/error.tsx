@@ -17,15 +17,15 @@ export default function Error({
   }, [error])
  
   return (
-    <div className="min-h-screen bg-[#020817] flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-[#1a1f2e] border border-white/10 rounded-xl p-8 text-center space-y-6">
-        <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
-            <AlertTriangle className="w-8 h-8 text-red-500" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-card border border-border rounded-xl p-8 text-center space-y-6">
+        <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto">
+            <AlertTriangle className="w-8 h-8 text-destructive" />
         </div>
         
         <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-white">视频加载失败</h2>
-            <p className="text-gray-400 text-sm">
+            <h2 className="text-2xl font-bold text-foreground">视频加载失败</h2>
+            <p className="text-muted-foreground text-sm">
                 抱歉，我们无法加载此视频。可能是因为网络问题或视频已被删除。
             </p>
         </div>
@@ -34,7 +34,7 @@ export default function Error({
             <Button 
                 onClick={reset}
                 variant="outline"
-                className="border-white/10 hover:bg-white/10 text-white gap-2"
+                className="border-border hover:bg-accent text-foreground gap-2"
             >
                 <RefreshCcw className="w-4 h-4" />
                 重试
@@ -47,7 +47,7 @@ export default function Error({
         </div>
         
         {process.env.NODE_ENV === 'development' && (
-            <div className="mt-4 p-4 bg-black/30 rounded text-left overflow-auto max-h-32 text-xs font-mono text-red-300">
+            <div className="mt-4 p-4 bg-muted rounded text-left overflow-auto max-h-32 text-xs font-mono text-destructive">
                 {error.message}
             </div>
         )}

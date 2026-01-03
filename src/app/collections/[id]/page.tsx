@@ -69,11 +69,11 @@ export default async function PublicCollectionPage({ params }: { params: Promise
     .filter(v => v !== null) || []
 
   return (
-    <div className="min-h-screen bg-[#020817] text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Navbar />
       
       {/* Header */}
-      <div className="bg-[#0B1120] border-b border-white/10 pt-32 pb-12">
+      <div className="bg-muted/30 border-b border-border pt-32 pb-12">
         <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                 <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-900/20">
@@ -93,24 +93,24 @@ export default async function PublicCollectionPage({ params }: { params: Promise
                             </Badge>
                         )}
                     </div>
-                    <p className="text-gray-400 mb-4 max-w-2xl">
+                    <p className="text-muted-foreground mb-4 max-w-2xl">
                         {collection.description || "这个收藏夹没有描述"}
                     </p>
                     
                     <div className="flex items-center gap-4 text-sm">
                         <Link href={`/profile/${collection.user_id}`} className="flex items-center gap-2 group">
-                            <Avatar className="h-6 w-6 border border-white/10">
+                            <Avatar className="h-6 w-6 border border-border">
                                 <AvatarImage src={collection.profiles?.avatar_url} />
                                 <AvatarFallback>U</AvatarFallback>
                             </Avatar>
-                            <span className="text-gray-300 group-hover:text-white transition-colors">
+                            <span className="text-muted-foreground group-hover:text-foreground transition-colors">
                                 {collection.profiles?.username || collection.profiles?.full_name || "Unknown"}
                             </span>
                         </Link>
-                        <span className="text-gray-600">•</span>
-                        <span className="text-gray-400">{videos.length} 个视频</span>
-                        <span className="text-gray-600">•</span>
-                        <span className="text-gray-400">更新于 {new Date(collection.created_at).toLocaleDateString()}</span>
+                        <span className="text-muted-foreground">•</span>
+                        <span className="text-muted-foreground">{videos.length} 个视频</span>
+                        <span className="text-muted-foreground">•</span>
+                        <span className="text-muted-foreground">更新于 {new Date(collection.created_at).toLocaleDateString()}</span>
                     </div>
                 </div>
 
@@ -141,12 +141,12 @@ export default async function PublicCollectionPage({ params }: { params: Promise
                 ))}
             </div>
         ) : (
-            <div className="text-center py-20 bg-[#0B1120] rounded-xl border border-white/5">
-                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Folder className="w-8 h-8 text-gray-600" />
+            <div className="text-center py-20 bg-muted/30 rounded-xl border border-border">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Folder className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-medium text-white mb-2">这里空空如也</h3>
-                <p className="text-gray-400">这个收藏夹还没有添加任何视频</p>
+                <h3 className="text-lg font-medium text-foreground mb-2">这里空空如也</h3>
+                <p className="text-muted-foreground">这个收藏夹还没有添加任何视频</p>
             </div>
         )}
       </div>

@@ -71,25 +71,25 @@ export function PaymentQRCodeDialog({ amount, userId, onSuccess, trigger }: Paym
       <DialogTrigger asChild>
         {trigger || <Button variant="outline" className="w-full">扫码支付 (¥{amount})</Button>}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md bg-[#0f172a] border-white/10 text-white">
+      <DialogContent className="sm:max-w-md bg-card border-border text-card-foreground">
         <DialogHeader>
           <DialogTitle>扫码支付</DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             请扫描下方二维码支付 ¥{amount}，并填写流水号以便审核。
           </DialogDescription>
         </DialogHeader>
         
         <div className="flex flex-col items-center justify-center py-4 space-y-4">
             {/* Payment Method Tabs */}
-            <div className="flex p-1 bg-white/5 rounded-lg w-full mb-2">
+            <div className="flex p-1 bg-muted rounded-lg w-full mb-2">
                 <button 
-                    className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${paymentMethod === 'wechat' ? 'bg-green-600 text-white shadow' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                    className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${paymentMethod === 'wechat' ? 'bg-green-600 text-white shadow' : 'text-muted-foreground hover:text-foreground hover:bg-background/50'}`}
                     onClick={() => setPaymentMethod('wechat')}
                 >
                     微信支付
                 </button>
                 <button 
-                    className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${paymentMethod === 'alipay' ? 'bg-blue-600 text-white shadow' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                    className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${paymentMethod === 'alipay' ? 'bg-blue-600 text-white shadow' : 'text-muted-foreground hover:text-foreground hover:bg-background/50'}`}
                     onClick={() => setPaymentMethod('alipay')}
                 >
                     支付宝
@@ -97,7 +97,7 @@ export function PaymentQRCodeDialog({ amount, userId, onSuccess, trigger }: Paym
             </div>
 
             {/* QR Code */}
-            <div className="w-48 h-48 bg-white p-2 rounded-lg flex items-center justify-center relative overflow-hidden">
+            <div className="w-48 h-48 bg-muted/50 p-2 rounded-lg flex items-center justify-center relative overflow-hidden">
                 <Image 
                     src={paymentMethod === 'wechat' ? '/images/wechat-pay.jpg' : '/images/alipay-pay.jpg'} 
                     alt={paymentMethod === 'wechat' ? 'WeChat Pay' : 'Alipay'}
@@ -116,8 +116,8 @@ export function PaymentQRCodeDialog({ amount, userId, onSuccess, trigger }: Paym
                 </div>
             </div>
             
-            <div className="text-sm text-gray-400 text-center">
-                请使用{paymentMethod === 'wechat' ? '微信' : '支付宝'}扫码支付 <span className="text-white font-bold">¥{amount}</span>
+            <div className="text-sm text-muted-foreground text-center">
+                请使用{paymentMethod === 'wechat' ? '微信' : '支付宝'}扫码支付 <span className="text-foreground font-bold">¥{amount}</span>
             </div>
         </div>
 
@@ -127,7 +127,7 @@ export function PaymentQRCodeDialog({ amount, userId, onSuccess, trigger }: Paym
                 <Input 
                     id="transactionId" 
                     placeholder="请输入支付完成后的流水号后4位" 
-                    className="bg-white/5 border-white/10 text-white placeholder:text-gray-600"
+                    className="bg-muted/50 border-input text-foreground placeholder:text-muted-foreground"
                     value={transactionId}
                     onChange={(e) => setTransactionId(e.target.value)}
                 />
@@ -135,7 +135,7 @@ export function PaymentQRCodeDialog({ amount, userId, onSuccess, trigger }: Paym
         </div>
 
         <DialogFooter className="sm:justify-between flex-row items-center gap-4 mt-4">
-            <Button variant="ghost" onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white hover:bg-white/10">
+            <Button variant="ghost" onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground hover:bg-muted">
                 取消
             </Button>
             <Button onClick={handleSubmit} disabled={submitting} className={`text-white ${paymentMethod === 'wechat' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}>

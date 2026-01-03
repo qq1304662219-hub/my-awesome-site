@@ -168,26 +168,26 @@ export default function ChatPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen w-full bg-black">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      <div className="flex items-center justify-center h-screen w-full bg-background">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col h-screen bg-black text-white">
+    <div className="flex flex-col h-screen bg-background text-foreground">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#0B1120]">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-card">
         <div className="flex items-center gap-3">
             <Link href="/dashboard/messages">
-                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
             </Link>
             <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10 border border-white/10">
+                <Avatar className="h-10 w-10 border border-border">
                     <AvatarImage src={otherUser?.avatar_url} />
-                    <AvatarFallback className="bg-blue-600 text-white">
+                    <AvatarFallback className="bg-primary text-primary-foreground">
                         {otherUser?.full_name?.[0] || otherUser?.email?.[0]?.toUpperCase()}
                     </AvatarFallback>
                 </Avatar>
@@ -196,22 +196,22 @@ export default function ChatPage() {
                         {otherUser?.full_name || otherUser?.email}
                     </h2>
                     {otherUser?.email && (
-                        <p className="text-xs text-gray-500 hidden md:block">{otherUser.email}</p>
+                        <p className="text-xs text-muted-foreground hidden md:block">{otherUser.email}</p>
                     )}
                 </div>
             </div>
         </div>
-        <Button variant="ghost" size="icon" className="text-gray-400">
+        <Button variant="ghost" size="icon" className="text-muted-foreground">
             <MoreVertical className="h-5 w-5" />
         </Button>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/20">
         {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-500 opacity-50">
-                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4">
-                    <Send className="h-8 w-8 text-gray-400" />
+            <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-50">
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <Send className="h-8 w-8 text-muted-foreground" />
                 </div>
                 <p>开始对话</p>
             </div>
@@ -225,7 +225,7 @@ export default function ChatPage() {
                     <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                         {showTime && (
                             <div className="w-full text-center my-4">
-                                <span className="text-xs text-gray-600 bg-white/5 px-2 py-1 rounded-full">
+                                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
                                     {new Date(msg.created_at).toLocaleString([], {
                                         month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                                     })}
@@ -233,17 +233,17 @@ export default function ChatPage() {
                             </div>
                         )}
                         <div className={`flex max-w-[80%] md:max-w-[60%] gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                            <Avatar className="h-8 w-8 mt-1 border border-white/10 flex-shrink-0">
+                            <Avatar className="h-8 w-8 mt-1 border border-border flex-shrink-0">
                                 <AvatarImage src={isMe ? user?.user_metadata?.avatar_url : otherUser?.avatar_url} />
-                                <AvatarFallback className={`${isMe ? 'bg-blue-600' : 'bg-gray-700'} text-xs`}>
+                                <AvatarFallback className={`${isMe ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'} text-xs`}>
                                     {isMe ? '我' : otherUser?.full_name?.[0]}
                                 </AvatarFallback>
                             </Avatar>
                             
                             <div className={`group relative px-4 py-2 rounded-2xl text-sm break-words ${
                                 isMe 
-                                    ? 'bg-blue-600 text-white rounded-tr-sm' 
-                                    : 'bg-[#1e293b] text-gray-200 rounded-tl-sm border border-white/5'
+                                    ? 'bg-primary text-primary-foreground rounded-tr-sm' 
+                                    : 'bg-card text-foreground rounded-tl-sm border border-border'
                             }`}>
                                 {msg.content}
                                 <div className={`text-[10px] mt-1 opacity-50 flex items-center gap-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
@@ -262,19 +262,19 @@ export default function ChatPage() {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 border-t border-white/10 bg-[#0B1120]">
+      <div className="p-4 border-t border-border bg-card">
         <form onSubmit={handleSendMessage} className="flex gap-2 max-w-4xl mx-auto">
             <Input 
-                value={newMessage}
+                value={newMessage} 
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="输入消息..."
-                className="flex-1 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-blue-500/50"
+                className="flex-1 bg-background border-input text-foreground placeholder:text-muted-foreground focus:border-primary/50"
                 disabled={sending}
             />
             <Button 
                 type="submit" 
                 size="icon" 
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 disabled={!newMessage.trim() || sending}
             >
                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}

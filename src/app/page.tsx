@@ -54,7 +54,7 @@ export default function Home() {
       </section>
 
       {/* Featured Videos Section */}
-      <section className="w-full py-20 bg-muted/30">
+      <section className="w-full py-20">
         <div className="container mx-auto px-4">
             <div className="flex items-center justify-between mb-12">
                 <div>

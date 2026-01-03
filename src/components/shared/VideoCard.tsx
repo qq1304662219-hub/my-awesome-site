@@ -202,10 +202,10 @@ export function VideoCard({
         aspectRatio === "square" ? "aspect-square" :
         aspectRatio === "portrait" ? "aspect-[3/4]" : ""
       )}>
-            {/* AI Model Badge */}
+          {/* AI Model Badge */}
           {ai_model && (
             <div className="absolute bottom-2 left-2 z-20">
-                <Badge variant="secondary" className="bg-black/60 hover:bg-black/70 text-white backdrop-blur-sm border border-white/10 text-[10px] px-1.5 py-0.5 shadow-sm">
+                <Badge variant="secondary" className="bg-background/60 hover:bg-background/70 text-foreground backdrop-blur-sm border border-border text-[10px] px-1.5 py-0.5 shadow-sm">
                     {ai_model}
                 </Badge>
             </div>
@@ -274,7 +274,7 @@ export function VideoCard({
              <Button 
                 size="icon" 
                 variant="secondary" 
-                className="h-8 w-8 rounded-full bg-white/10 hover:bg-blue-600 text-white backdrop-blur-sm border border-white/20"
+                className="h-8 w-8 rounded-full bg-black/50 hover:bg-primary text-white backdrop-blur-sm border border-white/10"
                 onClick={handleAddToCart}
                 disabled={addingToCart}
                 aria-label="添加到购物车"
@@ -290,12 +290,12 @@ export function VideoCard({
                 className={`
                   ${
                     rank === 1
-                      ? "bg-yellow-500 text-black"
+                      ? "bg-yellow-500 text-black dark:bg-yellow-600"
                       : rank === 2
-                      ? "bg-gray-400 text-white"
+                      ? "bg-gray-400 text-white dark:bg-gray-500"
                       : rank === 3
-                      ? "bg-orange-600 text-white"
-                      : "bg-blue-500 text-white"
+                      ? "bg-orange-600 text-white dark:bg-orange-700"
+                      : "bg-blue-500 text-white dark:bg-blue-600"
                   } 
                   border-0 w-6 h-6 flex items-center justify-center rounded-full p-0 shadow-lg
                 `}
@@ -314,7 +314,7 @@ export function VideoCard({
 
           {/* Play Overlay */}
           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none z-20">
-            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-xl transform scale-90 group-hover:scale-100 transition-transform duration-300" aria-label="播放视频">
+            <div className="w-12 h-12 rounded-full bg-background/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-xl transform scale-90 group-hover:scale-100 transition-transform duration-300" aria-label="播放视频">
               <Play className="fill-white text-white ml-1 w-5 h-5" />
             </div>
           </div>
@@ -328,11 +328,11 @@ export function VideoCard({
                         <Button 
                             size="icon" 
                             variant="secondary" 
-                            className={`h-8 w-8 rounded-full backdrop-blur-md hover:bg-white hover:text-black border border-white/10 transition-colors ${hasLiked ? 'bg-blue-500 text-white' : 'bg-black/60'}`}
+                            className={`h-8 w-8 rounded-full backdrop-blur-md hover:bg-secondary hover:text-foreground border border-border transition-colors ${hasLiked ? 'bg-primary text-primary-foreground' : 'bg-background/60 text-muted-foreground'}`}
                             aria-label="收藏"
                             onClick={handleLike}
                         >
-                            <Heart className={`h-4 w-4 ${hasLiked ? 'fill-white' : ''}`} />
+                            <Heart className={`h-4 w-4 ${hasLiked ? 'fill-current' : ''}`} />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent side="bottom"><p>{hasLiked ? "取消收藏" : "收藏"}</p></TooltipContent>
@@ -364,9 +364,9 @@ export function VideoCard({
              <div className="flex-shrink-0 pt-0.5">
                 {user_id ? (
                      <Link href={`/profile/${user_id}`} onClick={(e) => e.stopPropagation()}>
-                        <Avatar className="h-8 w-8 border border-border hover:border-blue-500 transition-colors">
+                        <Avatar className="h-8 w-8 border border-border hover:border-primary transition-colors">
                             <AvatarImage src={user_avatar} />
-                            <AvatarFallback className="bg-blue-600 text-[10px] text-white">
+                            <AvatarFallback className="bg-primary text-[10px] text-primary-foreground">
                                 {author?.[0]?.toUpperCase() || "U"}
                             </AvatarFallback>
                         </Avatar>
@@ -382,7 +382,7 @@ export function VideoCard({
              {/* Info */}
              <div className="flex-1 min-w-0">
                 <Link href={`/video/${id}`} className="block group/title">
-                    <h3 className="text-sm font-medium text-foreground group-hover/title:text-blue-400 transition-colors line-clamp-2 leading-tight mb-1">
+                    <h3 className="text-sm font-medium text-foreground group-hover/title:text-primary transition-colors line-clamp-2 leading-tight mb-1">
                         {title}
                     </h3>
                 </Link>
@@ -390,7 +390,7 @@ export function VideoCard({
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                     <div className="flex items-center gap-2 min-w-0 overflow-hidden">
                          {user_id ? (
-                            <Link href={`/profile/${user_id}`} className="hover:text-blue-400 transition-colors cursor-pointer truncate" onClick={(e) => e.stopPropagation()}>
+                            <Link href={`/profile/${user_id}`} className="hover:text-primary transition-colors cursor-pointer truncate" onClick={(e) => e.stopPropagation()}>
                                 {author || "Unknown"}
                             </Link>
                          ) : (
@@ -407,11 +407,11 @@ export function VideoCard({
                         {created_at ? new Date(created_at).toLocaleDateString() : ''}
                     </span>
                     {price > 0 ? (
-                        <span className="text-yellow-500 font-bold text-xs">
+                        <span className="text-yellow-600 dark:text-yellow-400 font-bold text-xs">
                             {price} A币
                         </span>
                     ) : (
-                         <span className="text-green-500 font-bold text-xs">
+                         <span className="text-green-600 dark:text-green-400 font-bold text-xs">
                             免费
                         </span>
                     )}

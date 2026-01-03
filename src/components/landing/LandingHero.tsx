@@ -69,6 +69,9 @@ export function LandingHero() {
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-1000"></div>
 
+        {/* Top Fade Mask */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-background to-transparent pointer-events-none"></div>
+
         {/* Bottom Fade Mask */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none"></div>
       </div>
@@ -106,7 +109,7 @@ export function LandingHero() {
           {/* Search Section */}
           <div className="w-full max-w-3xl mx-auto relative group">
              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 group-hover:opacity-40 blur transition duration-500" />
-             <div className="relative flex items-center p-2 bg-background/80 backdrop-blur-xl border border-white/20 rounded-full shadow-2xl transition-all duration-300 hover:border-blue-500/50 hover:shadow-blue-500/20">
+             <div className="relative flex items-center p-2 bg-background/80 backdrop-blur-xl border border-border rounded-full shadow-2xl transition-all duration-300 hover:border-blue-500/50 hover:shadow-blue-500/20">
                 <Search className="w-6 h-6 text-muted-foreground ml-4" />
                 <SearchInput 
                     ref={searchInputRef}

@@ -167,7 +167,7 @@ export default function HelpPage() {
                 </div>
                 <DialogFooter>
                   <Button variant="ghost" onClick={() => setIsTicketOpen(false)} className="text-muted-foreground hover:text-foreground">取消</Button>
-                  <Button onClick={handleSubmitTicket} disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button onClick={handleSubmitTicket} disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                     {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     提交
                   </Button>

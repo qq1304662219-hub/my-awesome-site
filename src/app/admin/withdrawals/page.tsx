@@ -95,16 +95,16 @@ export default function AdminWithdrawalsPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-8">提现审核</h1>
+      <h1 className="text-3xl font-bold mb-8 text-foreground">提现审核</h1>
       
       {loading ? (
-          <div className="flex justify-center"><Loader2 className="animate-spin" /></div>
+          <div className="flex justify-center"><Loader2 className="animate-spin text-primary" /></div>
       ) : withdrawals.length === 0 ? (
-          <div className="text-gray-500">暂无提现申请</div>
+          <div className="text-muted-foreground">暂无提现申请</div>
       ) : (
-          <div className="bg-[#0f172a] border border-white/10 rounded-xl overflow-hidden">
+          <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
               <table className="w-full text-left text-sm">
-                  <thead className="bg-white/5 text-gray-400 border-b border-white/10">
+                  <thead className="bg-muted/50 text-muted-foreground border-b border-border">
                       <tr>
                           <th className="p-4">用户</th>
                           <th className="p-4">支付宝账号</th>
@@ -114,28 +114,28 @@ export default function AdminWithdrawalsPage() {
                           <th className="p-4">操作</th>
                       </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-border">
                       {withdrawals.map((tx) => (
-                          <tr key={tx.id} className="hover:bg-white/5">
+                          <tr key={tx.id} className="hover:bg-muted/50 transition-colors">
                               <td className="p-4">
-                                  <div className="font-medium text-white">{tx.profiles?.full_name || tx.profiles?.username || 'Unknown'}</div>
-                                  <div className="text-xs text-gray-500">{tx.profiles?.email}</div>
+                                  <div className="font-medium text-foreground">{tx.profiles?.full_name || tx.profiles?.username || 'Unknown'}</div>
+                                  <div className="text-xs text-muted-foreground">{tx.profiles?.email}</div>
                               </td>
-                              <td className="p-4 font-mono text-blue-400">
+                              <td className="p-4 font-mono text-primary">
                                 {tx.alipay_account}
                               </td>
-                              <td className="p-4 text-orange-400 font-bold">¥{tx.amount}</td>
+                              <td className="p-4 text-orange-500 font-bold">¥{tx.amount}</td>
                               <td className="p-4">
                                 <span className={`px-2 py-1 rounded text-xs ${
-                                    tx.status === 'approved' ? 'bg-green-500/10 text-green-400' :
-                                    tx.status === 'rejected' ? 'bg-red-500/10 text-red-400' :
-                                    'bg-yellow-500/10 text-yellow-400'
+                                    tx.status === 'approved' ? 'bg-green-500/10 text-green-500' :
+                                    tx.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
+                                    'bg-yellow-500/10 text-yellow-500'
                                 }`}>
                                     {tx.status === 'approved' ? '已打款' :
                                      tx.status === 'rejected' ? '已拒绝' : '待审核'}
                                 </span>
                               </td>
-                              <td className="p-4 text-gray-400">
+                              <td className="p-4 text-muted-foreground">
                                   {new Date(tx.created_at).toLocaleString('zh-CN')}
                               </td>
                               <td className="p-4">
@@ -143,7 +143,7 @@ export default function AdminWithdrawalsPage() {
                                       <div className="flex gap-2">
                                           <Button 
                                               size="sm" 
-                                              className="bg-green-600 hover:bg-green-700 h-8 px-2"
+                                              className="bg-green-600 hover:bg-green-700 h-8 px-2 text-white"
                                               onClick={() => handleApprove(tx.id, tx.amount)}
                                               title="确认已打款"
                                           >

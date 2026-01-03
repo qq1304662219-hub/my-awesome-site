@@ -115,13 +115,13 @@ export default function TicketsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'open':
-        return <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 border-yellow-500/20">待处理</Badge>
+        return <Badge variant="secondary" className="bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-500/20 border-yellow-500/20">待处理</Badge>
       case 'in_progress':
-        return <Badge variant="secondary" className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-blue-500/20">处理中</Badge>
+        return <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 border-blue-500/20">处理中</Badge>
       case 'closed':
-        return <Badge variant="secondary" className="bg-green-500/10 text-green-500 hover:bg-green-500/20 border-green-500/20">已结单</Badge>
+        return <Badge variant="secondary" className="bg-green-500/10 text-green-600 dark:text-green-400 hover:bg-green-500/20 border-green-500/20">已结单</Badge>
       default:
-        return <Badge variant="outline" className="text-gray-400 border-gray-700">{status}</Badge>
+        return <Badge variant="outline" className="text-muted-foreground border-border">{status}</Badge>
     }
   }
 
@@ -133,10 +133,10 @@ export default function TicketsPage() {
   })
 
   return (
-    <div className="flex h-screen bg-black">
+    <div className="flex h-screen bg-background">
       <DashboardSidebar />
       
-      <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-gradient-to-b from-black to-[#0B1120]">
+      <main className="flex-1 overflow-y-auto p-4 md:p-8">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -144,38 +144,38 @@ export default function TicketsPage() {
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-white flex items-center gap-3 mb-2">
-                <MessageCircle className="text-blue-500 h-8 w-8" />
+              <h1 className="text-3xl font-bold text-foreground flex items-center gap-3 mb-2">
+                <MessageCircle className="text-primary h-8 w-8" />
                 工单中心
               </h1>
-              <p className="text-gray-400">遇到问题？提交工单，我们会尽快为您解决</p>
+              <p className="text-muted-foreground">遇到问题？提交工单，我们会尽快为您解决</p>
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20">
+                <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20">
                   <Plus className="w-4 h-4 mr-2" />
                   提交工单
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-[#0f172a] border-white/10 text-white sm:max-w-[500px]">
+              <DialogContent className="bg-card border-border text-foreground sm:max-w-[500px]">
                 <DialogHeader>
                   <DialogTitle>提交新工单</DialogTitle>
-                  <DialogDescription className="text-gray-400">
+                  <DialogDescription className="text-muted-foreground">
                     请详细描述您遇到的问题，我们会尽快回复。
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="category" className="text-gray-200">问题类型</Label>
+                    <Label htmlFor="category" className="text-foreground">问题类型</Label>
                     <Select 
                       value={newTicket.category} 
                       onValueChange={(val) => setNewTicket({...newTicket, category: val})}
                     >
-                      <SelectTrigger id="category" className="bg-white/5 border-white/10 text-white">
+                      <SelectTrigger id="category" className="bg-muted/50 border-border text-foreground">
                         <SelectValue placeholder="选择问题类型" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#1e293b] border-white/10 text-white">
+                      <SelectContent className="bg-card border-border text-foreground">
                         <SelectItem value="general">一般问题</SelectItem>
                         <SelectItem value="account">账号相关</SelectItem>
                         <SelectItem value="payment">支付问题</SelectItem>
@@ -185,29 +185,29 @@ export default function TicketsPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="subject" className="text-gray-200">工单标题</Label>
+                    <Label htmlFor="subject" className="text-foreground">工单标题</Label>
                     <Input 
                       id="subject" 
                       placeholder="简要描述问题..." 
-                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+                      className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground"
                       value={newTicket.subject}
                       onChange={(e) => setNewTicket({...newTicket, subject: e.target.value})}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="message" className="text-gray-200">详细描述</Label>
+                    <Label htmlFor="message" className="text-foreground">详细描述</Label>
                     <Textarea 
                       id="message" 
                       placeholder="请详细描述您的问题，以便我们更快为您解决..." 
-                      className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 min-h-[120px]"
+                      className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground min-h-[120px]"
                       value={newTicket.message}
                       onChange={(e) => setNewTicket({...newTicket, message: e.target.value})}
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="text-gray-400 hover:text-white hover:bg-white/10">取消</Button>
-                  <Button onClick={handleSubmit} disabled={submitting} className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="text-muted-foreground hover:text-foreground hover:bg-muted/50">取消</Button>
+                  <Button onClick={handleSubmit} disabled={submitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                     {submitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -224,19 +224,19 @@ export default function TicketsPage() {
 
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="搜索工单..." 
-                className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-blue-500/50 focus:ring-blue-500/20"
+                className="pl-9 bg-card border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-[180px] bg-white/5 border-white/10 text-white">
+              <SelectTrigger className="w-full md:w-[180px] bg-card border-border text-foreground">
                 <SelectValue placeholder="状态筛选" />
               </SelectTrigger>
-              <SelectContent className="bg-[#1e293b] border-white/10 text-white">
+              <SelectContent className="bg-card border-border text-foreground">
                 <SelectItem value="all">全部状态</SelectItem>
                 <SelectItem value="open">待处理</SelectItem>
                 <SelectItem value="in_progress">处理中</SelectItem>
@@ -247,7 +247,7 @@ export default function TicketsPage() {
 
           {loading ? (
             <div className="flex justify-center py-20">
-              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
           ) : (
             <AnimatePresence mode="popLayout">
@@ -256,13 +256,13 @@ export default function TicketsPage() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="text-center py-20 bg-[#0f172a]/50 rounded-xl border border-dashed border-white/10 backdrop-blur-sm"
+                  className="text-center py-20 bg-card/50 rounded-xl border border-dashed border-border backdrop-blur-sm"
                 >
-                  <div className="bg-white/5 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
-                    <FileText className="h-8 w-8 text-gray-500" />
+                  <div className="bg-muted/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
+                    <FileText className="h-8 w-8 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-medium text-white mb-2">暂无工单记录</h3>
-                  <p className="text-gray-400 text-sm max-w-sm mx-auto">
+                  <h3 className="text-lg font-medium text-foreground mb-2">暂无工单记录</h3>
+                  <p className="text-muted-foreground text-sm max-w-sm mx-auto">
                     {searchQuery ? "未找到匹配的工单" : "您还没有提交过任何工单，有问题随时联系我们"}
                   </p>
                 </motion.div>
@@ -275,17 +275,17 @@ export default function TicketsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ delay: index * 0.05 }}
-                      className="group bg-[#0f172a]/80 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:border-blue-500/30 transition-all shadow-lg hover:shadow-blue-500/5"
+                      className="group bg-card border border-border rounded-xl p-6 hover:border-primary/30 transition-all shadow-lg hover:shadow-primary/5"
                     >
                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">
+                            <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
                               {ticket.subject}
                             </h3>
                             {getStatusBadge(ticket.status)}
                           </div>
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <FileText className="w-3 h-3" />
                               ID: {ticket.id.slice(0, 8)}
@@ -295,7 +295,7 @@ export default function TicketsPage() {
                               {format(new Date(ticket.created_at), "yyyy-MM-dd HH:mm")}
                             </span>
                             {ticket.category && (
-                                <Badge variant="outline" className="text-gray-400 border-gray-700 py-0 h-5">
+                                <Badge variant="outline" className="text-muted-foreground border-border py-0 h-5">
                                     {ticket.category === 'general' && '一般问题'}
                                     {ticket.category === 'account' && '账号相关'}
                                     {ticket.category === 'payment' && '支付问题'}
@@ -308,7 +308,7 @@ export default function TicketsPage() {
                         </div>
                       </div>
 
-                      <div className="bg-black/20 rounded-lg p-4 mb-4 text-gray-300 text-sm whitespace-pre-wrap border border-white/5">
+                      <div className="bg-muted/30 rounded-lg p-4 mb-4 text-foreground/80 text-sm whitespace-pre-wrap border border-border">
                         {ticket.message}
                       </div>
 
@@ -316,16 +316,16 @@ export default function TicketsPage() {
                         <motion.div 
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
-                          className="bg-blue-900/10 border border-blue-500/20 rounded-lg p-4 ml-4 md:ml-8 relative"
+                          className="bg-primary/5 border border-primary/20 rounded-lg p-4 ml-4 md:ml-8 relative"
                         >
-                          <div className="absolute left-0 top-6 -translate-x-full w-4 md:w-8 h-[1px] bg-blue-500/20" />
-                          <div className="flex items-center gap-2 text-blue-400 text-sm font-bold mb-2">
-                            <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
+                          <div className="absolute left-0 top-6 -translate-x-full w-4 md:w-8 h-[1px] bg-primary/20" />
+                          <div className="flex items-center gap-2 text-primary text-sm font-bold mb-2">
+                            <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
                               <MessageCircle className="w-3 h-3" />
                             </div>
                             客服回复
                           </div>
-                          <div className="text-gray-300 text-sm whitespace-pre-wrap pl-8 border-l-2 border-blue-500/20">
+                          <div className="text-foreground/80 text-sm whitespace-pre-wrap pl-8 border-l-2 border-primary/20">
                             {ticket.reply}
                           </div>
                         </motion.div>

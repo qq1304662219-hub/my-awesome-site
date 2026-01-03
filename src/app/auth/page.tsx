@@ -122,34 +122,34 @@ function AuthContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#020817] relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-[128px] pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[128px] pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[128px] pointer-events-none" />
 
       <div className="w-full max-w-md px-4 relative z-10">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-4">
-            <Video className="h-8 w-8 text-blue-500" />
+            <Video className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
               AI Vision
             </span>
           </Link>
-          <h1 className="text-2xl font-bold text-white">欢迎回来</h1>
-          <p className="text-gray-400 mt-2">登录您的账户以管理您的创意作品</p>
+          <h1 className="text-2xl font-bold text-foreground">欢迎回来</h1>
+          <p className="text-muted-foreground mt-2">登录您的账户以管理您的创意作品</p>
         </div>
 
         <Tabs defaultValue={defaultTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-white/5 border border-white/10">
-            <TabsTrigger value="login" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400">登录</TabsTrigger>
-            <TabsTrigger value="register" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400">注册</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-muted border border-border">
+            <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground">登录</TabsTrigger>
+            <TabsTrigger value="register" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground">注册</TabsTrigger>
           </TabsList>
           
           <TabsContent value="login">
-            <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+            <Card className="bg-card border-border backdrop-blur-md">
               <CardHeader>
-                <CardTitle className="text-white">账户登录</CardTitle>
-                <CardDescription className="text-gray-400">
+                <CardTitle className="text-foreground">账户登录</CardTitle>
+                <CardDescription className="text-muted-foreground">
                   选择登录方式
                 </CardDescription>
               </CardHeader>
@@ -159,7 +159,7 @@ function AuthContent() {
                     type="button" 
                     variant="outline" 
                     onClick={handleGoogleLogin} 
-                    className="w-full border-white/10 bg-white/5 hover:bg-white/10 text-white hover:text-white"
+                    className="w-full border-border bg-background hover:bg-accent text-foreground hover:text-accent-foreground"
                     disabled={loading}
                   >
                     <GoogleIcon className="mr-2 h-4 w-4" />
@@ -169,7 +169,7 @@ function AuthContent() {
                     type="button" 
                     variant="outline" 
                     onClick={handleGithubLogin} 
-                    className="w-full border-white/10 bg-white/5 hover:bg-white/10 text-white hover:text-white"
+                    className="w-full border-border bg-background hover:bg-accent text-foreground hover:text-accent-foreground"
                     disabled={loading}
                   >
                     <GithubIcon className="mr-2 h-4 w-4" />
@@ -179,43 +179,43 @@ function AuthContent() {
                 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-white/10" />
+                    <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[#0b1221] px-2 text-gray-400">或者使用邮箱</span>
+                    <span className="bg-background px-2 text-muted-foreground">或者使用邮箱</span>
                   </div>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email-login" className="text-gray-300">邮箱</Label>
+                    <Label htmlFor="email-login" className="text-foreground">邮箱</Label>
                     <Input 
                       id="email-login" 
                       type="email" 
                       placeholder="name@example.com" 
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-blue-500"
+                      className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password-login" className="text-gray-300">密码</Label>
+                    <Label htmlFor="password-login" className="text-foreground">密码</Label>
                     <Input 
                       id="password-login" 
                       type="password" 
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-blue-500"
+                      className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
                       required
                     />
                     <div className="text-right">
-                      <Link href="/auth/forgot-password" className="text-xs text-blue-500 hover:text-blue-400">
+                      <Link href="/auth/forgot-password" className="text-xs text-primary hover:text-primary/80">
                         忘记密码？
                       </Link>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
                     {loading ? '登录中...' : '立即登录'}
                   </Button>
                 </form>
@@ -224,10 +224,10 @@ function AuthContent() {
           </TabsContent>
 
           <TabsContent value="register">
-            <Card className="bg-white/5 border-white/10 backdrop-blur-md">
+            <Card className="bg-card border-border backdrop-blur-md">
               <CardHeader>
-                <CardTitle className="text-white">创建账户</CardTitle>
-                <CardDescription className="text-gray-400">
+                <CardTitle className="text-foreground">创建账户</CardTitle>
+                <CardDescription className="text-muted-foreground">
                   {inviteCode ? '通过邀请链接注册' : '注册一个新的账户'}
                 </CardDescription>
               </CardHeader>
@@ -237,7 +237,7 @@ function AuthContent() {
                     type="button" 
                     variant="outline" 
                     onClick={handleGoogleLogin} 
-                    className="w-full border-white/10 bg-white/5 hover:bg-white/10 text-white hover:text-white"
+                    className="w-full border-border bg-background hover:bg-accent text-foreground hover:text-accent-foreground"
                     disabled={loading}
                   >
                     <GoogleIcon className="mr-2 h-4 w-4" />
@@ -247,7 +247,7 @@ function AuthContent() {
                     type="button" 
                     variant="outline" 
                     onClick={handleGithubLogin} 
-                    className="w-full border-white/10 bg-white/5 hover:bg-white/10 text-white hover:text-white"
+                    className="w-full border-border bg-background hover:bg-accent text-foreground hover:text-accent-foreground"
                     disabled={loading}
                   >
                     <GithubIcon className="mr-2 h-4 w-4" />
@@ -257,38 +257,38 @@ function AuthContent() {
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-white/10" />
+                    <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-[#0b1221] px-2 text-gray-400">或者使用邮箱</span>
+                    <span className="bg-background px-2 text-muted-foreground">或者使用邮箱</span>
                   </div>
                 </div>
 
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email-register" className="text-gray-300">邮箱</Label>
+                    <Label htmlFor="email-register" className="text-foreground">邮箱</Label>
                     <Input 
                       id="email-register" 
                       type="email" 
                       placeholder="name@example.com" 
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-blue-500"
+                      className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password-register" className="text-gray-300">密码</Label>
+                    <Label htmlFor="password-register" className="text-foreground">密码</Label>
                     <Input 
                       id="password-register" 
                       type="password" 
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus-visible:ring-blue-500"
+                      className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={loading}>
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
                     {loading ? '注册中...' : '立即注册'}
                   </Button>
                 </form>

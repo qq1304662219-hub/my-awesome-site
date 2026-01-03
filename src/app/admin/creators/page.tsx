@@ -77,11 +77,11 @@ export default function AdminCreatorsPage() {
   return (
     <div className="p-8 ml-64">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-white flex items-center gap-2">
-            <ShieldCheck className="text-blue-500" />
+        <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+            <ShieldCheck className="text-primary" />
             创作者审核
         </h1>
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-muted-foreground">
             待审核用户: {applications.length}
         </div>
       </div>
@@ -89,33 +89,33 @@ export default function AdminCreatorsPage() {
       <div className="grid gap-4">
         {loading ? (
             <div className="flex justify-center py-12">
-                <Loader2 className="animate-spin h-8 w-8 text-blue-500" />
+                <Loader2 className="animate-spin h-8 w-8 text-primary" />
             </div>
         ) : applications.length === 0 ? (
-            <div className="text-center py-12 text-gray-400 bg-white/5 rounded-xl border border-white/10">
+            <div className="text-center py-12 text-muted-foreground bg-card rounded-xl border border-border">
                 暂无待审核用户
             </div>
         ) : (
             applications.map((app) => (
-                <Card key={app.id} className="bg-[#0f172a] border-white/10 text-white">
+                <Card key={app.id} className="bg-card border-border text-foreground">
                     <CardContent className="p-6 flex items-center justify-between gap-4">
                         <div className="flex items-center gap-4 flex-1">
-                            <Avatar className="h-12 w-12 border border-white/10">
+                            <Avatar className="h-12 w-12 border border-border">
                                 <AvatarImage src={app.avatar_url} />
                                 <AvatarFallback>{app.full_name?.[0]}</AvatarFallback>
                             </Avatar>
                             <div>
                                 <div className="flex items-center gap-2">
                                     <h3 className="font-bold text-lg">{app.full_name || "Unknown User"}</h3>
-                                    <Badge variant="outline" className="text-xs border-white/20 text-gray-400">
+                                    <Badge variant="outline" className="text-xs border-border text-muted-foreground">
                                         {app.role}
                                     </Badge>
                                 </div>
-                                <p className="text-sm text-gray-400 line-clamp-1">
+                                <p className="text-sm text-muted-foreground line-clamp-1">
                                     {app.email} • 注册于 {format(new Date(app.created_at), 'yyyy-MM-dd')}
                                 </p>
                                 {app.bio && (
-                                    <p className="text-sm text-gray-300 mt-1 line-clamp-1">
+                                    <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
                                         简介: {app.bio}
                                     </p>
                                 )}
@@ -123,9 +123,9 @@ export default function AdminCreatorsPage() {
                         </div>
 
                         <div className="flex items-center gap-6">
-                            <div className="text-right text-sm text-gray-400">
+                            <div className="text-right text-sm text-muted-foreground">
                                 <div>已用存储</div>
-                                <div className="font-mono text-white">
+                                <div className="font-mono text-foreground">
                                     {(app.storage_used / 1024 / 1024).toFixed(1)} MB
                                 </div>
                             </div>
@@ -133,7 +133,7 @@ export default function AdminCreatorsPage() {
                             <div className="flex gap-2">
                                 <Button 
                                     onClick={() => handleVerify(app.id)}
-                                    className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                                    className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
                                 >
                                     <Check className="w-4 h-4" />
                                     通过认证

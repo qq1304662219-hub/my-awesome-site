@@ -83,7 +83,7 @@ export function UserHoverMenu({ user, profile, onSignOut }: UserHoverMenuProps) 
             {/* Menu List */}
             <div className="space-y-1 mb-6">
                 {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
-                    <Link href="/admin/videos" className="flex items-center justify-between px-2 py-2 text-sm text-red-500 hover:text-red-600 hover:bg-accent rounded-md transition-colors group/item">
+                    <Link href="/admin/videos" className="flex items-center justify-between px-2 py-2 text-sm text-destructive hover:text-destructive hover:bg-accent rounded-md transition-colors group/item">
                         <span className="flex items-center gap-2">🛡️ 管理后台</span>
                     </Link>
                 )}

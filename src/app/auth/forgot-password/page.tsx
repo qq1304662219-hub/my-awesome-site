@@ -36,11 +36,11 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#020817] flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8 bg-[#0f172a] p-8 rounded-xl border border-white/10">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-xl border border-border">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white">重置密码</h1>
-          <p className="text-gray-400 mt-2">
+          <h1 className="text-2xl font-bold text-foreground">重置密码</h1>
+          <p className="text-muted-foreground mt-2">
             {sent ? "请查收您的邮箱" : "输入您的注册邮箱，我们将发送重置链接"}
           </p>
         </div>
@@ -48,11 +48,11 @@ export default function ForgotPasswordPage() {
         {sent ? (
           <div className="text-center space-y-6">
             <div className="flex justify-center">
-                <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center">
-                    <Mail className="w-8 h-8 text-blue-500" />
+                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
+                    <Mail className="w-8 h-8 text-primary" />
                 </div>
             </div>
-            <p className="text-sm text-gray-300">
+            <p className="text-sm text-muted-foreground">
                 我们已向 <strong>{email}</strong> 发送了一封包含重置密码链接的邮件。请检查您的收件箱（包括垃圾邮件文件夹）。
             </p>
             <Button asChild className="w-full" variant="outline">
@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
             </Button>
             <Button 
                 variant="link" 
-                className="text-gray-400"
+                className="text-muted-foreground"
                 onClick={() => setSent(false)}
             >
                 没收到？重试
@@ -69,7 +69,7 @@ export default function ForgotPasswordPage() {
         ) : (
           <form onSubmit={handleReset} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-white">邮箱地址</Label>
+              <Label htmlFor="email" className="text-foreground">邮箱地址</Label>
               <Input
                 id="email"
                 type="email"
@@ -77,7 +77,7 @@ export default function ForgotPasswordPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-[#1e293b] border-white/10 text-white"
+                className="bg-muted/50 border-input text-foreground"
               />
             </div>
 
@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
         <div className="text-center">
           <Link 
             href="/auth?tab=login" 
-            className="text-sm text-gray-400 hover:text-white flex items-center justify-center gap-2"
+            className="text-sm text-muted-foreground hover:text-foreground flex items-center justify-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" /> 返回登录
           </Link>

@@ -97,7 +97,7 @@ export default function MessagesList() {
   if (loading) {
     return (
         <div className="flex items-center justify-center h-screen w-full">
-            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
         </div>
     )
   }
@@ -110,39 +110,39 @@ export default function MessagesList() {
     >
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <MessageSquare className="h-6 w-6 text-blue-500" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <MessageSquare className="h-6 w-6 text-primary" />
             我的私信
           </h1>
-          <p className="text-gray-400 mt-1 text-sm">
+          <p className="text-muted-foreground mt-1 text-sm">
             管理您的所有对话和消息
           </p>
         </div>
         
         <div className="relative w-full md:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="搜索对话..." 
-            className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-blue-500/50 focus:ring-blue-500/20"
+            className="pl-9 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
       </div>
       
-      <div className="bg-[#0f172a]/50 border border-white/10 rounded-xl overflow-hidden backdrop-blur-sm min-h-[500px]">
+      <div className="bg-card border border-border rounded-xl overflow-hidden backdrop-blur-sm min-h-[500px]">
         {filteredConversations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-[500px] text-gray-500">
-                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                  <MessageSquare className="h-8 w-8 text-gray-600" />
+            <div className="flex flex-col items-center justify-center h-[500px] text-muted-foreground">
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                  <MessageSquare className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <p className="text-lg font-medium text-white/50 mb-2">暂无消息记录</p>
-                <p className="text-sm text-gray-500">
+                <p className="text-lg font-medium text-foreground/50 mb-2">暂无消息记录</p>
+                <p className="text-sm text-muted-foreground">
                    {searchQuery ? "没有找到匹配的对话" : "当有人给您发消息时，它们会显示在这里"}
                 </p>
             </div>
         ) : (
-            <div className="divide-y divide-white/5">
+            <div className="divide-y divide-border">
                 <AnimatePresence>
                   {filteredConversations.map((conv, index) => (
                       <motion.div
@@ -154,20 +154,20 @@ export default function MessagesList() {
                       >
                         <Link 
                             href={`/dashboard/messages/${conv.userId}`}
-                            className="flex items-center gap-4 p-4 hover:bg-white/5 transition-all group relative overflow-hidden"
+                            className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-all group relative overflow-hidden"
                         >
                             {/* Hover Highlight */}
-                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
 
                             <div className="relative">
-                              <Avatar className="w-12 h-12 border border-white/10 group-hover:border-blue-500/50 transition-colors">
+                              <Avatar className="w-12 h-12 border border-border group-hover:border-primary/50 transition-colors">
                                   <AvatarImage src={conv.user?.avatar_url} />
-                                  <AvatarFallback className="bg-blue-600/20 text-blue-200">
+                                  <AvatarFallback className="bg-primary/20 text-primary">
                                     {conv.user?.full_name?.[0] || conv.user?.email?.[0]?.toUpperCase() || 'U'}
                                   </AvatarFallback>
                               </Avatar>
                               {conv.unreadCount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center border border-[#0f172a]">
+                                <span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 rounded-full min-w-[18px] text-center border border-background">
                                     {conv.unreadCount}
                                 </span>
                               )}
@@ -175,18 +175,18 @@ export default function MessagesList() {
                             
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-baseline mb-1">
-                                    <h3 className="font-medium text-white group-hover:text-blue-400 transition-colors truncate">
+                                    <h3 className="font-medium text-foreground group-hover:text-primary transition-colors truncate">
                                         {conv.user?.full_name || conv.user?.email || '未知用户'}
                                     </h3>
-                                    <span className="text-xs text-gray-500 group-hover:text-gray-400">
+                                    <span className="text-xs text-muted-foreground group-hover:text-muted-foreground/80">
                                         {new Date(conv.lastMessage.created_at).toLocaleDateString() === new Date().toLocaleDateString() 
                                           ? new Date(conv.lastMessage.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                                           : new Date(conv.lastMessage.created_at).toLocaleDateString()}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <p className={`text-sm truncate max-w-[85%] ${conv.unreadCount > 0 ? 'text-gray-300 font-medium' : 'text-gray-500'}`}>
-                                        {conv.lastMessage.sender_id === conv.userId ? '' : <span className="text-blue-400/70 mr-1">我:</span>}
+                                    <p className={`text-sm truncate max-w-[85%] ${conv.unreadCount > 0 ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                                        {conv.lastMessage.sender_id === conv.userId ? '' : <span className="text-primary/70 mr-1">我:</span>}
                                         {conv.lastMessage.content}
                                     </p>
                                 </div>

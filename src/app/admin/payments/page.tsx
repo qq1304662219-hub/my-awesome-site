@@ -98,16 +98,16 @@ export default function AdminPaymentsPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-8">充值审核</h1>
+      <h1 className="text-3xl font-bold mb-8 text-foreground">充值审核</h1>
       
       {loading ? (
-          <div className="flex justify-center"><Loader2 className="animate-spin" /></div>
+          <div className="flex justify-center"><Loader2 className="animate-spin text-primary" /></div>
       ) : transactions.length === 0 ? (
-          <div className="text-gray-500">暂无待审核的充值申请</div>
+          <div className="text-muted-foreground">暂无待审核的充值申请</div>
       ) : (
-          <div className="bg-[#0f172a] border border-white/10 rounded-xl overflow-hidden">
+          <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
               <table className="w-full text-left text-sm">
-                  <thead className="bg-white/5 text-gray-400 border-b border-white/10">
+                  <thead className="bg-muted/50 text-muted-foreground border-b border-border">
                       <tr>
                           <th className="p-4">用户</th>
                           <th className="p-4">金额</th>
@@ -115,20 +115,20 @@ export default function AdminPaymentsPage() {
                           <th className="p-4">操作</th>
                       </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className="divide-y divide-border">
                       {transactions.map((tx) => (
-                          <tr key={tx.id} className="hover:bg-white/5">
+                          <tr key={tx.id} className="hover:bg-muted/50 transition-colors">
                               <td className="p-4">
-                                  <div className="font-medium text-white">{tx.profiles?.full_name || 'Unknown'}</div>
-                                  <div className="text-xs text-gray-500">{tx.profiles?.email}</div>
+                                  <div className="font-medium text-foreground">{tx.profiles?.full_name || 'Unknown'}</div>
+                                  <div className="text-xs text-muted-foreground">{tx.profiles?.email}</div>
                               </td>
-                              <td className="p-4 text-green-400 font-bold">¥{tx.amount}</td>
-                              <td className="p-4 text-gray-400">{format(new Date(tx.created_at), "yyyy-MM-dd HH:mm")}</td>
+                              <td className="p-4 font-bold text-green-600 dark:text-green-500">¥{tx.amount}</td>
+                              <td className="p-4 text-muted-foreground">{format(new Date(tx.created_at), "yyyy-MM-dd HH:mm")}</td>
                               <td className="p-4">
                                   <div className="flex gap-2">
                                       <Button 
                                           size="sm" 
-                                          className="bg-green-600 hover:bg-green-700"
+                                          className="bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-800"
                                           onClick={() => handleApprove(tx.id, tx.user_id, tx.amount)}
                                       >
                                           <CheckCircle className="w-4 h-4 mr-1" /> 批准

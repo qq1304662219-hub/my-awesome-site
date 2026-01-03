@@ -87,17 +87,17 @@ export default function SettingsPage() {
   }
 
   if (loading) {
-     return <div className="min-h-screen bg-[#020817] flex items-center justify-center text-white"><Loader2 className="animate-spin" /></div>
+     return <div className="min-h-screen bg-background flex items-center justify-center text-foreground"><Loader2 className="animate-spin" /></div>
   }
 
   return (
-    <div className="min-h-screen bg-[#020817] text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Navbar />
       <div className="flex-1 container mx-auto px-4 py-20 max-w-2xl">
-        <Card className="bg-white/5 border-white/10 text-white">
+        <Card className="bg-card border-border text-card-foreground">
           <CardHeader>
             <CardTitle>个人设置</CardTitle>
-            <CardDescription className="text-gray-400">管理您的个人资料和账户设置</CardDescription>
+            <CardDescription className="text-muted-foreground">管理您的个人资料和账户设置</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
@@ -106,7 +106,7 @@ export default function SettingsPage() {
                 id="full_name"
                 value={formData.full_name}
                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                className="bg-black/20 border-white/10 text-white"
+                className="bg-muted border-border text-foreground"
               />
             </div>
             
@@ -116,7 +116,7 @@ export default function SettingsPage() {
                 id="bio"
                 value={formData.bio}
                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                className="bg-black/20 border-white/10 min-h-[100px] text-white"
+                className="bg-muted border-border min-h-[100px] text-foreground"
                 placeholder="介绍一下你自己..."
               />
             </div>
@@ -127,10 +127,10 @@ export default function SettingsPage() {
                 id="avatar_url"
                 value={formData.avatar_url}
                 onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
-                className="bg-black/20 border-white/10 text-white"
+                className="bg-muted border-border text-foreground"
                 placeholder="https://..."
               />
-              <p className="text-xs text-gray-500">支持 JPG, PNG, GIF 格式的图片链接</p>
+              <p className="text-xs text-muted-foreground">支持 JPG, PNG, GIF 格式的图片链接</p>
             </div>
 
             <Button onClick={updateProfile} disabled={saving} className="w-full">

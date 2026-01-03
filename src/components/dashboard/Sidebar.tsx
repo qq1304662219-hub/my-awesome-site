@@ -190,7 +190,7 @@ export function DashboardSidebar() {
           <div className="space-y-1">
                <Button 
                   variant="ghost" 
-                  className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-500/10 h-8 text-xs"
+                  className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10 h-8 text-xs"
                   onClick={handleSignOut}
               >
                   <LogOut className="mr-2 h-3 w-3" />

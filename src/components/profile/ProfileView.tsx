@@ -113,52 +113,52 @@ export function ProfileView({ profile, videos, likedVideos, isOwnProfile: initia
       {/* Header */}
       <div className="container mx-auto px-4 mb-16">
         <div className="flex flex-col items-center justify-center text-center space-y-4">
-          <Avatar className="h-24 w-24 border-2 border-white/20">
+          <Avatar className="h-24 w-24 border-2 border-border">
             <AvatarImage src={profile.avatar_url} />
-            <AvatarFallback className="bg-blue-600 text-white text-xl">
+            <AvatarFallback className="bg-primary text-primary-foreground text-xl">
                {profile.full_name?.[0]?.toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
           
           <div>
-            <h1 className="text-3xl font-bold text-white">{profile.full_name}</h1>
-            <p className="text-gray-400 mt-2">
+            <h1 className="text-3xl font-bold text-foreground">{profile.full_name}</h1>
+            <p className="text-muted-foreground mt-2">
               {profile.bio || "这个用户很懒，什么都没写"}
             </p>
           </div>
 
-          <div className="flex items-center gap-6 text-sm text-gray-400">
+          <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <div className="flex flex-col items-center">
-              <span className="text-white font-bold text-lg">{videos.length}</span>
+              <span className="text-foreground font-bold text-lg">{videos.length}</span>
               <span>作品</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-white font-bold text-lg">{likedVideos.length}</span>
+              <span className="text-foreground font-bold text-lg">{likedVideos.length}</span>
               <span>喜欢</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-white font-bold text-lg">{followersCount}</span>
+              <span className="text-foreground font-bold text-lg">{followersCount}</span>
               <span>粉丝</span>
             </div>
           </div>
 
           <div className="flex gap-4">
             {isOwner ? (
-               <Button variant="outline" className="border-white/10 hover:bg-white/10 text-gray-300">
+               <Button variant="outline" className="border-border hover:bg-accent text-foreground">
                  编辑资料
                </Button>
             ) : (
               <>
                 <Button 
                   variant={isFollowing ? "secondary" : "default"}
-                  className={isFollowing ? "bg-white/10 text-white hover:bg-white/20" : "bg-blue-600 hover:bg-blue-700"}
+                  className={isFollowing ? "bg-secondary text-secondary-foreground hover:bg-secondary/80" : "bg-primary hover:bg-primary/90"}
                   onClick={handleFollow}
                 >
                   {isFollowing ? "已关注" : "关注"}
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="border-white/10 hover:bg-white/10 text-gray-300"
+                  className="border-border hover:bg-accent text-foreground"
                   onClick={handleMessage}
                 >
                   <MessageSquare className="w-4 h-4 mr-2" />
@@ -169,7 +169,7 @@ export function ProfileView({ profile, videos, likedVideos, isOwnProfile: initia
             <Button 
               variant="ghost" 
               size="icon" 
-              className="text-gray-400 hover:text-white hover:bg-white/10"
+              className="text-muted-foreground hover:text-foreground hover:bg-accent"
               onClick={handleShare}
             >
               <Share2 className="w-5 h-5" />
@@ -179,14 +179,14 @@ export function ProfileView({ profile, videos, likedVideos, isOwnProfile: initia
       </div>
 
       {/* Content Tabs */}
-      <div className="container mx-auto px-4 border-b border-white/10 mb-8 sticky top-16 bg-[#020817]/95 backdrop-blur z-30">
+      <div className="container mx-auto px-4 border-b border-border mb-8 sticky top-16 bg-background/95 backdrop-blur z-30">
         <div className="flex justify-center gap-8">
           <button 
             onClick={() => setActiveTab("works")}
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
               activeTab === "works" 
-                ? "border-blue-500 text-blue-500 font-medium" 
-                : "border-transparent text-gray-400 hover:text-white"
+                ? "border-primary text-primary font-medium" 
+                : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             <Grid className="h-4 w-4" />
@@ -196,8 +196,8 @@ export function ProfileView({ profile, videos, likedVideos, isOwnProfile: initia
             onClick={() => setActiveTab("likes")}
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
               activeTab === "likes" 
-                ? "border-blue-500 text-blue-500 font-medium" 
-                : "border-transparent text-gray-400 hover:text-white"
+                ? "border-primary text-primary font-medium" 
+                : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             <Heart className="h-4 w-4" />
@@ -207,8 +207,8 @@ export function ProfileView({ profile, videos, likedVideos, isOwnProfile: initia
             onClick={() => setActiveTab("about")}
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-colors ${
               activeTab === "about" 
-                ? "border-blue-500 text-blue-500 font-medium" 
-                : "border-transparent text-gray-400 hover:text-white"
+                ? "border-primary text-primary font-medium" 
+                : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             <UserIcon className="h-4 w-4" />
@@ -229,7 +229,7 @@ export function ProfileView({ profile, videos, likedVideos, isOwnProfile: initia
               transition={{ duration: 0.2 }}
             >
               {videos.length === 0 ? (
-                <div className="text-center py-20 text-gray-500">
+                <div className="text-center py-20 text-muted-foreground">
                   <Grid className="w-12 h-12 mx-auto mb-4 opacity-20" />
                   <p>该用户暂时没有发布作品</p>
                 </div>
@@ -256,7 +256,7 @@ export function ProfileView({ profile, videos, likedVideos, isOwnProfile: initia
               transition={{ duration: 0.2 }}
             >
               {likedVideos.length === 0 ? (
-                <div className="text-center py-20 text-gray-500">
+                <div className="text-center py-20 text-muted-foreground">
                   <Heart className="w-12 h-12 mx-auto mb-4 opacity-20" />
                   <p>还没有喜欢的视频</p>
                 </div>
@@ -280,21 +280,21 @@ export function ProfileView({ profile, videos, likedVideos, isOwnProfile: initia
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.2 }}
-              className="max-w-2xl mx-auto bg-white/5 rounded-2xl p-8 border border-white/10"
+              className="max-w-2xl mx-auto bg-card rounded-2xl p-8 border border-border"
             >
-              <h3 className="text-xl font-bold text-white mb-4">关于我</h3>
-              <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
+              <h3 className="text-xl font-bold text-foreground mb-4">关于我</h3>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
                 {profile.bio || "这个用户很懒，什么都没写"}
               </p>
               
-              <div className="mt-8 pt-8 border-t border-white/10 grid grid-cols-2 gap-4 text-sm">
+              <div className="mt-8 pt-8 border-t border-border grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-500 block mb-1">加入时间</span>
-                  <span className="text-white">{new Date(profile.created_at || Date.now()).toLocaleDateString()}</span>
+                  <span className="text-muted-foreground block mb-1">加入时间</span>
+                  <span className="text-foreground">{new Date(profile.created_at || Date.now()).toLocaleDateString()}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500 block mb-1">所在地</span>
-                  <span className="text-white">未知</span>
+                  <span className="text-muted-foreground block mb-1">所在地</span>
+                  <span className="text-foreground">未知</span>
                 </div>
               </div>
             </motion.div>

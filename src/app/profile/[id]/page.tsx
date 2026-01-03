@@ -272,7 +272,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                             </div>
                             <div className="text-sm text-muted-foreground flex items-center gap-2">
                                 <span>{profile.job_title || "创作者"}</span>
-                                <span className="w-1 h-1 bg-gray-600 rounded-full" />
+                                <span className="w-1 h-1 bg-muted-foreground rounded-full" />
                                 <span className="flex items-center">
                                     <MapPin className="w-3 h-3 mr-1" />
                                     {profile.location || "未知地区"}

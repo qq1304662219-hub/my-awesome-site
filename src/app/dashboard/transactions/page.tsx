@@ -43,29 +43,29 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="flex h-screen bg-black">
+    <div className="flex h-screen bg-background">
       <DashboardSidebar />
       
       <main className="flex-1 overflow-y-auto p-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
-            <Wallet className="text-blue-500" />
+          <h1 className="text-3xl font-bold text-foreground mb-8 flex items-center gap-3">
+            <Wallet className="text-primary" />
             交易记录
           </h1>
 
           {loading ? (
             <div className="flex justify-center py-20">
-              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
           ) : transactions.length === 0 ? (
-            <div className="text-center py-20 bg-white/5 rounded-2xl border border-white/10">
-              <Wallet className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400">暂无交易记录</p>
+            <div className="text-center py-20 bg-card rounded-2xl border border-border">
+              <Wallet className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">暂无交易记录</p>
             </div>
           ) : (
-            <div className="bg-[#0f172a] border border-white/10 rounded-xl overflow-hidden">
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
               <table className="w-full text-left">
-                <thead className="bg-white/5 text-gray-400 text-sm border-b border-white/10">
+                <thead className="bg-muted/50 text-muted-foreground text-sm border-b border-border">
                   <tr>
                     <th className="px-6 py-4 font-medium">时间</th>
                     <th className="px-6 py-4 font-medium">类型</th>
@@ -73,17 +73,17 @@ export default function TransactionsPage() {
                     <th className="px-6 py-4 font-medium text-right">金额</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-border">
                   {transactions.map((tx) => (
-                    <tr key={tx.id} className="hover:bg-white/5 transition-colors">
-                      <td className="px-6 py-4 text-gray-400 text-sm">
+                    <tr key={tx.id} className="hover:bg-muted/50 transition-colors">
+                      <td className="px-6 py-4 text-muted-foreground text-sm">
                         {format(new Date(tx.created_at), "yyyy-MM-dd HH:mm:ss")}
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full border ${
                           tx.amount >= 0 
-                            ? 'bg-green-500/10 text-green-500 border-green-500/20' 
-                            : 'bg-red-500/10 text-red-500 border-red-500/20'
+                            ? 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20' 
+                            : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
                         }`}>
                           {tx.amount >= 0 ? <ArrowDownLeft className="w-3 h-3" /> : <ArrowUpRight className="w-3 h-3" />}
                           {tx.type === 'recharge' ? '充值' : 
@@ -92,11 +92,11 @@ export default function TransactionsPage() {
                            tx.type === 'income' ? '收入' : tx.type}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-white">
+                      <td className="px-6 py-4 text-foreground">
                         {tx.description || '-'}
                       </td>
                       <td className={`px-6 py-4 text-right font-mono font-medium ${
-                        tx.amount >= 0 ? 'text-green-500' : 'text-white'
+                        tx.amount >= 0 ? 'text-green-600 dark:text-green-400' : 'text-foreground'
                       }`}>
                         {tx.amount >= 0 ? '+' : ''}{tx.amount}
                       </td>

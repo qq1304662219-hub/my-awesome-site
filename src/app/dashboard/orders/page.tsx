@@ -131,7 +131,7 @@ export default function OrdersPage() {
   )
 
   return (
-    <div className="flex h-screen bg-black">
+    <div className="flex h-screen bg-background">
       <DashboardSidebar />
       
       <main className="flex-1 overflow-y-auto p-8">
@@ -141,16 +141,16 @@ export default function OrdersPage() {
           className="max-w-5xl mx-auto"
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-              <Package className="text-blue-500" />
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+              <Package className="text-primary" />
               我的订单
             </h1>
 
             <div className="relative w-full md:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="搜索订单..." 
-                className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-blue-500/50 focus:ring-blue-500/20"
+                className="pl-9 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -159,18 +159,18 @@ export default function OrdersPage() {
 
           {loading ? (
             <div className="flex justify-center py-20">
-              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
           ) : filteredOrders.length === 0 ? (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-20 bg-[#0f172a]/30 rounded-2xl border border-dashed border-white/10 backdrop-blur-sm"
+              className="text-center py-20 bg-muted/30 rounded-2xl border border-dashed border-border backdrop-blur-sm"
             >
-              <Package className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400 mb-6">暂无订单记录</p>
+              <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground mb-6">暂无订单记录</p>
               <Link href="/videos">
-                <Button variant="outline" className="text-blue-400 hover:text-blue-300 border-blue-500/30 hover:border-blue-500/50 bg-blue-500/5 hover:bg-blue-500/10">
+                <Button variant="outline" className="text-primary hover:text-primary/80 border-primary/30 hover:border-primary/50 bg-primary/5 hover:bg-primary/10">
                   去购买素材
                 </Button>
               </Link>
@@ -186,10 +186,10 @@ export default function OrdersPage() {
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ delay: index * 0.05 }}
                   >
-                    <Card className="bg-[#0f172a]/50 border-white/10 overflow-hidden hover:bg-[#0f172a]/80 transition-colors group">
+                    <Card className="bg-card border-border overflow-hidden hover:shadow-md transition-all group">
                       {/* Order Header */}
-                      <div className="bg-white/5 px-6 py-4 flex flex-wrap justify-between items-center gap-4 border-b border-white/10">
-                        <div className="flex items-center gap-6 text-sm text-gray-400">
+                      <div className="bg-muted/50 px-6 py-4 flex flex-wrap justify-between items-center gap-4 border-b border-border">
+                        <div className="flex items-center gap-6 text-sm text-muted-foreground">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
                             {format(new Date(order.created_at), "yyyy-MM-dd HH:mm")}
@@ -202,20 +202,20 @@ export default function OrdersPage() {
                           <Badge 
                             variant="outline"
                             className={order.status === 'completed' 
-                              ? 'bg-green-500/10 text-green-400 border-green-500/20' 
-                              : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'}
+                              ? 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20' 
+                              : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20'}
                           >
                             {order.status === 'completed' ? '已完成' : order.status}
                           </Badge>
-                          <span className="font-bold text-white">总计: ¥{order.total_amount}</span>
+                          <span className="font-bold text-foreground">总计: ¥{order.total_amount}</span>
                         </div>
                       </div>
 
                       {/* Order Items */}
                       <CardContent className="p-6 space-y-4">
                         {order.order_items.map((item) => (
-                          <div key={item.id} className="flex gap-4 items-center group/item p-2 rounded-lg hover:bg-white/[0.02] transition-colors">
-                            <div className="relative w-24 aspect-video bg-black rounded overflow-hidden border border-white/10 shrink-0">
+                          <div key={item.id} className="flex gap-4 items-center group/item p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                            <div className="relative w-24 aspect-video bg-muted rounded overflow-hidden border border-border shrink-0">
                                {item.video?.thumbnail_url ? (
                                  <Image 
                                    src={item.video.thumbnail_url} 
@@ -224,30 +224,30 @@ export default function OrdersPage() {
                                    className="object-cover group-hover/item:scale-105 transition-transform duration-500"
                                  />
                                ) : (
-                                 <div className="w-full h-full bg-gray-900 flex items-center justify-center text-[10px] text-gray-500">No Image</div>
+                                 <div className="w-full h-full bg-muted flex items-center justify-center text-[10px] text-muted-foreground">No Image</div>
                                )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-white font-medium truncate text-sm">{item.video?.title || "Unknown Video"}</h4>
-                              <div className="text-xs text-gray-500 mt-1 flex gap-2">
-                                 <Badge variant="outline" className="text-[10px] h-5 px-1.5 border-white/10 text-gray-400">
+                              <h4 className="text-foreground font-medium truncate text-sm">{item.video?.title || "Unknown Video"}</h4>
+                              <div className="text-xs text-muted-foreground mt-1 flex gap-2">
+                                 <Badge variant="outline" className="text-[10px] h-5 px-1.5 border-border text-muted-foreground">
                                    {item.license_type === 'personal' ? '个人授权' : '企业授权'}
                                  </Badge>
                               </div>
                             </div>
                             <div className="text-right flex flex-col items-end gap-1">
-                              <div className="text-white font-medium">¥{item.price}</div>
+                              <div className="text-foreground font-medium">¥{item.price}</div>
                               {item.video?.url ? (
                                 <a 
                                   href={item.video.url} 
                                   target="_blank" 
                                   rel="noopener noreferrer" 
-                                  className="text-xs text-blue-400 hover:text-blue-300 flex items-center justify-end gap-1 hover:underline"
+                                  className="text-xs text-primary hover:text-primary/80 flex items-center justify-end gap-1 hover:underline"
                                 >
                                   <Download className="w-3 h-3" /> 下载
                                 </a>
                               ) : (
-                                <span className="text-xs text-gray-500 flex items-center justify-end gap-1">
+                                <span className="text-xs text-muted-foreground flex items-center justify-end gap-1">
                                   暂无资源
                                 </span>
                               )}

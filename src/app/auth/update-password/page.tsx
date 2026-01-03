@@ -55,45 +55,45 @@ export default function UpdatePasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#020817] flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8 bg-[#0f172a] p-8 rounded-xl border border-white/10">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-xl border border-border">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white">设置新密码</h1>
-          <p className="text-gray-400 mt-2">
+          <h1 className="text-2xl font-bold text-foreground">设置新密码</h1>
+          <p className="text-muted-foreground mt-2">
             请输入您的新密码
           </p>
         </div>
 
         <form onSubmit={handleUpdate} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-white">新密码</Label>
+            <Label htmlFor="password" className="text-foreground">新密码</Label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="bg-[#1e293b] border-white/10 text-white"
+              className="bg-muted/50 border-input text-foreground"
               minLength={6}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-white">确认新密码</Label>
+            <Label htmlFor="confirmPassword" className="text-foreground">确认新密码</Label>
             <Input
               id="confirmPassword"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="bg-[#1e293b] border-white/10 text-white"
+              className="bg-muted/50 border-input text-foreground"
               minLength={6}
             />
           </div>
 
           <Button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700"
+            className="w-full"
             disabled={loading}
           >
             {loading ? <Loader2 className="animate-spin mr-2" /> : "更新密码"}

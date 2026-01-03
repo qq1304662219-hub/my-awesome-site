@@ -10,19 +10,19 @@ export default function LegalPage() {
   const tab = searchParams.get("tab") || "terms"
 
   return (
-    <main className="min-h-screen bg-[#020817] text-white">
+    <main className="min-h-screen bg-background text-foreground">
       <Navbar />
       <div className="container mx-auto px-4 py-32 max-w-4xl">
         <h1 className="text-3xl font-bold mb-8 text-center">法律条款</h1>
         
         <Tabs defaultValue={tab} className="w-full">
-          <TabsList className="w-full bg-white/5 border border-white/10 mb-8">
+          <TabsList className="w-full bg-muted border border-border mb-8">
             <TabsTrigger value="terms" className="flex-1">用户协议</TabsTrigger>
             <TabsTrigger value="privacy" className="flex-1">隐私政策</TabsTrigger>
             <TabsTrigger value="copyright" className="flex-1">版权声明</TabsTrigger>
           </TabsList>
 
-          <div className="prose prose-invert max-w-none bg-[#0f172a] p-8 rounded-xl border border-white/10">
+          <div className="prose prose-zinc dark:prose-invert max-w-none bg-card p-8 rounded-xl border border-border">
             <TabsContent value="terms">
               <h2>1. 服务条款</h2>
               <p>欢迎使用 AI Vision。使用本服务即表示您同意遵守本协议。</p>

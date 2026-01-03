@@ -155,19 +155,19 @@ export default function Finance() {
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-        case 'recharge': return { label: '充值', color: 'text-green-400', icon: ArrowDownLeft }
-        case 'income': return { label: '收益', color: 'text-green-400', icon: ArrowDownLeft }
-        case 'purchase': return { label: '购买', color: 'text-red-400', icon: ArrowUpRight }
-        case 'withdrawal': return { label: '提现', color: 'text-gray-400', icon: ArrowUpRight }
-        case 'tip_sent': return { label: '打赏', color: 'text-red-400', icon: ArrowUpRight }
-        case 'tip_received': return { label: '获赏', color: 'text-green-400', icon: ArrowDownLeft }
-        default: return { label: '其他', color: 'text-gray-400', icon: Clock }
+        case 'recharge': return { label: '充值', color: 'text-emerald-600 dark:text-emerald-500', icon: ArrowDownLeft }
+        case 'income': return { label: '收益', color: 'text-emerald-600 dark:text-emerald-500', icon: ArrowDownLeft }
+        case 'purchase': return { label: '购买', color: 'text-destructive', icon: ArrowUpRight }
+        case 'withdrawal': return { label: '提现', color: 'text-orange-600 dark:text-orange-500', icon: ArrowUpRight }
+        case 'tip_sent': return { label: '打赏', color: 'text-destructive', icon: ArrowUpRight }
+        case 'tip_received': return { label: '获赏', color: 'text-emerald-600 dark:text-emerald-500', icon: ArrowDownLeft }
+        default: return { label: '其他', color: 'text-muted-foreground', icon: Clock }
     }
   }
 
   if (loading) return (
     <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
     </div>
   )
 
@@ -201,7 +201,7 @@ export default function Finance() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-br from-primary/20 to-purple-600/20 border-primary/20 overflow-hidden relative group">
+        <Card className="bg-gradient-to-br from-primary/20 to-primary/5 border-primary/20 overflow-hidden relative group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors" />
             <CardHeader className="pb-2 relative z-10">
                 <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
@@ -218,7 +218,7 @@ export default function Finance() {
         <Card className="bg-card border-border backdrop-blur-sm overflow-hidden relative group hover:border-green-500/30 transition-colors">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <PieChart className="h-4 w-4 text-green-500" />
+                    <PieChart className="h-4 w-4 text-green-600 dark:text-green-500" />
                     总收益
                 </CardTitle>
             </CardHeader>
@@ -233,7 +233,7 @@ export default function Finance() {
         <Card className="bg-card border-border backdrop-blur-sm overflow-hidden relative group hover:border-orange-500/30 transition-colors">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                    <CreditCard className="h-4 w-4 text-orange-500" />
+                    <CreditCard className="h-4 w-4 text-orange-600 dark:text-orange-500" />
                     已提现
                 </CardTitle>
             </CardHeader>
@@ -289,7 +289,7 @@ export default function Finance() {
                                         <td className="px-6 py-4 text-foreground">
                                             {t.description || '-'}
                                         </td>
-                                        <td className={`px-6 py-4 text-right font-bold font-mono ${isPositive ? 'text-green-500' : 'text-foreground'}`}>
+                                        <td className={`px-6 py-4 text-right font-bold font-mono ${isPositive ? 'text-emerald-600 dark:text-emerald-500' : 'text-foreground'}`}>
                                             {isPositive ? '+' : '-'}{Math.abs(t.amount).toFixed(2)}
                                         </td>
                                     </motion.tr>

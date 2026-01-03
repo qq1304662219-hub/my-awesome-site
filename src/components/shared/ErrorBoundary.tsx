@@ -44,19 +44,19 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className={cn(
-          "flex flex-col items-center justify-center p-6 rounded-xl bg-white/5 border border-white/10 text-center space-y-4",
+          "flex flex-col items-center justify-center p-6 rounded-xl bg-card border border-border text-center space-y-4",
           this.props.className
         )}>
-          <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center">
-            <AlertTriangle className="h-6 w-6 text-red-500" />
+          <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
+            <AlertTriangle className="h-6 w-6 text-destructive" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">出错了</h3>
-            <p className="text-sm text-gray-400 mt-1">
+            <h3 className="text-lg font-semibold text-foreground">出错了</h3>
+            <p className="text-sm text-muted-foreground mt-1">
               加载此部分内容时遇到问题
             </p>
             {process.env.NODE_ENV === 'development' && this.state.error && (
-               <p className="text-xs text-red-400 bg-red-500/5 p-2 rounded mt-2 text-left font-mono break-all max-w-[300px] mx-auto">
+               <p className="text-xs text-destructive bg-destructive/5 p-2 rounded mt-2 text-left font-mono break-all max-w-[300px] mx-auto">
                    {this.state.error.message}
                </p>
             )}
@@ -65,7 +65,7 @@ export class ErrorBoundary extends Component<Props, State> {
             variant="outline" 
             size="sm" 
             onClick={this.resetErrorBoundary}
-            className="border-white/10 hover:bg-white/10"
+            className="border-border hover:bg-accent hover:text-accent-foreground"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             重试

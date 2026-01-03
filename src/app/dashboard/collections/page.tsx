@@ -115,36 +115,36 @@ export default function MyCollectionsPage() {
   )
 
   return (
-    <div className="p-6 md:p-8 space-y-8 min-h-screen bg-transparent text-white">
+    <div className="p-6 md:p-8 space-y-8 min-h-screen bg-background text-foreground">
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">我的收藏夹</h1>
-          <p className="text-gray-400 mt-1">管理您收藏的视频素材，支持公开分享与私密保存</p>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-muted-foreground">我的收藏夹</h1>
+          <p className="text-muted-foreground mt-1">管理您收藏的视频素材，支持公开分享与私密保存</p>
         </div>
         
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input 
               placeholder="搜索收藏夹..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 bg-black/20 border-white/10 w-[200px] focus:w-[250px] transition-all"
+              className="pl-9 bg-muted/50 border-border w-[200px] focus:w-[250px] transition-all"
             />
           </div>
           
           <Dialog open={createOpen} onOpenChange={setCreateOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20">
+              <Button className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 text-primary-foreground">
                 <Plus className="h-4 w-4 mr-2" />
                 新建收藏夹
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-[#1e293b] border-white/10 text-white sm:max-w-[425px]">
+            <DialogContent className="bg-card border-border text-card-foreground sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>新建收藏夹</DialogTitle>
               </DialogHeader>
@@ -155,21 +155,21 @@ export default function MyCollectionsPage() {
                     value={newCollectionName}
                     onChange={(e) => setNewCollectionName(e.target.value)}
                     placeholder="例如：赛博朋克风格..."
-                    className="bg-black/20 border-white/10 text-white"
+                    className="bg-muted/50 border-border"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>可见性</Label>
                   <div className="grid grid-cols-2 gap-3">
                     <div 
-                      className={`cursor-pointer rounded-lg border p-3 flex items-center justify-center gap-2 transition-all ${isPublic ? 'bg-blue-500/10 border-blue-500 text-blue-400' : 'border-white/10 hover:bg-white/5 text-gray-400'}`}
+                      className={`cursor-pointer rounded-lg border p-3 flex items-center justify-center gap-2 transition-all ${isPublic ? 'bg-primary/10 border-primary text-primary' : 'border-border hover:bg-muted text-muted-foreground'}`}
                       onClick={() => setIsPublic(true)}
                     >
                       <Globe className="h-4 w-4" />
                       公开
                     </div>
                     <div 
-                      className={`cursor-pointer rounded-lg border p-3 flex items-center justify-center gap-2 transition-all ${!isPublic ? 'bg-blue-500/10 border-blue-500 text-blue-400' : 'border-white/10 hover:bg-white/5 text-gray-400'}`}
+                      className={`cursor-pointer rounded-lg border p-3 flex items-center justify-center gap-2 transition-all ${!isPublic ? 'bg-primary/10 border-primary text-primary' : 'border-border hover:bg-muted text-muted-foreground'}`}
                       onClick={() => setIsPublic(false)}
                     >
                       <Lock className="h-4 w-4" />
@@ -177,7 +177,7 @@ export default function MyCollectionsPage() {
                     </div>
                   </div>
                 </div>
-                <Button onClick={handleCreate} className="w-full bg-blue-600 hover:bg-blue-700">
+                <Button onClick={handleCreate} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                   创建收藏夹
                 </Button>
               </div>
@@ -189,20 +189,20 @@ export default function MyCollectionsPage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-40 bg-white/5 rounded-xl animate-pulse" />
+            <div key={i} className="h-40 bg-muted rounded-xl animate-pulse" />
           ))}
         </div>
       ) : filteredCollections.length === 0 ? (
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center justify-center py-20 bg-white/5 rounded-2xl border border-white/10 border-dashed"
+          className="flex flex-col items-center justify-center py-20 bg-muted/20 rounded-2xl border border-dashed border-border"
         >
-          <div className="h-20 w-20 bg-white/5 rounded-full flex items-center justify-center mb-6">
-            <FolderPlus className="h-10 w-10 text-gray-500" />
+          <div className="h-20 w-20 bg-muted rounded-full flex items-center justify-center mb-6">
+            <FolderPlus className="h-10 w-10 text-muted-foreground" />
           </div>
-          <h3 className="text-xl font-medium text-white mb-2">暂无收藏夹</h3>
-          <p className="text-gray-400 max-w-sm text-center mb-6">
+          <h3 className="text-xl font-medium text-foreground mb-2">暂无收藏夹</h3>
+          <p className="text-muted-foreground max-w-sm text-center mb-6">
             {searchTerm ? "没有找到匹配的收藏夹" : "创建一个收藏夹来整理您喜欢的视频素材"}
           </p>
           {!searchTerm && (
@@ -222,23 +222,23 @@ export default function MyCollectionsPage() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm overflow-hidden hover:border-blue-500/50 hover:bg-[#1e293b]/80 transition-all group">
+                <Card className="bg-card border-border overflow-hidden hover:border-primary/50 hover:bg-muted/50 transition-all group">
                   <Link href={`/dashboard/collections/${collection.id}`}>
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-6">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-blue-500/5">
+                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-primary/5">
                           <Folder className="h-7 w-7 fill-current" />
                         </div>
                         <div className="flex items-center gap-2">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-white hover:bg-white/10">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted">
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-[#1e293b] border-white/10 text-white">
+                            <DropdownMenuContent align="end" className="bg-popover border-border text-popover-foreground">
                               <DropdownMenuItem 
-                                className="text-red-400 focus:text-red-400 focus:bg-red-500/10 cursor-pointer"
+                                className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   handleDelete(collection.id)
@@ -253,15 +253,15 @@ export default function MyCollectionsPage() {
                       </div>
                       
                       <div className="space-y-1">
-                        <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors truncate" title={collection.name}>
+                        <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors truncate" title={collection.name}>
                           {collection.name}
                         </h3>
-                        <div className="flex items-center justify-between text-sm text-gray-400">
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             <Video className="h-3.5 w-3.5" />
                             <span>{collection.collection_items[0]?.count || 0} 个视频</span>
                           </div>
-                          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
+                          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-muted border border-border">
                             {collection.is_public ? (
                               <>
                                 <Globe className="h-3 w-3" />

@@ -93,63 +93,80 @@ export function TipModal({ videoId, authorName, isOpen, onClose }: TipModalProps
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-[#0f172a] border-white/10 text-white">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Coffee className="h-6 w-6 text-yellow-500" />
-            请 {authorName} 喝咖啡
-          </DialogTitle>
-          <DialogDescription className="text-gray-400">
-            您的支持是作者创作的最大动力
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="grid gap-6 py-4">
-          <div className="grid grid-cols-3 gap-4">
-            {PRESET_AMOUNTS.map((amount) => (
-              <Button
-                key={amount}
-                variant="outline"
-                className={`h-20 flex flex-col items-center justify-center gap-2 border-white/10 hover:bg-white/5 hover:text-yellow-400 transition-colors ${
-                  selectedAmount === amount ? "border-yellow-500 bg-yellow-500/10 text-yellow-400" : "text-gray-300"
-                }`}
-                onClick={() => handlePresetSelect(amount)}
-              >
-                <Coins className="h-6 w-6" />
-                <span className="text-lg font-bold">{amount} 币</span>
-              </Button>
-            ))}
+    <DialogContent className="sm:max-w-md bg-card border-border">
+      <DialogHeader>
+        <DialogTitle className="text-center text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 to-orange-500">
+          支持作者
+        </DialogTitle>
+      </DialogHeader>
+      <div className="flex flex-col gap-6 py-4">
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 mx-auto rounded-full bg-yellow-500/10 flex items-center justify-center mb-4">
+            <Coins className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="custom-amount" className="text-gray-300">自定义金额</Label>
-            <div className="relative">
-              <Input
-                id="custom-amount"
-                type="number"
-                placeholder="输入金额"
-                value={customAmount}
-                onChange={handleCustomAmountChange}
-                className="bg-white/5 border-white/10 text-white pl-10 focus:border-yellow-500/50"
-              />
-              <Coins className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            </div>
-          </div>
+          <p className="text-muted-foreground">
+            如果觉得这个视频很有趣，不妨打赏一下作者吧！
+          </p>
         </div>
 
-        <div className="flex justify-end gap-3">
-            <Button variant="ghost" onClick={onClose} className="hover:bg-white/10 text-gray-300">
-                取消
-            </Button>
-            <Button 
-                onClick={handleTip} 
-                disabled={loading || (!selectedAmount && !customAmount)}
-                className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold"
+        <div className="grid grid-cols-3 gap-3">
+          {PRESET_AMOUNTS.map((amount) => (
+            <button
+              key={amount}
+              onClick={() => {
+                setSelectedAmount(amount);
+                setCustomAmount("");
+              }}
+              className={`p-3 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-1 ${
+                selectedAmount === amount
+                  ? "border-yellow-500 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                  : "border-border hover:border-yellow-500/50 hover:bg-muted/50 text-foreground"
+              }`}
             >
-                {loading ? "支付中..." : "确认支付"}
-            </Button>
+              <span className="text-lg font-bold">¥{amount}</span>
+              <span className="text-xs opacity-80">
+                {amount * 10} 积分
+              </span>
+            </button>
+          ))}
         </div>
-      </DialogContent>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-border" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-card px-2 text-muted-foreground">
+              或者自定义金额
+            </span>
+          </div>
+        </div>
+
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">
+            ¥
+          </span>
+          <Input
+            type="number"
+            placeholder="输入金额"
+            value={customAmount}
+            onChange={(e) => {
+              setCustomAmount(e.target.value);
+              setSelectedAmount(0);
+            }}
+            className="pl-8 h-12 text-lg border-border focus:border-yellow-500/50 bg-background"
+          />
+        </div>
+
+        <Button 
+          onClick={handleTip} 
+          disabled={loading || (!selectedAmount && !customAmount)}
+          className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold h-12 text-lg shadow-lg shadow-orange-500/20"
+        >
+          {loading ? "支付中..." : "确认支付"}
+        </Button>
+      </div>
+    </DialogContent>
     </Dialog>
   )
 }

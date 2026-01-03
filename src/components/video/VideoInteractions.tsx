@@ -144,11 +144,11 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
         <div className="flex items-center gap-2 flex-wrap">
           <Button 
             variant="secondary" 
-            className={cn("bg-white/10 hover:bg-white/20 border-0 text-white", hasLiked && "text-blue-400 bg-blue-500/10")}
+            className={cn("bg-secondary/50 hover:bg-secondary border-0 text-foreground", hasLiked && "text-primary bg-primary/10 hover:bg-primary/20")}
             onClick={handleLike}
             disabled={isLoading}
           >
-            <ThumbsUp className={cn("h-4 w-4 mr-2", hasLiked && "fill-blue-400")} />
+            <ThumbsUp className={cn("h-4 w-4 mr-2", hasLiked && "fill-primary")} />
             {likes}
           </Button>
           
@@ -157,15 +157,15 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
           <SocialShare url={typeof window !== 'undefined' ? window.location.href : videoUrl} title={videoTitle} />
           
           <a href={downloadUrl || videoUrl} download target="_blank" rel="noopener noreferrer" onClick={handleDownload}>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white" disabled={isLoading}>
-              <Download className="h-4 w-4 mr-2" />
-              下载
-            </Button>
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isLoading}>
+          <Download className="h-4 w-4 mr-2" />
+          下载
+        </Button>
           </a>
           
           <Button 
-            className="bg-yellow-500 hover:bg-yellow-600 text-white border-0"
-            disabled={isLoading}
+          className="bg-yellow-500 hover:bg-yellow-600 text-white dark:bg-yellow-600 dark:hover:bg-yellow-700 border-0"
+          disabled={isLoading}
             onClick={() => {
                 if (isLoading) return;
                 if (!effectiveUser) {
@@ -183,7 +183,7 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
           <Button 
             variant="ghost" 
             size="icon" 
-            className="text-gray-400 hover:text-red-400 hover:bg-white/10" 
+            className="text-muted-foreground hover:text-destructive hover:bg-accent" 
             title="举报视频"
             onClick={() => setIsReportModalOpen(true)}
           >

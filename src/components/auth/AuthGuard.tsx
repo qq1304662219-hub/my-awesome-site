@@ -70,9 +70,9 @@ export function AuthGuard({ children, requireAdmin = false }: { children: React.
 
   if (error) {
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-[#020817] gap-4 text-white p-4 text-center">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4 text-foreground p-4 text-center">
             <div className="text-red-400 text-xl font-bold">访问被拒绝</div>
-            <p className="text-gray-400">{error}</p>
+            <p className="text-muted-foreground">{error}</p>
             <Button onClick={() => router.push('/')} variant="outline">
                 返回首页
             </Button>
@@ -82,11 +82,11 @@ export function AuthGuard({ children, requireAdmin = false }: { children: React.
 
   if (isTimeout) {
       return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-[#020817] gap-4 text-white p-4 text-center">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4 text-foreground p-4 text-center">
             <div className="text-red-400 text-xl font-bold">验证超时</div>
-            <div className="text-gray-400 text-sm max-w-md">
+            <div className="text-muted-foreground text-sm max-w-md">
                 <p>系统无法在规定时间内完成身份验证。</p>
-                <div className="mt-2 p-2 bg-gray-900 rounded text-xs font-mono text-left">
+                <div className="mt-2 p-2 bg-muted rounded text-xs font-mono text-left">
                     <p>Auth Loading: {isAuthLoading ? 'Yes' : 'No'}</p>
                     <p>Checking: {isChecking ? 'Yes' : 'No'}</p>
                     <p>User: {user ? 'Found' : 'Missing'}</p>
@@ -102,7 +102,7 @@ export function AuthGuard({ children, requireAdmin = false }: { children: React.
                 </button>
                 <button 
                     onClick={() => router.push('/')}
-                    className="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors"
+                    className="px-4 py-2 bg-muted hover:bg-muted/80 transition-colors"
                 >
                     返回首页
                 </button>
@@ -113,9 +113,9 @@ export function AuthGuard({ children, requireAdmin = false }: { children: React.
 
   if (isAuthLoading || isChecking) {
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-[#020817] gap-4">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-            <p className="text-gray-400 text-sm animate-pulse">
+            <p className="text-muted-foreground text-sm animate-pulse">
                 {isAuthLoading ? '正在连接认证服务...' : '正在验证用户权限...'}
             </p>
         </div>

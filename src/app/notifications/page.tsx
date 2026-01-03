@@ -156,13 +156,13 @@ export default function NotificationsPage() {
     switch (type) {
       case 'comment':
       case 'reply':
-        return <MessageSquare className="h-5 w-5 text-blue-400" />
+        return <MessageSquare className="h-5 w-5 text-blue-500 dark:text-blue-400" />
       case 'like':
-        return <Heart className="h-5 w-5 text-red-400" />
+        return <Heart className="h-5 w-5 text-red-500 dark:text-red-400" />
       case 'follow':
-        return <Video className="h-5 w-5 text-purple-400" /> // Using Video icon for now as UserPlus might not be imported
+        return <Video className="h-5 w-5 text-purple-500 dark:text-purple-400" /> // Using Video icon for now as UserPlus might not be imported
       default:
-        return <Bell className="h-5 w-5 text-gray-400" />
+        return <Bell className="h-5 w-5 text-muted-foreground" />
     }
   }
 
@@ -178,7 +178,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#020817] text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Navbar />
       
       <div className="container mx-auto px-4 pt-24 pb-16 flex-1 max-w-4xl">
@@ -193,7 +193,7 @@ export default function NotificationsPage() {
               variant="outline" 
               size="sm"
               onClick={markAllAsRead}
-              className="border-white/10 hover:bg-white/5"
+              className="border-border hover:bg-muted"
             >
               <CheckCheck className="h-4 w-4 mr-2" />
               全部已读
@@ -203,11 +203,11 @@ export default function NotificationsPage() {
 
         <div className="space-y-4">
           {loading ? (
-            <div className="text-center py-12 text-gray-500">加载中...</div>
+            <div className="text-center py-12 text-muted-foreground">加载中...</div>
           ) : notifications.length === 0 ? (
-            <div className="text-center py-20 bg-[#0B1120] rounded-xl border border-white/5">
-              <Bell className="h-12 w-12 mx-auto text-gray-600 mb-4" />
-              <p className="text-gray-400">暂无新通知</p>
+            <div className="text-center py-20 bg-muted/30 rounded-xl border border-border">
+              <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">暂无新通知</p>
             </div>
           ) : (
             notifications.map((notification) => (
@@ -219,13 +219,13 @@ export default function NotificationsPage() {
                 <div className={`
                   group relative flex gap-4 p-4 rounded-xl border transition-all duration-200
                   ${notification.is_read 
-                    ? 'bg-[#0B1120] border-white/5 opacity-80 hover:opacity-100' 
-                    : 'bg-[#1E293B] border-blue-500/30 shadow-lg shadow-blue-500/5'
+                    ? 'bg-card/50 border-border opacity-80 hover:opacity-100' 
+                    : 'bg-card border-blue-500/30 shadow-lg shadow-blue-500/5'
                   }
-                  hover:border-white/20
+                  hover:border-border
                 `}>
                   <div className="flex-shrink-0 mt-1">
-                    <Avatar className="h-10 w-10 border border-white/10">
+                    <Avatar className="h-10 w-10 border border-border">
                       <AvatarImage src={notification.actor?.avatar_url} />
                       <AvatarFallback>U</AvatarFallback>
                     </Avatar>
@@ -233,19 +233,19 @@ export default function NotificationsPage() {
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold text-sm text-blue-400">
+                      <span className="font-semibold text-sm text-blue-500 dark:text-blue-400">
                         {notification.actor?.full_name || "Unknown User"}
                       </span>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: zhCN })}
                       </span>
                     </div>
                     
-                    <p className="text-gray-300 text-sm line-clamp-2">
+                    <p className="text-foreground text-sm line-clamp-2">
                       {notification.content}
                     </p>
                     
-                    <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                    <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                       {getIcon(notification.type)}
                       <span className="capitalize">
                         {notification.type === 'comment' && '评论了你的视频'}
@@ -263,7 +263,7 @@ export default function NotificationsPage() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-6 w-6 text-gray-400 hover:text-red-400"
+                      className="h-6 w-6 text-muted-foreground hover:text-red-500"
                       onClick={(e) => deleteNotification(notification.id, e)}
                     >
                       <Trash2 className="h-4 w-4" />

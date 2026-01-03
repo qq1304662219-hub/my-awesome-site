@@ -33,16 +33,16 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
   }
 
   return (
-    <div className="min-h-screen bg-[#020817] text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Navbar />
       
       {/* Course Header */}
-      <div className="relative pt-32 pb-12 bg-[#0B1120] border-b border-white/10">
+      <div className="relative pt-32 pb-12 bg-muted/30 border-b border-border">
         <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="flex items-center gap-4 text-sm text-gray-400">
-                        <span className="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full border border-blue-500/20">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span className="bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20">
                             {course.level}
                         </span>
                         <span>{course.duration}</span>
@@ -53,7 +53,7 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
                         {course.title}
                     </h1>
                     
-                    <p className="text-xl text-gray-400">
+                    <p className="text-xl text-muted-foreground">
                         {course.description}
                     </p>
 
@@ -63,18 +63,18 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
                                 <User className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <p className="text-sm text-gray-400">讲师</p>
+                                <p className="text-sm text-muted-foreground">讲师</p>
                                 <p className="font-bold">{course.instructor}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <div className="flex text-yellow-400">
+                            <div className="flex text-yellow-500">
                                 {[1, 2, 3, 4, 5].map((i) => (
                                     <Star key={i} className="w-4 h-4 fill-current" />
                                 ))}
                             </div>
                             <div>
-                                <p className="text-sm text-gray-400">评分</p>
+                                <p className="text-sm text-muted-foreground">评分</p>
                                 <p className="font-bold">{course.rating}</p>
                             </div>
                         </div>
@@ -83,8 +83,8 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
 
                 {/* Course Card */}
                 <div className="lg:col-span-1">
-                    <div className="bg-[#1A2234] border border-white/10 rounded-2xl overflow-hidden sticky top-24">
-                        <div className="relative aspect-video bg-black/50">
+                    <div className="bg-card border border-border rounded-2xl overflow-hidden sticky top-24">
+                        <div className="relative aspect-video bg-muted">
                             <img 
                                 src={course.image_url} 
                                 alt={course.title} 
@@ -97,8 +97,8 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
                         <div className="p-6 space-y-6">
                             <div className="flex items-end justify-between">
                                 <div>
-                                    <p className="text-gray-400 text-sm">课程价格</p>
-                                    <p className="text-3xl font-bold text-white">
+                                    <p className="text-muted-foreground text-sm">课程价格</p>
+                                    <p className="text-3xl font-bold text-foreground">
                                         {course.price > 0 ? `¥${course.price}` : '免费'}
                                     </p>
                                 </div>
@@ -110,7 +110,7 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
                               isEnrolled={isEnrolled} 
                             />
                             
-                            <div className="space-y-4 text-sm text-gray-400">
+                            <div className="space-y-4 text-sm text-muted-foreground">
                                 <div className="flex items-center gap-3">
                                     <CheckCircle className="w-5 h-5 text-green-500" />
                                     <span>永久回放权限</span>

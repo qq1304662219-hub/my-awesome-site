@@ -97,8 +97,8 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl }:
       <div className="bg-card backdrop-blur-sm border border-border rounded-xl p-6 shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-card-foreground">获取素材</h3>
-          <Badge variant="outline" className="border-blue-500/30 text-blue-500 bg-blue-500/10">
-            {video.price && video.price > 0 ? `¥${video.price}` : '免费'}
+          <Badge variant="outline" className="border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/10">
+            {video.price > 0 ? `¥${video.price}` : '免费'}
           </Badge>
         </div>
 
@@ -135,28 +135,28 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl }:
             )}
         </Button>
         
-        <p className="text-xs text-gray-500 mt-3 flex items-center justify-center gap-1">
+        <p className="text-xs text-muted-foreground mt-3 flex items-center justify-center gap-1">
             <ShieldCheck className="h-3 w-3" />
             官方正版授权 · 永久商用保障
         </p>
       </div>
 
       {/* 2. Author Profile */}
-      <div className="bg-[#1e293b]/30 border border-white/5 rounded-xl p-5">
+      <div className="bg-card border border-border rounded-xl p-5">
          <div className="flex items-center gap-3 mb-4">
             <Link href={`/profile/${authorProfile?.id}`}>
-                <Avatar className="h-12 w-12 border-2 border-white/10 hover:border-blue-500/50 transition-colors">
+                <Avatar className="h-12 w-12 border-2 border-border hover:border-blue-500/50 transition-colors">
                     <AvatarImage src={authorProfile?.avatar_url} />
                     <AvatarFallback>{authorProfile?.full_name?.[0] || 'A'}</AvatarFallback>
                 </Avatar>
             </Link>
             <div className="flex-1 min-w-0">
                 <Link href={`/profile/${authorProfile?.id}`} className="block">
-                    <h4 className="font-medium text-white hover:text-blue-400 transition-colors truncate">
+                    <h4 className="font-medium text-foreground hover:text-blue-400 transition-colors truncate">
                         {authorProfile?.full_name || 'Unknown Creator'}
                     </h4>
                 </Link>
-                <p className="text-xs text-gray-400 truncate">
+                <p className="text-xs text-muted-foreground truncate">
                     {authorProfile?.bio || '这位创作者很神秘，还没有写简介'}
                 </p>
             </div>
@@ -168,21 +168,21 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl }:
       </div>
 
       {/* 3. Video Specs */}
-      <div className="bg-[#1e293b]/30 border border-white/5 rounded-xl p-5 space-y-4">
-        <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-2">参数信息</h4>
+      <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">参数信息</h4>
         
         <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="space-y-1">
-                <span className="text-gray-500 text-xs block flex items-center gap-1"><Maximize2 className="h-3 w-3" /> 分辨率</span>
-                <span className="text-gray-200 font-mono">{video.width && video.height ? `${video.width}x${video.height}` : video.resolution || '4K'}</span>
+                <span className="text-muted-foreground text-xs block flex items-center gap-1"><Maximize2 className="h-3 w-3" /> 分辨率</span>
+                <span className="text-foreground font-mono">{video.width && video.height ? `${video.width}x${video.height}` : video.resolution || '4K'}</span>
             </div>
             <div className="space-y-1">
-                <span className="text-gray-500 text-xs block flex items-center gap-1"><FileVideo className="h-3 w-3" /> 格式</span>
-                <span className="text-gray-200 font-mono uppercase">{video.format || 'MP4'}</span>
+                <span className="text-muted-foreground text-xs block flex items-center gap-1"><FileVideo className="h-3 w-3" /> 格式</span>
+                <span className="text-foreground font-mono uppercase">{video.format || 'MP4'}</span>
             </div>
             <div className="space-y-1">
-                <span className="text-gray-500 text-xs block flex items-center gap-1"><Clock className="h-3 w-3" /> 时长</span>
-                <span className="text-gray-200 font-mono">{video.duration ? `${Math.round(video.duration)}s` : '--'}</span>
+                <span className="text-muted-foreground text-xs block flex items-center gap-1"><Clock className="h-3 w-3" /> 时长</span>
+                <span className="text-foreground font-mono">{video.duration ? `${Math.round(video.duration)}s` : '--'}</span>
             </div>
              <div className="space-y-1">
                 <span className="text-muted-foreground text-xs block flex items-center gap-1"><HardDrive className="h-3 w-3" /> 大小</span>

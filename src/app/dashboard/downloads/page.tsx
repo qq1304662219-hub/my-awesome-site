@@ -150,7 +150,7 @@ export default function MyAssetsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen w-full">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     )
   }
@@ -163,20 +163,20 @@ export default function MyAssetsPage() {
     >
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Package className="h-6 w-6 text-blue-500" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <Package className="h-6 w-6 text-primary" />
             我的资产
           </h1>
-          <p className="text-gray-400 mt-1 text-sm">
+          <p className="text-muted-foreground mt-1 text-sm">
             管理您的下载历史和购买订单
           </p>
         </div>
         
         <div className="relative w-full md:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
             placeholder="搜索资产..." 
-            className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-blue-500/50 focus:ring-blue-500/20"
+            className="pl-9 bg-background border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -184,17 +184,17 @@ export default function MyAssetsPage() {
       </div>
 
       <Tabs defaultValue="downloads" className="space-y-6">
-        <TabsList className="bg-[#0f172a]/50 border border-white/5 p-1 backdrop-blur-sm">
+        <TabsList className="bg-muted border border-border p-1">
           <TabsTrigger 
             value="downloads" 
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400"
+            className="data-[state=active]:bg-background data-[state=active]:text-foreground text-muted-foreground"
           >
             <Download className="w-4 h-4 mr-2" />
             下载历史
           </TabsTrigger>
           <TabsTrigger 
             value="orders" 
-            className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-gray-400"
+            className="data-[state=active]:bg-background data-[state=active]:text-foreground text-muted-foreground"
           >
             <ShoppingBag className="w-4 h-4 mr-2" />
             购买记录
@@ -216,7 +216,7 @@ export default function MyAssetsPage() {
                   >
                     <VideoCard {...video} />
                     <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md text-[10px] font-medium text-white border border-white/10 shadow-lg flex items-center gap-1">
-                        <Download className="w-3 h-3" />
+                        <Calendar className="w-3 h-3" />
                         {new Date(video.downloaded_at).toLocaleDateString()}
                     </div>
                   </motion.div>
@@ -226,17 +226,17 @@ export default function MyAssetsPage() {
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center py-20 bg-[#0f172a]/30 rounded-xl border border-dashed border-white/10 backdrop-blur-sm"
+                className="text-center py-20 bg-muted/30 rounded-xl border border-dashed border-border backdrop-blur-sm"
               >
-                <div className="bg-white/5 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
-                  <Download className="h-8 w-8 text-gray-500" />
+                <div className="bg-background w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
+                  <Download className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-medium text-white mb-2">暂无下载记录</h3>
-                <p className="text-gray-400 text-sm">
+                <h3 className="text-lg font-medium text-foreground mb-2">暂无下载记录</h3>
+                <p className="text-muted-foreground text-sm">
                   您下载的视频将会显示在这里
                 </p>
                 <Link href="/videos">
-                  <Button variant="link" className="text-blue-400 mt-2">
+                  <Button variant="link" className="text-primary mt-2">
                     去浏览视频
                   </Button>
                 </Link>
@@ -257,9 +257,9 @@ export default function MyAssetsPage() {
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ delay: index * 0.05 }}
                   >
-                    <Card className="bg-[#0f172a]/50 border-white/10 overflow-hidden hover:bg-[#0f172a]/80 transition-colors group">
-                      <div className="p-4 border-b border-white/5 flex flex-wrap items-center justify-between gap-4 bg-white/[0.02]">
-                        <div className="flex items-center gap-6 text-sm text-gray-400">
+                    <Card className="bg-card border-border overflow-hidden hover:bg-muted/50 transition-colors group">
+                      <div className="p-4 border-b border-border flex flex-wrap items-center justify-between gap-4 bg-muted/30">
+                        <div className="flex items-center gap-6 text-sm text-muted-foreground">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
                             {new Date(order.created_at).toLocaleDateString()} {new Date(order.created_at).toLocaleTimeString()}
@@ -269,14 +269,14 @@ export default function MyAssetsPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
-                          <div className="font-bold text-white">
+                          <div className="font-bold text-foreground">
                             ¥{order.total_amount}
                           </div>
                           <Badge 
                             variant="outline"
                             className={order.status === 'completed' 
-                              ? 'bg-green-500/10 text-green-400 border-green-500/20' 
-                              : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'}
+                              ? 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20' 
+                              : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20'}
                           >
                             {order.status === 'completed' ? '已完成' : order.status}
                           </Badge>
@@ -285,8 +285,8 @@ export default function MyAssetsPage() {
 
                       <CardContent className="p-4 space-y-4">
                         {order.order_items.map((item: any) => (
-                          <div key={item.id} className="flex gap-4 group/item hover:bg-white/[0.02] p-2 rounded-lg transition-colors">
-                            <div className="relative w-32 aspect-video bg-black rounded-md overflow-hidden border border-white/10 shrink-0">
+                          <div key={item.id} className="flex gap-4 group/item hover:bg-muted/50 p-2 rounded-lg transition-colors">
+                            <div className="relative w-32 aspect-video bg-muted rounded-md overflow-hidden border border-border shrink-0">
                               {item.video?.thumbnail_url ? (
                                  <Image 
                                    src={item.video.thumbnail_url} 
@@ -295,19 +295,19 @@ export default function MyAssetsPage() {
                                    className="object-cover group-hover/item:scale-105 transition-transform duration-500"
                                  />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-700 bg-gray-900 text-xs">
+                                <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-muted text-xs">
                                   No Image
                                 </div>
                               )}
                             </div>
                             <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                               <div>
-                                <h4 className="font-medium text-white truncate text-sm">{item.video?.title || 'Unknown Video'}</h4>
+                                <h4 className="font-medium text-foreground truncate text-sm">{item.video?.title || 'Unknown Video'}</h4>
                                 <div className="flex items-center gap-2 mt-1.5">
-                                   <Badge variant="outline" className="text-[10px] h-5 px-1.5 border-blue-500/30 text-blue-400 bg-blue-500/5">
+                                   <Badge variant="outline" className="text-[10px] h-5 px-1.5 border-primary/30 text-primary bg-primary/5">
                                      {item.license_type === 'personal' ? '个人授权' : '企业授权'}
                                    </Badge>
-                                   <span className="text-gray-500 text-xs">¥{item.price}</span>
+                                   <span className="text-muted-foreground text-xs">¥{item.price}</span>
                                 </div>
                               </div>
                               <div className="flex gap-3 mt-2">
@@ -316,13 +316,13 @@ export default function MyAssetsPage() {
                                      href={item.video.url} 
                                      target="_blank" 
                                      rel="noopener noreferrer"
-                                     className="inline-flex items-center gap-1.5 text-xs text-white hover:text-blue-400 transition-colors"
+                                     className="inline-flex items-center gap-1.5 text-xs text-foreground hover:text-primary transition-colors"
                                    >
                                      <Download className="w-3 h-3" />
                                      下载资源
                                    </a>
                                  )}
-                                 <Link href={`/video/${item.video?.id}`} className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors">
+                                 <Link href={`/video/${item.video?.id}`} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
                                    查看详情
                                  </Link>
                               </div>
@@ -338,17 +338,17 @@ export default function MyAssetsPage() {
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center py-20 bg-[#0f172a]/30 rounded-xl border border-dashed border-white/10 backdrop-blur-sm"
+                className="text-center py-20 bg-muted/30 rounded-xl border border-dashed border-border backdrop-blur-sm"
               >
-                <div className="bg-white/5 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
-                  <ShoppingBag className="h-8 w-8 text-gray-500" />
+                <div className="bg-background w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
+                  <ShoppingBag className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-medium text-white mb-2">暂无购买记录</h3>
-                <p className="text-gray-400 text-sm">
+                <h3 className="text-lg font-medium text-foreground mb-2">暂无购买记录</h3>
+                <p className="text-muted-foreground text-sm">
                   您购买的视频将会显示在这里
                 </p>
                 <Link href="/videos">
-                  <Button variant="link" className="text-blue-400 mt-2">
+                  <Button variant="link" className="text-primary mt-2">
                     去选购素材
                   </Button>
                 </Link>

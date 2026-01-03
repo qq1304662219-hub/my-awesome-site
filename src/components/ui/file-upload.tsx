@@ -15,37 +15,16 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 
-const SCENARIOS = [
-  { value: "Live", label: "直播背景" },
-  { value: "Commerce", label: "电商短视频" },
-  { value: "Game", label: "游戏/CG" },
-  { value: "Wallpaper", label: "动态壁纸" },
-  { value: "Other", label: "其他" }
-]
-
-const STYLES = [
-  { value: "Sci-Fi", label: "赛博/科幻" },
-  { value: "Chinese", label: "国潮/古风" },
-  { value: "Anime", label: "二次元/动漫" },
-  { value: "Realistic", label: "超写实/实拍感" },
-  { value: "Abstract", label: "粒子/抽象" },
-  { value: "Other", label: "其他" }
-]
-
-const RATIOS = [
-  { value: "16:9", label: "横屏 16:9" },
-  { value: "9:16", label: "竖屏 9:16 (手机专用)" }
-]
-
-const AI_MODELS = [
-  { value: "Sora", label: "Sora" },
-  { value: "Runway Gen-2", label: "Runway Gen-2" },
-  { value: "Pika Labs", label: "Pika Labs" },
-  { value: "Stable Video Diffusion", label: "Stable Video Diffusion" },
-  { value: "Midjourney", label: "Midjourney" },
-  { value: "DALL-E 3", label: "DALL-E 3" },
-  { value: "Other", label: "其他" }
-]
+import { 
+    CATEGORIES, 
+    STYLES, 
+    AI_MODELS, 
+    MOVEMENTS, 
+    RATIOS, 
+    RESOLUTIONS, 
+    DURATIONS, 
+    FPS_OPTIONS 
+} from "@/lib/constants"
 
 interface FileUploadProps {
   userId: string;
@@ -68,15 +47,19 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
   const [prompt, setPrompt] = useState('')
   const [aiModel, setAiModel] = useState('')
   
-  const [category, setCategory] = useState('Live')
-  const [style, setStyle] = useState('Sci-Fi')
-  const [ratio, setRatio] = useState('16:9')
+  const [category, setCategory] = useState('')
+  const [style, setStyle] = useState('')
+  const [ratio, setRatio] = useState('')
+  const [movement, setMovement] = useState('')
+  const [resolution, setResolution] = useState('')
+  const [durationTag, setDurationTag] = useState('')
+  const [fpsTag, setFpsTag] = useState('')
+  const [fps, setFps] = useState(30)
   
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
-  const [durationStr, setDurationStr] = useState('00:00')
   const [durationSec, setDurationSec] = useState(0)
 
   const handleMetadataLoaded = (e: React.SyntheticEvent<HTMLVideoElement>) => {
@@ -86,10 +69,10 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
     const duration = video.duration
     if (!isNaN(duration)) {
         setDurationSec(duration)
-        const minutes = Math.floor(duration / 60)
-        const seconds = Math.floor(duration % 60)
-        const formatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-        setDurationStr(formatted)
+        if (duration < 3) setDurationTag("under_3s")
+        else if (duration <= 5) setDurationTag("3_5s")
+        else if (duration <= 10) setDurationTag("5_10s")
+        else setDurationTag("over_10s")
     }
 
     // Extract Resolution
@@ -98,23 +81,30 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
     if (width && height) {
         // Auto-detect ratio
         const r = width / height
-        if (r > 1.7) setRatio("16:9")
-        else if (r < 0.6) setRatio("9:16")
+        // Find closest ratio
+        if (Math.abs(r - 16/9) < 0.1) setRatio("16:9")
+        else if (Math.abs(r - 9/16) < 0.1) setRatio("9:16")
+        else if (Math.abs(r - 1) < 0.1) setRatio("1:1")
+        else if (Math.abs(r - 21/9) < 0.1) setRatio("21:9")
+        else if (Math.abs(r - 4/3) < 0.1) setRatio("4:3")
+        else setRatio("16:9") // Default fallback
         
         // Auto-detect resolution tag
-        let resTag = "1080p"
-        if (width >= 3840 || height >= 3840) resTag = "4k"
-        else if (width < 1280 && height < 1280) resTag = "720p"
+        if (width >= 7680 || height >= 7680) setResolution("8k")
+        else if (width >= 3840 || height >= 3840) setResolution("4k")
+        else if (width >= 2560 || height >= 1440) setResolution("2k")
+        else if (width >= 1920 || height >= 1080) setResolution("1080p")
+        else setResolution("720p_low")
         
-        // Store technical specs in a way we can use during upload
-        // For now, we'll just log it or store in state if we had a dedicated state for it.
-        // We'll append it to the description or a hidden field if needed, 
-        // OR better: we add these fields to the insert query in handleUpload.
-        // Let's store them in a ref or state.
         videoRef.current!.dataset.width = width.toString()
         videoRef.current!.dataset.height = height.toString()
-        videoRef.current!.dataset.resolution = resTag
     }
+    
+    // Estimate FPS (Video element doesn't expose FPS directly, usually requires parsing file header or counting frames over time)
+    // For now, we default to 30 or let user select. 
+    // We can't easily auto-detect FPS in JS without external libraries.
+    setFpsTag("30") // Default to 30 fps
+    setFps(30)
   }
 
   const handleSeeked = () => {
@@ -219,6 +209,16 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
         toast.error('请输入标题')
         return
     }
+    
+    // Validate 8 Mandatory Tags
+    if (!style) { toast.error('请选择视觉风格'); return }
+    if (!category) { toast.error('请选择内容题材'); return }
+    if (!aiModel) { toast.error('请选择 AI 模型'); return }
+    if (!movement) { toast.error('请选择镜头语言'); return }
+    if (!resolution) { toast.error('请选择画质/分辨率'); return }
+    if (!durationTag) { toast.error('请确认时长分类'); return }
+    if (!ratio) { toast.error('请选择比例'); return }
+    if (!fpsTag) { toast.error('请选择帧率'); return }
 
     setUploading(true)
     setMessage(null)
@@ -232,10 +232,6 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
 
       if (quotaError) {
         console.error("Quota check error:", quotaError)
-        // If RPC fails (e.g. not found), we might want to fail open or closed. 
-        // For now, let's log and proceed, or block. 
-        // If function is missing, it errors.
-        // Let's assume migration runs successfully.
       } else if (hasQuota === false) {
         throw new Error("存储空间已满，无法上传此视频。请联系管理员升级套餐。")
       }
@@ -268,6 +264,15 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
       const { data: { publicUrl: videoUrl } } = supabase.storage.from('videos').getPublicUrl(fileName)
       const { data: { publicUrl: coverPublicUrl } } = supabase.storage.from('covers').getPublicUrl(coverName)
 
+      // Determine numeric FPS from tag if possible, or use default
+      let finalFps = 30
+      if (fpsTag === '24') finalFps = 24
+      else if (fpsTag === '25') finalFps = 25
+      else if (fpsTag === '30') finalFps = 30
+      else if (fpsTag === 'over_60') finalFps = 60
+      else if (fpsTag === 'under_24') finalFps = 15 // approximation
+      else finalFps = fps || 30
+
       // 4. Insert into Database
       const { data: videoData, error: dbError } = await supabase
         .from('videos')
@@ -285,14 +290,14 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           ratio,
           duration: durationSec,
           ai_model: aiModel,
+          movement, // New field
           prompt,
-          // Auto-detected metadata
-          resolution: videoRef.current?.dataset.resolution || '1080p',
+          resolution, // Storing the tag string (e.g. '1080p') matches VideoGrid filter
           width: videoRef.current?.dataset.width ? parseInt(videoRef.current.dataset.width) : null,
           height: videoRef.current?.dataset.height ? parseInt(videoRef.current.dataset.height) : null,
           size: file.size,
           format: file.type.split('/')[1]?.toUpperCase() || 'MP4',
-          fps: 30 // Default assumption as browser API doesn't give FPS easily
+          fps: finalFps
         })
         .select()
         .single()
@@ -363,17 +368,17 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                 className="space-y-5"
             >
                 <div 
-                    className={`border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center text-center transition-all cursor-pointer group min-h-[300px] ${isDragging ? 'border-blue-500 bg-blue-500/10' : 'border-white/10 hover:border-blue-500/50 hover:bg-blue-500/5'}`}
+                    className={`border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center text-center transition-all cursor-pointer group min-h-[300px] ${isDragging ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50 hover:bg-primary/5'}`}
                     onClick={() => document.getElementById('file-upload')?.click()}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                 >
-                    <div className="h-20 w-20 rounded-full bg-blue-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-blue-500/5">
-                        <Upload className="h-10 w-10 text-blue-500" />
+                    <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-primary/5">
+                        <Upload className="h-10 w-10 text-primary" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">点击或拖拽上传视频</h3>
-                    <p className="text-sm text-gray-400 mb-6 max-w-sm">
+                    <h3 className="text-xl font-bold text-foreground mb-2">点击或拖拽上传视频</h3>
+                    <p className="text-sm text-muted-foreground mb-6 max-w-sm">
                         支持 MP4, MOV, WebM 格式。建议上传 1080p 或 4K 分辨率的高质量视频。
                     </p>
                     <div className="flex flex-col gap-2">
@@ -385,7 +390,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                             onChange={handleFileChange}
                         />
                         <Button variant="secondary" className="px-8">选择文件</Button>
-                        <p className="text-xs text-gray-500 mt-2">最大支持 500MB</p>
+                        <p className="text-xs text-muted-foreground mt-2">最大支持 500MB</p>
                     </div>
                 </div>
             </motion.div>
@@ -410,11 +415,11 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                     {/* Left: Preview & Cover */}
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <Label className="text-gray-300 flex items-center gap-2">
-                                <FileVideo className="h-4 w-4 text-blue-500" />
+                            <Label className="text-muted-foreground flex items-center gap-2">
+                                <FileVideo className="h-4 w-4 text-primary" />
                                 视频预览 & 封面
                             </Label>
-                            <div className="aspect-video bg-black rounded-xl overflow-hidden border border-white/10 relative group shadow-2xl">
+                            <div className="aspect-video bg-black rounded-xl overflow-hidden border border-border relative group shadow-2xl">
                                 {previewUrl && (
                                     <video 
                                     ref={videoRef}
@@ -428,8 +433,8 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between gap-4 p-4 rounded-lg bg-white/5 border border-white/10">
-                            <div className="text-sm text-gray-400">
+                        <div className="flex items-center justify-between gap-4 p-4 rounded-lg bg-muted/30 border border-border">
+                            <div className="text-sm text-muted-foreground">
                                 封面是用户看到的第一眼，请选择精彩的一帧。
                             </div>
                             <Button size="sm" variant="secondary" onClick={handleCaptureCover} type="button" className="shrink-0">
@@ -443,8 +448,8 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="space-y-2"
                             >
-                                <Label className="text-gray-300 text-xs uppercase tracking-wider">当前封面预览</Label>
-                                <div className="w-40 aspect-video bg-black rounded-lg border border-white/10 overflow-hidden shadow-lg">
+                                <Label className="text-muted-foreground text-xs uppercase tracking-wider">当前封面预览</Label>
+                                <div className="w-40 aspect-video bg-muted rounded-lg border border-border overflow-hidden shadow-lg">
                                     <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
                                 </div>
                             </motion.div>
@@ -454,67 +459,124 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                     {/* Right: Metadata Form */}
                     <div className="space-y-5">
                         <div className="space-y-2">
-                        <Label htmlFor="title" className="text-gray-300">标题 <span className="text-red-500">*</span></Label>
-                        <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="bg-black/20 border-white/10 text-white focus:border-blue-500/50" />
+                        <Label htmlFor="title" className="text-foreground">标题 <span className="text-red-500">*</span></Label>
+                        <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="bg-background border-input text-foreground focus:border-primary/50" />
                         </div>
 
                         <div className="space-y-2">
-                        <Label htmlFor="desc" className="text-gray-300">描述</Label>
-                        <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="简单介绍一下视频内容..." className="bg-black/20 border-white/10 text-white min-h-[80px] focus:border-blue-500/50" />
+                        <Label htmlFor="desc" className="text-muted-foreground">描述</Label>
+                        <Textarea id="desc" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="简单介绍一下视频内容..." className="bg-background border-input text-foreground min-h-[80px] focus:border-primary/50" />
                         </div>
 
                         <div className="space-y-2">
-                        <Label className="text-gray-300">Prompt (提示词)</Label>
-                        <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="生成该视频使用的提示词..." className="bg-black/20 border-white/10 text-white min-h-[60px] focus:border-blue-500/50" />
+                        <Label className="text-muted-foreground">Prompt (提示词)</Label>
+                        <Textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="生成该视频使用的提示词..." className="bg-background border-input text-foreground min-h-[60px] focus:border-primary/50" />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label className="text-gray-300">AI Model</Label>
-                                <Select value={aiModel} onValueChange={setAiModel}>
-                                    <SelectTrigger className="bg-black/20 border-white/10 text-white"><SelectValue placeholder="选择 AI 模型" /></SelectTrigger>
-                                    <SelectContent className="bg-[#1e293b] border-white/10 text-white">
-                                        {AI_MODELS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label className="text-gray-300">分类</Label>
-                                <Select value={category} onValueChange={setCategory}>
-                                    <SelectTrigger className="bg-black/20 border-white/10 text-white"><SelectValue /></SelectTrigger>
-                                    <SelectContent className="bg-[#1e293b] border-white/10 text-white">
-                                        {SCENARIOS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label className="text-gray-300">价格 (A币)</Label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">¥</span>
-                                    <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="bg-black/20 border-white/10 text-white pl-7" min="0" />
+                        {/* 8 Essential Classifications */}
+                        <div className="space-y-4 border rounded-lg p-4 bg-muted/20">
+                            <Label className="text-sm font-semibold text-foreground mb-2 block">视频分类属性 (必填)</Label>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-muted-foreground text-xs">内容题材</Label>
+                                    <Select value={category} onValueChange={setCategory}>
+                                        <SelectTrigger className="bg-background border-input text-foreground"><SelectValue placeholder="选择题材" /></SelectTrigger>
+                                        <SelectContent className="bg-popover border-border text-popover-foreground">
+                                            {CATEGORIES.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-muted-foreground text-xs">视觉风格</Label>
+                                    <Select value={style} onValueChange={setStyle}>
+                                        <SelectTrigger className="bg-background border-input text-foreground"><SelectValue placeholder="选择风格" /></SelectTrigger>
+                                        <SelectContent className="bg-popover border-border text-popover-foreground">
+                                            {STYLES.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label className="text-gray-300">比例</Label>
-                                <Select value={ratio} onValueChange={setRatio}>
-                                    <SelectTrigger className="bg-black/20 border-white/10 text-white"><SelectValue /></SelectTrigger>
-                                    <SelectContent className="bg-[#1e293b] border-white/10 text-white">
-                                        {RATIOS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-muted-foreground text-xs">AI 模型</Label>
+                                    <Select value={aiModel} onValueChange={setAiModel}>
+                                        <SelectTrigger className="bg-background border-input text-foreground"><SelectValue placeholder="选择模型" /></SelectTrigger>
+                                        <SelectContent className="bg-popover border-border text-popover-foreground">
+                                            {AI_MODELS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-muted-foreground text-xs">镜头语言</Label>
+                                    <Select value={movement} onValueChange={setMovement}>
+                                        <SelectTrigger className="bg-background border-input text-foreground"><SelectValue placeholder="选择镜头" /></SelectTrigger>
+                                        <SelectContent className="bg-popover border-border text-popover-foreground">
+                                            {MOVEMENTS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-muted-foreground text-xs">画质/分辨率</Label>
+                                    <Select value={resolution} onValueChange={setResolution}>
+                                        <SelectTrigger className="bg-background border-input text-foreground"><SelectValue placeholder="选择分辨率" /></SelectTrigger>
+                                        <SelectContent className="bg-popover border-border text-popover-foreground">
+                                            {RESOLUTIONS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-muted-foreground text-xs">比例</Label>
+                                    <Select value={ratio} onValueChange={setRatio}>
+                                        <SelectTrigger className="bg-background border-input text-foreground"><SelectValue placeholder="选择比例" /></SelectTrigger>
+                                        <SelectContent className="bg-popover border-border text-popover-foreground">
+                                            {RATIOS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-muted-foreground text-xs">时长</Label>
+                                    <Select value={durationTag} onValueChange={setDurationTag}>
+                                        <SelectTrigger className="bg-background border-input text-foreground"><SelectValue placeholder="选择时长" /></SelectTrigger>
+                                        <SelectContent className="bg-popover border-border text-popover-foreground">
+                                            {DURATIONS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-muted-foreground text-xs">帧率</Label>
+                                    <Select value={fpsTag} onValueChange={setFpsTag}>
+                                        <SelectTrigger className="bg-background border-input text-foreground"><SelectValue placeholder="选择帧率" /></SelectTrigger>
+                                        <SelectContent className="bg-popover border-border text-popover-foreground">
+                                            {FPS_OPTIONS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                        <Label className="text-gray-300">标签 (输入后回车添加)</Label>
+                            <Label>价格 (A币)</Label>
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">¥</span>
+                                <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="pl-7" min="0" />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                        <Label className="text-muted-foreground">标签 (输入后回车添加)</Label>
                         <div className="flex flex-wrap gap-2 mb-2 min-h-[32px]">
                             {tags.map((tag, index) => (
-                                <Badge key={index} variant="secondary" className="gap-1 pr-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-blue-500/20">
+                                <Badge key={index} variant="secondary" className="gap-1 pr-1 bg-primary/10 hover:bg-primary/20 text-primary border-primary/20">
                                     {tag}
-                                    <X className="h-3 w-3 cursor-pointer hover:text-red-400" onClick={() => removeTag(index)} />
+                                    <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => removeTag(index)} />
                                 </Badge>
                             ))}
                         </div>
@@ -523,7 +585,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                             onChange={(e) => setTagInput(e.target.value)} 
                             onKeyDown={handleTagKeyDown}
                             placeholder="例如: 4K, 自然, 延时摄影" 
-                            className="bg-black/20 border-white/10 text-white" 
+                            className="bg-background border-input text-foreground" 
                         />
                         </div>
                     </div>
@@ -537,13 +599,13 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                     </Alert>
                 )}
 
-                <div className="flex justify-end gap-3 pt-6 border-t border-white/5">
-                    <Button variant="ghost" onClick={() => { setStep(1); setFile(null); }} disabled={uploading} className="text-gray-300 hover:text-white hover:bg-white/10">
+                <div className="flex justify-end gap-3 pt-6 border-t border-border">
+                    <Button variant="ghost" onClick={() => { setStep(1); setFile(null); }} disabled={uploading} className="text-muted-foreground hover:text-foreground">
                         取消
                     </Button>
                     <div className="flex flex-col gap-2 w-full max-w-[200px]">
                     {uploading && <Progress value={progress} className="h-2" />}
-                    <Button onClick={handleUpload} disabled={uploading} className="bg-blue-600 hover:bg-blue-700 w-full shadow-lg shadow-blue-900/20">
+                    <Button onClick={handleUpload} disabled={uploading} className="bg-primary hover:bg-primary/90 w-full shadow-lg shadow-primary/20">
                         {uploading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -572,8 +634,8 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                     <div className="h-20 w-20 rounded-full bg-green-500/10 flex items-center justify-center mb-2 ring-4 ring-green-500/5">
                         <CheckCircle className="h-10 w-10 text-green-500" />
                     </div>
-                    <h3 className="text-2xl font-bold text-white">发布成功！</h3>
-                    <p className="text-gray-400 max-w-md">您的作品已提交审核，审核通过后将自动上架。感谢您对社区的贡献！</p>
+                    <h3 className="text-2xl font-bold text-foreground">发布成功！</h3>
+                    <p className="text-muted-foreground max-w-md">您的作品已提交审核，审核通过后将自动上架。感谢您对社区的贡献！</p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
@@ -595,7 +657,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
                             setPrice('0');
                         }} 
                         variant="outline" 
-                        className="border-white/10 hover:bg-white/5 text-gray-300 hover:text-white h-11 px-8"
+                        className="border-input hover:bg-accent hover:text-accent-foreground text-muted-foreground h-11 px-8"
                     >
                         继续上传
                     </Button>

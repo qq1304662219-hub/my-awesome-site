@@ -96,7 +96,7 @@ export function CourseForm({ initialData, mode }: CourseFormProps) {
         </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white/5 border border-white/10 p-6 rounded-xl">
+      <form onSubmit={handleSubmit} className="space-y-6 bg-card border border-border p-6 rounded-xl">
         <div className="space-y-2">
           <Label>课程标题 *</Label>
           <Input 
@@ -181,7 +181,7 @@ export function CourseForm({ initialData, mode }: CourseFormProps) {
           )}
         </div>
 
-        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>
+        <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
           {loading ? "提交中..." : (mode === 'create' ? "发布课程" : "保存修改")}
         </Button>
       </form>

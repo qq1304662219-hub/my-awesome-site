@@ -103,16 +103,16 @@ function CheckoutContent() {
 
   return (
     <div className="container mx-auto px-4 py-24">
-      <h1 className="text-2xl font-bold text-white mb-8">确认订单</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-8">确认订单</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Order Item */}
         <div className="lg:col-span-2 space-y-6">
-            <div className="bg-[#0f172a] border border-white/10 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-white mb-6">授权商品: 1 件</h3>
+            <div className="bg-card border border-border rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-6">授权商品: 1 件</h3>
                 
                 <div className="flex gap-6">
-                    <div className="w-48 aspect-video bg-black rounded-lg overflow-hidden relative border border-white/5">
+                    <div className="w-48 aspect-video bg-muted rounded-lg overflow-hidden relative border border-border">
                          {isVideoUrl ? (
                             <video src={thumbnail || ""} className="w-full h-full object-cover" />
                          ) : (
@@ -121,60 +121,60 @@ function CheckoutContent() {
                     </div>
                     <div className="flex-1 flex flex-col justify-between">
                         <div>
-                            <h4 className="text-xl font-medium text-white mb-2">{title}</h4>
-                            <p className="text-gray-400 text-sm">视频素材 | ID: {videoId}</p>
+                            <h4 className="text-xl font-medium text-foreground mb-2">{title}</h4>
+                            <p className="text-muted-foreground text-sm">视频素材 | ID: {videoId}</p>
                         </div>
                         <div className="flex justify-between items-end">
-                             <div className="text-gray-300 bg-white/5 px-3 py-1 rounded text-sm">
+                             <div className="text-muted-foreground bg-muted px-3 py-1 rounded text-sm">
                                 {licenseLabels[license || "personal"]}
                              </div>
-                             <div className="text-xl font-bold text-white">¥{price}</div>
+                             <div className="text-xl font-bold text-foreground">¥{price}</div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div className="bg-[#0f172a] border border-white/10 rounded-xl p-6 text-sm text-gray-400">
-                <p>购买不代表获得独家使用权。为保证您的权益，请及时获取授权 <span className="text-blue-400 cursor-pointer">获取授权</span></p>
+            <div className="bg-card border border-border rounded-xl p-6 text-sm text-muted-foreground">
+                <p>购买不代表获得独家使用权。为保证您的权益，请及时获取授权 <span className="text-primary cursor-pointer">获取授权</span></p>
             </div>
         </div>
 
         {/* Settlement Panel */}
         <div className="lg:col-span-1">
-            <div className="bg-white border border-gray-200 rounded-xl p-6 text-black shadow-xl sticky top-24">
+            <div className="bg-card border border-border rounded-xl p-6 text-card-foreground shadow-xl sticky top-24">
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="font-bold text-lg">结算信息</h3>
                     <div className="flex gap-2">
-                        <span className="bg-black text-white text-xs px-2 py-1 rounded">正版授权</span>
+                        <span className="bg-foreground text-background text-xs px-2 py-1 rounded">正版授权</span>
                         <span className="bg-green-500 text-white text-xs px-2 py-1 rounded">安心售后</span>
                     </div>
                 </div>
 
                 <div className="space-y-4 mb-8">
-                    <div className="flex justify-between text-gray-600">
+                    <div className="flex justify-between text-muted-foreground">
                         <span>合计</span>
                         <span className="font-medium">¥{price}</span>
                     </div>
                     
-                    <div className="bg-gray-100 p-3 rounded-lg flex items-center gap-2 text-sm text-gray-700">
+                    <div className="bg-muted p-3 rounded-lg flex items-center gap-2 text-sm text-foreground">
                         <ShieldCheck className="w-4 h-4 text-green-600" />
                         <span>成为大客户，本单最高减 ¥{Math.floor(price * 0.1)}元</span>
                     </div>
 
-                    <Button variant="outline" className="w-full border-dashed border-gray-300 text-gray-500 hover:text-blue-600 hover:border-blue-400">
+                    <Button variant="outline" className="w-full border-dashed border-border text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-accent">
                         <Ticket className="w-4 h-4 mr-2" /> 获取代金券
                     </Button>
                 </div>
 
-                <div className="border-t border-gray-200 pt-4 mb-6">
+                <div className="border-t border-border pt-4 mb-6">
                     <div className="flex justify-between items-baseline mb-2">
-                        <span className="text-gray-600">实付</span>
-                        <span className="text-3xl font-bold text-red-500">¥{price}</span>
+                        <span className="text-muted-foreground">实付</span>
+                        <span className="text-3xl font-bold text-destructive">¥{price}</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm text-gray-500">
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
                         <span className="flex items-center gap-1"><Wallet className="w-3 h-3" /> 充值余额: ¥{balance}</span>
                         {balance < price && (
-                             <span className="text-red-500 text-xs">余额不足</span>
+                             <span className="text-destructive text-xs">余额不足</span>
                         )}
                     </div>
                 </div>
@@ -183,15 +183,15 @@ function CheckoutContent() {
                     <Checkbox id="terms" checked={agreed} onCheckedChange={(c) => setAgreed(!!c)} />
                     <label
                         htmlFor="terms"
-                        className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-500"
+                        className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
                     >
-                        已确认订单并认可 <span className="text-blue-500 cursor-pointer">《授权协议》</span> <span className="text-blue-500 cursor-pointer">《退款规则》</span>
+                        已确认订单并认可 <span className="text-primary cursor-pointer">《授权协议》</span> <span className="text-primary cursor-pointer">《退款规则》</span>
                     </label>
                 </div>
 
                 {balance >= price ? (
                     <Button 
-                        className="w-full h-12 bg-black hover:bg-gray-800 text-white font-bold rounded-full text-lg"
+                        className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full text-lg"
                         onClick={handlePay}
                         disabled={loading}
                     >
@@ -200,7 +200,7 @@ function CheckoutContent() {
                 ) : (
                     <div className="space-y-3">
                         <Button 
-                            className="w-full h-12 bg-black hover:bg-gray-800 text-white font-bold rounded-full text-lg"
+                            className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-full text-lg"
                             onClick={handleRecharge}
                         >
                             去充值
@@ -213,7 +213,7 @@ function CheckoutContent() {
                                 router.push('/dashboard/wallet')
                             }}
                             trigger={
-                                <Button variant="outline" className="w-full h-12 rounded-full border-black/10 hover:bg-gray-50 text-black">
+                                <Button variant="outline" className="w-full h-12 rounded-full border-border hover:bg-accent text-foreground">
                                     扫码支付
                                 </Button>
                             }
@@ -229,9 +229,9 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
     return (
-        <div className="min-h-screen bg-[#020817] text-white">
+        <div className="min-h-screen bg-background text-foreground">
             <Navbar />
-            <Suspense fallback={<div className="pt-32 text-center">Loading...</div>}>
+            <Suspense fallback={<div className="pt-32 text-center text-muted-foreground">Loading...</div>}>
                 <CheckoutContent />
             </Suspense>
         </div>

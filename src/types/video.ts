@@ -29,6 +29,7 @@ export interface Video {
   prompt?: string;
   resolution?: string;
   fps?: number;
+  movement?: string;
   format?: string;
   size?: number;
 }

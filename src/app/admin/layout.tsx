@@ -84,10 +84,10 @@ function AdminContent({ children }: { children: React.ReactNode }) {
   ]
 
   return (
-    <div className="min-h-screen bg-[#020817] text-white flex">
+    <div className="min-h-screen bg-background text-foreground flex">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-white/10 bg-[#0B1120] flex flex-col fixed h-full z-10">
-        <div className="p-6 border-b border-white/10">
+      <aside className="w-64 border-r border-border bg-card flex flex-col fixed h-full z-10">
+        <div className="p-6 border-b border-border">
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
               AI Vision Admin
@@ -106,8 +106,8 @@ function AdminContent({ children }: { children: React.ReactNode }) {
                 <Button
                   variant="ghost"
                   className={cn(
-                    "w-full justify-start gap-3 text-gray-400 hover:text-white hover:bg-white/5",
-                    isActive && "bg-blue-600/10 text-blue-400 hover:bg-blue-600/20 hover:text-blue-300"
+                    "w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-accent",
+                    isActive && "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary"
                   )}
                 >
                   <item.icon className="h-4 w-4" />
@@ -118,9 +118,9 @@ function AdminContent({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/10">
+        <div className="p-4 border-t border-border">
           <Link href="/">
-            <Button variant="ghost" className="w-full justify-start gap-3 text-gray-400 hover:text-white hover:bg-white/5">
+            <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground hover:bg-accent">
               <LogOut className="h-4 w-4" />
               退出后台
             </Button>

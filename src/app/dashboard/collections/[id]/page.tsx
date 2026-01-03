@@ -110,8 +110,8 @@ export default function CollectionDetailPage({ params }: CollectionDetailPagePro
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#020817] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     )
   }
@@ -123,12 +123,12 @@ export default function CollectionDetailPage({ params }: CollectionDetailPagePro
   const isOwner = user?.id === collection.user_id
 
   return (
-    <div className="min-h-screen bg-[#020817] text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Navbar />
       
       <div className="container mx-auto px-4 pt-32 pb-12 flex-1">
         <div className="mb-8">
-            <Link href="/dashboard/collections" className="text-gray-400 hover:text-white flex items-center gap-2 mb-4 transition-colors">
+            <Link href="/dashboard/collections" className="text-muted-foreground hover:text-foreground flex items-center gap-2 mb-4 transition-colors">
                 <ArrowLeft className="h-4 w-4" />
                 返回我的收藏
             </Link>
@@ -137,9 +137,9 @@ export default function CollectionDetailPage({ params }: CollectionDetailPagePro
                 <div>
                     <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
                         {collection.name}
-                        {!collection.is_public && <Lock className="h-5 w-5 text-gray-500" />}
+                        {!collection.is_public && <Lock className="h-5 w-5 text-muted-foreground" />}
                     </h1>
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <span>创建者: {collection.profiles?.username || 'Unknown'}</span>
                         <span>•</span>
                         <span>{videos.length} 个视频</span>
@@ -151,12 +151,12 @@ export default function CollectionDetailPage({ params }: CollectionDetailPagePro
                 {isOwner && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
                                 <MoreHorizontal className="h-5 w-5" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-[#1e293b] border-white/10 text-white">
-                            <DropdownMenuItem className="focus:bg-white/10 cursor-pointer text-red-400" onClick={handleDeleteCollection}>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem className="cursor-pointer text-red-500 focus:text-red-600" onClick={handleDeleteCollection}>
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 删除收藏夹
                             </DropdownMenuItem>
@@ -188,10 +188,10 @@ export default function CollectionDetailPage({ params }: CollectionDetailPagePro
             ))}
             </div>
         ) : (
-            <div className="text-center py-20 bg-white/5 rounded-xl border border-white/10">
-                <p className="text-gray-400">收藏夹是空的</p>
+            <div className="text-center py-20 bg-muted/50 rounded-xl border border-border">
+                <p className="text-muted-foreground">收藏夹是空的</p>
                 <Link href="/explore">
-                    <Button variant="link" className="text-blue-400">去探索视频</Button>
+                    <Button variant="link" className="text-primary">去探索视频</Button>
                 </Link>
             </div>
         )}

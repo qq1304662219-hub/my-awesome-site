@@ -136,7 +136,7 @@ export default function InviteDashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-200px)]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -150,31 +150,31 @@ export default function InviteDashboardPage() {
     >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">邀请有礼</h1>
-          <p className="text-gray-400 mt-1">邀请好友加入，共同赚取 A币 奖励</p>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-muted-foreground">邀请有礼</h1>
+          <p className="text-muted-foreground mt-1">邀请好友加入，共同赚取 A币 奖励</p>
         </div>
       </div>
 
       {/* Hero / Invite Link Section */}
       <motion.div variants={item}>
-        <Card className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border-purple-500/20 overflow-hidden relative">
+        <Card className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 border-purple-500/20 overflow-hidden relative">
           <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <CardContent className="p-8 relative z-10">
             <div className="flex flex-col md:flex-row gap-8 items-center">
               <div className="flex-1 space-y-4 text-center md:text-left">
-                <h2 className="text-2xl font-bold text-white leading-relaxed">
-                  每邀请一位好友注册，您将获得 <span className="text-yellow-400 text-3xl mx-1 font-extrabold">50</span> A币<br/>
-                  <span className="text-lg font-normal text-gray-300">好友将获得 <span className="text-yellow-400 font-bold">20 A币</span> 新人礼包</span>
+                <h2 className="text-2xl font-bold text-foreground leading-relaxed">
+                  每邀请一位好友注册，您将获得 <span className="text-yellow-500 text-3xl mx-1 font-extrabold">50</span> A币<br/>
+                  <span className="text-lg font-normal text-muted-foreground">好友将获得 <span className="text-yellow-500 font-bold">20 A币</span> 新人礼包</span>
                 </h2>
-                <p className="text-gray-400 max-w-xl">
+                <p className="text-muted-foreground max-w-xl">
                   奖励自动到账，无上限，多邀多得。快去分享给您的朋友吧！
                 </p>
                 
-                <div className="flex items-center gap-2 max-w-md mx-auto md:mx-0 mt-6 bg-black/30 p-1.5 rounded-xl border border-white/10 shadow-inner">
+                <div className="flex items-center gap-2 max-w-md mx-auto md:mx-0 mt-6 bg-muted/50 p-1.5 rounded-xl border border-border shadow-inner">
                   <Input 
                     value={inviteLink} 
                     readOnly 
-                    className="bg-transparent border-none text-gray-300 focus-visible:ring-0 h-10 font-mono text-sm selection:bg-purple-500/30"
+                    className="bg-transparent border-none text-foreground focus-visible:ring-0 h-10 font-mono text-sm selection:bg-purple-500/30"
                   />
                   <Button onClick={handleCopy} className="bg-purple-600 hover:bg-purple-700 text-white shrink-0 font-medium px-6">
                     <Copy className="mr-2 h-4 w-4" /> 复制
@@ -185,21 +185,21 @@ export default function InviteDashboardPage() {
               <div className="hidden md:flex gap-6 pr-8">
                  <div className="flex flex-col items-center gap-3">
                      <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30 backdrop-blur-sm shadow-lg shadow-blue-500/10">
-                        <Share2 className="w-8 h-8 text-blue-400" />
+                        <Share2 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                      </div>
-                     <span className="text-xs text-blue-200 font-medium">1. 发送邀请</span>
+                     <span className="text-xs text-blue-600 dark:text-blue-200 font-medium">1. 发送邀请</span>
                  </div>
                  <div className="flex flex-col items-center gap-3">
                      <div className="w-16 h-16 rounded-2xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30 backdrop-blur-sm shadow-lg shadow-purple-500/10">
-                        <Users className="w-8 h-8 text-purple-400" />
+                        <Users className="w-8 h-8 text-purple-600 dark:text-purple-400" />
                      </div>
-                     <span className="text-xs text-purple-200 font-medium">2. 好友注册</span>
+                     <span className="text-xs text-purple-600 dark:text-purple-200 font-medium">2. 好友注册</span>
                  </div>
                  <div className="flex flex-col items-center gap-3">
                      <div className="w-16 h-16 rounded-2xl bg-yellow-500/20 flex items-center justify-center border border-yellow-500/30 backdrop-blur-sm shadow-lg shadow-yellow-500/10">
-                        <Gift className="w-8 h-8 text-yellow-400" />
+                        <Gift className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
                      </div>
-                     <span className="text-xs text-yellow-200 font-medium">3. 获得奖励</span>
+                     <span className="text-xs text-yellow-600 dark:text-yellow-200 font-medium">3. 获得奖励</span>
                  </div>
               </div>
             </div>
@@ -209,56 +209,56 @@ export default function InviteDashboardPage() {
 
       {/* Stats Cards */}
       <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm hover:bg-[#1e293b]/70 transition-colors">
+        <Card className="bg-card border-border hover:bg-accent/5 transition-colors">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Users className="h-4 w-4 text-blue-400" />
               已邀请好友
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">{stats.invitedCount} <span className="text-sm font-normal text-gray-500">人</span></div>
+            <div className="text-3xl font-bold text-foreground">{stats.invitedCount} <span className="text-sm font-normal text-muted-foreground">人</span></div>
           </CardContent>
         </Card>
         
-        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm hover:bg-[#1e293b]/70 transition-colors">
+        <Card className="bg-card border-border hover:bg-accent/5 transition-colors">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-green-400" />
               已发布作品好友
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">{stats.publishedCount} <span className="text-sm font-normal text-gray-500">人</span></div>
+            <div className="text-3xl font-bold text-foreground">{stats.publishedCount} <span className="text-sm font-normal text-muted-foreground">人</span></div>
           </CardContent>
         </Card>
 
-        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm hover:bg-[#1e293b]/70 transition-colors">
+        <Card className="bg-card border-border hover:bg-accent/5 transition-colors">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Coins className="h-4 w-4 text-yellow-400" />
               累计获得奖励
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-yellow-400">{stats.totalEarned.toFixed(0)} <span className="text-sm font-normal text-gray-500">A币</span></div>
+            <div className="text-3xl font-bold text-yellow-400">{stats.totalEarned.toFixed(0)} <span className="text-sm font-normal text-muted-foreground">A币</span></div>
           </CardContent>
         </Card>
       </motion.div>
 
       {/* Invitation List */}
       <motion.div variants={item}>
-        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-white">邀请记录</CardTitle>
-            <CardDescription className="text-gray-400">
+            <CardTitle className="text-foreground">邀请记录</CardTitle>
+            <CardDescription className="text-muted-foreground">
               查看您的邀请好友状态与奖励进度
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-gray-400">
-                <thead className="bg-black/20 text-gray-200 uppercase font-medium border-b border-white/5">
+              <table className="w-full text-left text-sm text-muted-foreground">
+                <thead className="bg-muted/50 text-foreground uppercase font-medium border-b border-border">
                   <tr>
                     <th className="px-6 py-4">好友</th>
                     <th className="px-6 py-4">注册时间</th>
@@ -266,21 +266,21 @@ export default function InviteDashboardPage() {
                     <th className="px-6 py-4 text-right">奖励</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-border">
                   {invitedUsers.length > 0 ? (
                     invitedUsers.map((invited) => {
                         const hasPublished = invited.videos && invited.videos[0]?.count > 0
                         return (
-                            <tr key={invited.id} className="hover:bg-white/[0.02] transition-colors">
+                            <tr key={invited.id} className="hover:bg-muted/50 transition-colors">
                                 <td className="px-6 py-4">
                                 <div className="flex items-center gap-3">
-                                    <Avatar className="h-8 w-8 border border-white/10">
+                                    <Avatar className="h-8 w-8 border border-border">
                                     <AvatarImage src={invited.avatar_url} />
                                     <AvatarFallback>{invited.username?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col">
-                                        <span className="text-white font-medium">{invited.full_name || invited.username || 'Unknown'}</span>
-                                        <span className="text-xs text-gray-500">@{invited.username}</span>
+                                        <span className="text-foreground font-medium">{invited.full_name || invited.username || 'Unknown'}</span>
+                                        <span className="text-xs text-muted-foreground">@{invited.username}</span>
                                     </div>
                                 </div>
                                 </td>
@@ -289,11 +289,11 @@ export default function InviteDashboardPage() {
                                 </td>
                                 <td className="px-6 py-4">
                                 {hasPublished ? (
-                                    <Badge className="bg-green-500/10 text-green-400 hover:bg-green-500/20 border-green-500/20">
+                                    <Badge className="bg-green-500/10 text-green-500 hover:bg-green-500/20 border-green-500/20">
                                         已发布作品
                                     </Badge>
                                 ) : (
-                                    <Badge variant="outline" className="text-gray-400 border-gray-600">
+                                    <Badge variant="outline" className="text-muted-foreground border-border">
                                         已注册
                                     </Badge>
                                 )}
@@ -307,8 +307,8 @@ export default function InviteDashboardPage() {
                   ) : (
                     <tr>
                       <td colSpan={4} className="px-6 py-12 text-center">
-                        <div className="flex flex-col items-center justify-center text-gray-500">
-                          <div className="h-12 w-12 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                        <div className="flex flex-col items-center justify-center text-muted-foreground">
+                          <div className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center mb-4">
                             <Users className="h-6 w-6" />
                           </div>
                           <p>暂无邀请记录</p>

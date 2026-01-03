@@ -49,22 +49,22 @@ export function SocialShare({ url, title = "分享视频" }: SocialShareProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="secondary" className="bg-white/10 hover:bg-white/20 border-0 text-white">
+        <Button variant="secondary" className="bg-muted hover:bg-muted/80 border-0 text-foreground">
           <Share2 className="h-4 w-4 mr-2" />
           分享
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-56 bg-[#1a202c] border-white/10 text-white p-2" align="center">
+      <PopoverContent className="w-56 bg-popover border-border text-popover-foreground p-2" align="center">
         <div className="grid gap-2">
-          <Button variant="ghost" className="w-full justify-start hover:bg-white/10" onClick={handleCopy}>
+          <Button variant="ghost" className="w-full justify-start hover:bg-accent hover:text-accent-foreground" onClick={handleCopy}>
             {copied ? <Check className="h-4 w-4 mr-2 text-green-500" /> : <Link className="h-4 w-4 mr-2" />}
             复制链接
           </Button>
-          <Button variant="ghost" className="w-full justify-start hover:bg-white/10" onClick={() => handleShare('twitter')}>
+          <Button variant="ghost" className="w-full justify-start hover:bg-accent hover:text-accent-foreground" onClick={() => handleShare('twitter')}>
             <Twitter className="h-4 w-4 mr-2 text-blue-400" />
             分享到 Twitter
           </Button>
-          <Button variant="ghost" className="w-full justify-start hover:bg-white/10" onClick={() => handleShare('facebook')}>
+          <Button variant="ghost" className="w-full justify-start hover:bg-accent hover:text-accent-foreground" onClick={() => handleShare('facebook')}>
             <Facebook className="h-4 w-4 mr-2 text-blue-600" />
             分享到 Facebook
           </Button>

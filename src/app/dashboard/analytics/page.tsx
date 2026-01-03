@@ -142,7 +142,7 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
         <div className="flex items-center justify-center h-full min-h-[500px]">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
     )
   }
@@ -166,10 +166,10 @@ export default function AnalyticsPage() {
     <div className="p-8 space-y-8 min-h-full pb-20 max-w-7xl mx-auto">
       <div className="flex justify-between items-end">
         <div>
-            <h1 className="text-3xl font-bold text-white mb-2">数据分析</h1>
-            <p className="text-gray-400">实时监控您的创作影响力与收益表现</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">数据分析</h1>
+            <p className="text-muted-foreground">实时监控您的创作影响力与收益表现</p>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-muted-foreground">
             数据更新于 {new Date().toLocaleTimeString()}
         </div>
       </div>
@@ -186,7 +186,7 @@ export default function AnalyticsPage() {
                 value={stats.totalViews.toLocaleString()} 
                 icon={Eye} 
                 trend="+12.5%" 
-                color="text-blue-500"
+                color="text-blue-600 dark:text-blue-400"
                 bgColor="bg-blue-500/10"
             />
         </motion.div>
@@ -196,7 +196,7 @@ export default function AnalyticsPage() {
                 value={stats.totalLikes.toLocaleString()} 
                 icon={Heart} 
                 trend="+5.2%" 
-                color="text-pink-500"
+                color="text-pink-600 dark:text-pink-400"
                 bgColor="bg-pink-500/10"
             />
         </motion.div>
@@ -206,7 +206,7 @@ export default function AnalyticsPage() {
                 value={stats.totalFollowers.toLocaleString()} 
                 icon={Users} 
                 trend="+8.1%" 
-                color="text-purple-500"
+                color="text-purple-600 dark:text-purple-400"
                 bgColor="bg-purple-500/10"
             />
         </motion.div>
@@ -216,7 +216,7 @@ export default function AnalyticsPage() {
                 value={`¥${stats.totalIncome.toFixed(2)}`} 
                 icon={Wallet} 
                 trend="+24.3%" 
-                color="text-green-500"
+                color="text-green-600 dark:text-green-400"
                 bgColor="bg-green-500/10"
             />
         </motion.div>
@@ -229,13 +229,13 @@ export default function AnalyticsPage() {
             transition={{ delay: 0.4 }}
             className="lg:col-span-2"
         >
-            <Card className="bg-[#0f172a] border-white/10 h-full">
+            <Card className="bg-card border-border h-full">
                 <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5 text-blue-500" />
-                        流量趋势
-                    </CardTitle>
-                    <CardDescription className="text-gray-400">过去 7 天的浏览量变化</CardDescription>
+                    <CardTitle className="text-foreground flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              流量趋势
+            </CardTitle>
+                    <CardDescription className="text-muted-foreground">过去 7 天的浏览量变化</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="h-[300px] w-full">
@@ -243,18 +243,18 @@ export default function AnalyticsPage() {
                             <AreaChart data={dailyViews}>
                                 <defs>
                                     <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                                <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                                <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
                                 <Tooltip 
-                                    contentStyle={{ backgroundColor: '#1e293b', borderColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
-                                    itemStyle={{ color: '#fff' }}
+                                    contentStyle={{ backgroundColor: 'hsl(var(--popover))', borderColor: 'hsl(var(--border))', color: 'hsl(var(--popover-foreground))' }}
+                                    itemStyle={{ color: 'hsl(var(--popover-foreground))' }}
                                 />
-                                <Area type="monotone" dataKey="views" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
+                                <Area type="monotone" dataKey="views" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -267,24 +267,24 @@ export default function AnalyticsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
         >
-            <Card className="bg-[#0f172a] border-white/10 h-full">
+            <Card className="bg-card border-border h-full">
                 <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
+                    <CardTitle className="text-foreground flex items-center gap-2">
                         <ArrowUpRight className="h-5 w-5 text-orange-500" />
                         热门作品
                     </CardTitle>
-                    <CardDescription className="text-gray-400">浏览量最高的 TOP 5 作品</CardDescription>
+                    <CardDescription className="text-muted-foreground">浏览量最高的 TOP 5 作品</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="h-[300px] w-full">
                          <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={topVideos} layout="vertical" margin={{ left: 20 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
-                                <XAxis type="number" stroke="#94a3b8" fontSize={12} hide />
-                                <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={12} width={80} tickLine={false} axisLine={false} />
+                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+                                <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={12} hide />
+                                <YAxis dataKey="name" type="category" stroke="hsl(var(--muted-foreground))" fontSize={12} width={80} tickLine={false} axisLine={false} />
                                 <Tooltip 
-                                    cursor={{fill: 'rgba(255,255,255,0.05)'}}
-                                    contentStyle={{ backgroundColor: '#1e293b', borderColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
+                                    cursor={{fill: 'hsl(var(--muted)/0.2)'}}
+                                    contentStyle={{ backgroundColor: 'hsl(var(--popover))', borderColor: 'hsl(var(--border))', color: 'hsl(var(--popover-foreground))' }}
                                 />
                                 <Bar dataKey="views" fill="#f97316" radius={[0, 4, 4, 0]} barSize={20} />
                             </BarChart>
@@ -300,22 +300,22 @@ export default function AnalyticsPage() {
 
 function StatCard({ title, value, icon: Icon, trend, color, bgColor }: any) {
     return (
-        <Card className="bg-[#0f172a] border-white/10 overflow-hidden hover:border-white/20 transition-all duration-300 group">
+        <Card className="bg-card border-border overflow-hidden hover:border-primary/50 transition-all duration-300 group">
             <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div className={`p-3 rounded-xl ${bgColor} group-hover:scale-110 transition-transform duration-300`}>
                         <Icon className={`h-6 w-6 ${color}`} />
                     </div>
                     {trend && (
-                        <div className="flex items-center text-xs font-medium text-green-400 bg-green-500/10 px-2 py-1 rounded-full">
+                        <div className="flex items-center text-xs font-medium text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-1 rounded-full">
                             <TrendingUp className="h-3 w-3 mr-1" />
                             {trend}
                         </div>
                     )}
                 </div>
                 <div>
-                    <p className="text-sm font-medium text-gray-400">{title}</p>
-                    <h3 className="text-2xl font-bold text-white mt-1">{value}</h3>
+                    <p className="text-sm font-medium text-muted-foreground">{title}</p>
+                    <h3 className="text-2xl font-bold text-foreground mt-1">{value}</h3>
                 </div>
             </CardContent>
         </Card>

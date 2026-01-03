@@ -66,13 +66,13 @@ function RechargeContent() {
   return (
     <div className="container mx-auto px-4 py-24">
         <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-white mb-2">账户充值 (人工审核)</h1>
-            <p className="text-gray-400 mb-10">由于当前未开通企业支付，请扫码支付后点击"我已支付"，管理员审核后将为您入账。</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">账户充值 (人工审核)</h1>
+            <p className="text-muted-foreground mb-10">由于当前未开通企业支付，请扫码支付后点击"我已支付"，管理员审核后将为您入账。</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* Left: Amount Selection */}
                 <div>
-                    <h3 className="text-lg font-medium text-white mb-4">选择充值金额</h3>
+                    <h3 className="text-lg font-medium text-foreground mb-4">选择充值金额</h3>
                     <div className="grid grid-cols-3 gap-4 mb-8">
                         {amounts.map((amount) => (
                             <div 
@@ -81,13 +81,13 @@ function RechargeContent() {
                                 className={`
                                     relative p-4 rounded-xl border text-center cursor-pointer transition-all
                                     ${selectedAmount === amount 
-                                        ? 'border-blue-500 bg-blue-500/10 text-white' 
-                                        : 'border-white/10 bg-white/5 text-gray-300 hover:bg-white/10'}
+                                        ? 'border-primary bg-primary/10 text-primary' 
+                                        : 'border-border bg-card text-muted-foreground hover:bg-muted/50'}
                                 `}
                             >
                                 <span className="text-lg font-bold">¥{amount}</span>
                                 {amount >= 1000 && (
-                                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">
+                                    <span className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-[10px] px-2 py-0.5 rounded-full">
                                         赠{(amount * 0.1).toFixed(0)}
                                     </span>
                                 )}
@@ -95,9 +95,9 @@ function RechargeContent() {
                         ))}
                     </div>
 
-                    <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                        <h4 className="font-medium text-white mb-2">充值说明</h4>
-                        <ul className="list-disc list-inside text-sm text-gray-400 space-y-1">
+                    <div className="bg-muted/50 rounded-xl p-6 border border-border">
+                        <h4 className="font-medium text-foreground mb-2">充值说明</h4>
+                        <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                             <li>充值金额永久有效，无过期时间</li>
                             <li>充值金额不可提现，仅用于平台消费</li>
                             <li>如需开具发票，请在充值完成后联系客服</li>
@@ -106,24 +106,24 @@ function RechargeContent() {
                 </div>
 
                 {/* Right: Payment Preview */}
-                <div className="bg-white rounded-2xl p-8 text-black">
+                <div className="bg-card border border-border rounded-2xl p-8 text-card-foreground shadow-sm">
                     <div className="text-center mb-6">
-                        <p className="text-gray-500 mb-2">应付金额</p>
-                        <div className="text-5xl font-bold text-black">
+                        <p className="text-muted-foreground mb-2">应付金额</p>
+                        <div className="text-5xl font-bold text-foreground">
                             ¥{selectedAmount}.00
                         </div>
                     </div>
 
                     {/* Payment Method Tabs */}
-                    <div className="flex p-1 bg-gray-100 rounded-lg mb-6">
+                    <div className="flex p-1 bg-muted rounded-lg mb-6">
                         <button 
-                            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${paymentMethod === 'wechat' ? 'bg-white shadow text-green-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${paymentMethod === 'wechat' ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                             onClick={() => setPaymentMethod('wechat')}
                         >
                             微信支付
                         </button>
                         <button 
-                            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${paymentMethod === 'alipay' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${paymentMethod === 'alipay' ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
                             onClick={() => setPaymentMethod('alipay')}
                         >
                             支付宝
@@ -131,8 +131,8 @@ function RechargeContent() {
                     </div>
 
                     <div className="flex flex-col items-center mb-8">
-                        <div className="w-48 h-48 bg-white border-2 border-gray-100 rounded-xl p-2 shadow-inner flex items-center justify-center overflow-hidden">
-                             {/* QR Code Image */}
+                        <div className="w-48 h-48 bg-muted/50 border-2 border-border rounded-xl p-2 shadow-inner flex items-center justify-center overflow-hidden">
+                             {/* QR Code Image - Always white bg for scanning safety */}
                              <img 
                                 src={paymentMethod === 'wechat' ? '/images/wechat-pay.jpg' : '/images/alipay-pay.jpg'} 
                                 alt={paymentMethod === 'wechat' ? 'WeChat Pay' : 'Alipay'}
@@ -141,24 +141,24 @@ function RechargeContent() {
                                     const target = e.target as HTMLImageElement;
                                     target.style.display = 'none';
                                     target.parentElement!.innerText = '请联系管理员获取收款码';
-                                    target.parentElement!.className += ' text-gray-400 text-sm font-medium';
+                                    target.parentElement!.className += ' text-muted-foreground text-sm font-medium text-center';
                                 }}
                              />
                         </div>
-                        <p className="text-xs text-gray-400 mt-2">
+                        <p className="text-xs text-muted-foreground mt-2">
                             请使用{paymentMethod === 'wechat' ? '微信' : '支付宝'}扫码支付
                         </p>
                     </div>
 
                     <div className="space-y-4">
                         <Button 
-                            className={`w-full h-12 text-lg font-bold rounded-full text-white ${paymentMethod === 'wechat' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+                            className={`w-full h-12 text-lg font-bold rounded-full ${paymentMethod === 'wechat' ? 'bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white' : 'bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 text-white'}`}
                             onClick={handleRecharge}
                             disabled={loading}
                         >
                             {loading ? <Loader2 className="animate-spin mr-2" /> : "我已支付，提交审核"}
                         </Button>
-                        <p className="text-center text-xs text-gray-400">
+                        <p className="text-center text-xs text-muted-foreground">
                             支付成功后请务必点击上方按钮提交申请
                         </p>
                     </div>
@@ -171,9 +171,9 @@ function RechargeContent() {
 
 export default function RechargePage() {
     return (
-        <div className="min-h-screen bg-[#020817] text-white">
+        <div className="min-h-screen bg-background text-foreground">
             <Navbar />
-            <Suspense fallback={<div className="pt-32 text-center">Loading...</div>}>
+            <Suspense fallback={<div className="pt-32 text-center text-muted-foreground">Loading...</div>}>
                 <RechargeContent />
             </Suspense></div>
     )

@@ -165,7 +165,7 @@ export default function SettingsPage() {
       }
   }
 
-  if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-blue-500" /></div>
+  if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-primary" /></div>
 
   return (
     <div className="max-w-5xl mx-auto p-6 md:p-8 space-y-8">
@@ -174,36 +174,36 @@ export default function SettingsPage() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="mb-8">
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">账号设置</h1>
-          <p className="text-gray-400 mt-1">管理您的个人资料、安全设置和偏好</p>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-muted-foreground">账号设置</h1>
+          <p className="text-muted-foreground mt-1">管理您的个人资料、安全设置和偏好</p>
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="bg-black/20 border border-white/10 p-1">
-                <TabsTrigger value="profile" className="data-[state=active]:bg-white/10 data-[state=active]:text-white text-gray-400">
+            <TabsList className="bg-muted border border-border p-1">
+                <TabsTrigger value="profile" className="data-[state=active]:bg-background data-[state=active]:text-foreground text-muted-foreground">
                     <User className="w-4 h-4 mr-2" /> 个人资料
                 </TabsTrigger>
-                <TabsTrigger value="security" className="data-[state=active]:bg-white/10 data-[state=active]:text-white text-gray-400">
+                <TabsTrigger value="security" className="data-[state=active]:bg-background data-[state=active]:text-foreground text-muted-foreground">
                     <Shield className="w-4 h-4 mr-2" /> 安全设置
                 </TabsTrigger>
-                <TabsTrigger value="notifications" className="data-[state=active]:bg-white/10 data-[state=active]:text-white text-gray-400">
+                <TabsTrigger value="notifications" className="data-[state=active]:bg-background data-[state=active]:text-foreground text-muted-foreground">
                     <Bell className="w-4 h-4 mr-2" /> 通知偏好
                 </TabsTrigger>
             </TabsList>
 
             <TabsContent value="profile">
-                <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm">
+                <Card className="bg-card border-border backdrop-blur-sm">
                   <CardHeader>
-                      <CardTitle className="text-white">基本信息</CardTitle>
+                      <CardTitle className="text-foreground">基本信息</CardTitle>
                       <CardDescription>其他人将看到这些信息</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-8">
                     {/* Avatar Section */}
-                    <div className="flex items-center gap-8 pb-8 border-b border-white/10">
+                    <div className="flex items-center gap-8 pb-8 border-b border-border">
                         <div className="relative group">
-                            <Avatar className="h-24 w-24 border-2 border-white/10 ring-4 ring-white/5 transition-all group-hover:ring-blue-500/20">
+                            <Avatar className="h-24 w-24 border-2 border-border ring-4 ring-muted transition-all group-hover:ring-primary/20">
                                 <AvatarImage src={formData.avatar_url} />
-                                <AvatarFallback className="bg-blue-600 text-2xl">
+                                <AvatarFallback className="bg-primary text-primary-foreground text-2xl">
                                     {formData.full_name?.[0]?.toUpperCase() || <User />}
                                 </AvatarFallback>
                             </Avatar>
@@ -223,8 +223,8 @@ export default function SettingsPage() {
                             </label>
                         </div>
                         <div className="flex-1">
-                            <h3 className="font-bold text-lg mb-1 text-white">头像</h3>
-                            <p className="text-sm text-gray-400">
+                            <h3 className="font-bold text-lg mb-1 text-foreground">头像</h3>
+                            <p className="text-sm text-muted-foreground">
                                 点击图片上传新头像。支持 JPG, PNG, GIF 格式。
                             </p>
                         </div>
@@ -234,42 +234,42 @@ export default function SettingsPage() {
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="grid gap-2">
-                                <Label className="text-gray-300">邮箱</Label>
+                                <Label className="text-muted-foreground">邮箱</Label>
                                 <Input 
                                     value={user?.email || ""}
                                     disabled
-                                    className="bg-black/10 border-white/5 text-gray-400 cursor-not-allowed"
+                                    className="bg-muted border-border text-muted-foreground cursor-not-allowed"
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="full_name" className="text-gray-300">昵称</Label>
+                                <Label htmlFor="full_name" className="text-muted-foreground">昵称</Label>
                                 <Input 
                                     id="full_name"
                                     value={formData.full_name}
                                     onChange={(e) => setFormData({...formData, full_name: e.target.value})}
-                                    className="bg-black/20 border-white/10 text-white focus:border-blue-500/50"
+                                    className="bg-muted/50 border-border focus:border-primary/50"
                                     placeholder="您的昵称"
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="website" className="text-gray-300">个人网站</Label>
+                                <Label htmlFor="website" className="text-muted-foreground">个人网站</Label>
                                 <Input 
                                     id="website"
                                     value={formData.website}
                                     onChange={(e) => setFormData({...formData, website: e.target.value})}
-                                    className="bg-black/20 border-white/10 text-white focus:border-blue-500/50"
+                                    className="bg-muted/50 border-border focus:border-primary/50"
                                     placeholder="https://..."
                                 />
                             </div>
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="bio" className="text-gray-300">个人简介</Label>
+                            <Label htmlFor="bio" className="text-muted-foreground">个人简介</Label>
                             <Textarea 
                                 id="bio"
                                 value={formData.bio}
                                 onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                                className="bg-black/20 border-white/10 min-h-[100px] text-white focus:border-blue-500/50"
+                                className="bg-muted/50 border-border min-h-[100px] focus:border-primary/50"
                                 placeholder="介绍一下自己..."
                             />
                         </div>
@@ -278,7 +278,7 @@ export default function SettingsPage() {
                             <Button 
                                 onClick={handleSave} 
                                 disabled={saving}
-                                className="bg-blue-600 hover:bg-blue-700 min-w-[120px] shadow-lg shadow-blue-500/20"
+                                className="bg-primary hover:bg-primary/90 min-w-[120px] shadow-lg shadow-primary/20 text-primary-foreground"
                             >
                                 {saving ? (
                                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> 保存中...</>
@@ -293,49 +293,49 @@ export default function SettingsPage() {
             </TabsContent>
 
             <TabsContent value="security">
-                <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm">
+                <Card className="bg-card border-border backdrop-blur-sm">
                     <CardHeader>
-                        <CardTitle className="text-white">密码与安全</CardTitle>
+                        <CardTitle className="text-foreground">密码与安全</CardTitle>
                         <CardDescription>管理您的登录方式</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="space-y-4">
                             <div className="grid gap-2">
-                                <Label className="text-gray-300">新密码</Label>
+                                <Label className="text-muted-foreground">新密码</Label>
                                 <Input 
                                     type="password"
                                     value={passwords.new}
                                     onChange={(e) => setPasswords({...passwords, new: e.target.value})}
-                                    className="bg-black/20 border-white/10 text-white"
+                                    className="bg-muted/50 border-border"
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label className="text-gray-300">确认新密码</Label>
+                                <Label className="text-muted-foreground">确认新密码</Label>
                                 <Input 
                                     type="password"
                                     value={passwords.confirm}
                                     onChange={(e) => setPasswords({...passwords, confirm: e.target.value})}
-                                    className="bg-black/20 border-white/10 text-white"
+                                    className="bg-muted/50 border-border"
                                 />
                             </div>
-                            <Button onClick={handleUpdatePassword} variant="outline" className="border-white/10 hover:bg-white/5 text-white">
+                            <Button onClick={handleUpdatePassword} variant="outline" className="border-border hover:bg-muted text-foreground">
                                 <Key className="w-4 h-4 mr-2" />
                                 更新密码
                             </Button>
                         </div>
 
-                        <div className="pt-8 border-t border-white/10">
-                            <h3 className="text-red-500 font-bold mb-2">危险区域</h3>
-                            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 flex items-center justify-between">
+                        <div className="pt-8 border-t border-border">
+                            <h3 className="text-destructive font-bold mb-2">危险区域</h3>
+                            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-center justify-between">
                                 <div>
-                                    <h4 className="text-white font-medium">删除账号</h4>
-                                    <p className="text-sm text-gray-400 mt-1">
+                                    <h4 className="text-foreground font-medium">删除账号</h4>
+                                    <p className="text-sm text-muted-foreground mt-1">
                                         删除账号后，您的所有数据将被永久清除且无法恢复。
                                     </p>
                                 </div>
                                 <Button 
                                     variant="destructive" 
-                                    className="bg-red-600 hover:bg-red-700"
+                                    className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
                                     onClick={() => {
                                         if (confirm("确定要注销账号吗？此操作不可逆。")) {
                                             toast.error("为了保障您的权益，请联系客服人工处理注销申请。")
@@ -351,30 +351,30 @@ export default function SettingsPage() {
             </TabsContent>
 
             <TabsContent value="notifications">
-                 <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm">
+                 <Card className="bg-card border-border backdrop-blur-sm">
                     <CardHeader>
-                        <CardTitle className="text-white">通知设置</CardTitle>
+                        <CardTitle className="text-foreground">通知设置</CardTitle>
                         <CardDescription>选择您希望接收的通知类型</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div className="flex items-center justify-between">
                             <div className="space-y-0.5">
-                                <Label className="text-base text-white">新订单通知</Label>
-                                <p className="text-sm text-gray-400">当有人购买您的作品时通知我</p>
+                                <Label className="text-base text-foreground">新订单通知</Label>
+                                <p className="text-sm text-muted-foreground">当有人购买您的作品时通知我</p>
                             </div>
                             <Switch defaultChecked />
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="space-y-0.5">
-                                <Label className="text-base text-white">新评论通知</Label>
-                                <p className="text-sm text-gray-400">当有人评论您的作品时通知我</p>
+                                <Label className="text-base text-foreground">新评论通知</Label>
+                                <p className="text-sm text-muted-foreground">当有人评论您的作品时通知我</p>
                             </div>
                             <Switch defaultChecked />
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="space-y-0.5">
-                                <Label className="text-base text-white">系统公告</Label>
-                                <p className="text-sm text-gray-400">接收平台重要更新和公告</p>
+                                <Label className="text-base text-foreground">系统公告</Label>
+                                <p className="text-sm text-muted-foreground">接收平台重要更新和公告</p>
                             </div>
                             <Switch defaultChecked />
                         </div>

@@ -192,13 +192,13 @@ export function NotificationsPopover() {
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'like': return <Heart className="h-3 w-3 text-red-500 fill-red-500" />
-      case 'comment': return <MessageCircle className="h-3 w-3 text-blue-500 fill-blue-500" />
-      case 'reply': return <MessageCircle className="h-3 w-3 text-green-500 fill-green-500" />
-      case 'follow': return <UserPlus className="h-3 w-3 text-green-500" />
-      case 'new_video': return <Video className="h-3 w-3 text-purple-500" />
-      case 'system': return <Info className="h-3 w-3 text-yellow-500" />
-      default: return <Bell className="h-3 w-3 text-gray-400" />
+      case 'like': return <Heart className="h-3 w-3 text-red-600 dark:text-red-500 fill-red-600 dark:fill-red-500" />
+      case 'comment': return <MessageCircle className="h-3 w-3 text-blue-600 dark:text-blue-500 fill-blue-600 dark:fill-blue-500" />
+      case 'reply': return <MessageCircle className="h-3 w-3 text-green-600 dark:text-green-500 fill-green-600 dark:fill-green-500" />
+      case 'follow': return <UserPlus className="h-3 w-3 text-green-600 dark:text-green-500" />
+      case 'new_video': return <Video className="h-3 w-3 text-purple-600 dark:text-purple-500" />
+      case 'system': return <Info className="h-3 w-3 text-yellow-600 dark:text-yellow-500" />
+      default: return <Bell className="h-3 w-3 text-muted-foreground" />
     }
   }
 

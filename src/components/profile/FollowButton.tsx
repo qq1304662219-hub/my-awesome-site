@@ -105,7 +105,7 @@ export function FollowButton({ authorId, className }: FollowButtonProps) {
     <Button 
       size="sm"
       variant={isFollowing ? "secondary" : "default"}
-      className={className || (isFollowing ? "bg-white/10 text-white hover:bg-white/20" : "bg-blue-600 hover:bg-blue-700 text-white")}
+      className={className || (isFollowing ? "bg-secondary text-secondary-foreground hover:bg-secondary/80" : "bg-primary hover:bg-primary/90 text-primary-foreground")}
       onClick={handleFollow}
     >
       {isFollowing ? "已关注" : "关注"}
