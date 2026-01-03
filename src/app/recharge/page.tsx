@@ -176,6 +176,5 @@ export default function RechargePage() {
             <Suspense fallback={<div className="pt-32 text-center">Loading...</div>}>
                 <RechargeContent />
             </Suspense></div>
-        </main>
     )
 }

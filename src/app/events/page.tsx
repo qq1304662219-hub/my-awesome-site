@@ -108,6 +108,5 @@ export default async function EventsPage() {
             </div>
         )}</div>
       </div>
-    </main>
   );
 }

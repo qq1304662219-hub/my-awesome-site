@@ -258,7 +258,6 @@ export default function CertificationPage() {
             </Dialog>
 
 </div>
-        </main>
     )
 }
 

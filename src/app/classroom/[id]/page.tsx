@@ -130,6 +130,6 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
             </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

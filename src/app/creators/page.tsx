@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { CheckCircle, Trophy, MapPin, Users, Video, Search, MessageSquare, Plus, Filter } from "lucide-react"
+import { CheckCircle, Trophy, MapPin, Users, Video, Search, MessageSquare, Plus, Filter, BadgeCheck, UserPlus } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
@@ -31,6 +31,7 @@ interface Creator {
     followers_count: number
     views_count: number
     recent_works?: any[]
+    is_online?: boolean
 }
 
 export default function CreatorsPage() {

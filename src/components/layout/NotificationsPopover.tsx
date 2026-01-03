@@ -13,8 +13,9 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { formatDistanceToNow } from "date-fns"
 import { zhCN } from "date-fns/locale"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 interface Notification {
   id: number
@@ -36,6 +37,7 @@ export function NotificationsPopover() {
   const [unreadCount, setUnreadCount] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
 
   const fetchUnreadCount = async () => {
     const { data: { user } } = await supabase.auth.getUser()

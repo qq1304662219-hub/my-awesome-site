@@ -175,6 +175,6 @@ export default async function RequestsPage() {
 
         </div>
       </div>
-    </main>
+    </div>
   );
 }

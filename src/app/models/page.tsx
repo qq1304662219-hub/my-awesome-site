@@ -105,6 +105,5 @@ export default async function ModelsPage() {
             </div>
         )}</div>
       </div>
-    </main>
   );
 }

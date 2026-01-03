@@ -356,6 +356,6 @@ export default function RequestDetailPage() {
             </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
