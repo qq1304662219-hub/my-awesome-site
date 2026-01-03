@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Plus, FolderPlus, Check, Lock, Globe } from "lucide-react"
+import { Plus, FolderPlus, Check, Lock, Globe, FolderHeart } from "lucide-react"
 import { toast } from "sonner"
 import { useAuthStore } from "@/store/useAuthStore"
 import { cn } from "@/lib/utils"
@@ -27,6 +27,7 @@ export function AddToCollectionModal({ videoId, trigger }: AddToCollectionModalP
   const [newCollectionName, setNewCollectionName] = useState("")
   const [isPublic, setIsPublic] = useState(true)
   const [selectedCollections, setSelectedCollections] = useState<number[]>([])
+  const [showCreateInput, setShowCreateInput] = useState(false)
 
   useEffect(() => {
     if (open && user) {
