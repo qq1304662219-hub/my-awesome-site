@@ -253,14 +253,14 @@ export function VideoCard({
                 className={`
                   ${
                     rank === 1
-                      ? "bg-yellow-500"
+                      ? "bg-yellow-500 text-black"
                       : rank === 2
-                      ? "bg-gray-400"
+                      ? "bg-gray-400 text-white"
                       : rank === 3
-                      ? "bg-orange-600"
-                      : "bg-blue-500"
+                      ? "bg-orange-600 text-white"
+                      : "bg-blue-500 text-white"
                   } 
-                  text-white border-0 w-6 h-6 flex items-center justify-center rounded-full p-0 shadow-lg
+                  border-0 w-6 h-6 flex items-center justify-center rounded-full p-0 shadow-lg
                 `}
               >
                 {rank}

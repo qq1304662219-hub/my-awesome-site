@@ -58,8 +58,8 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
         {/* Logo */}
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity" aria-label="AI Vision Home">
-            <Video className="h-6 w-6 text-blue-500" />
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            <Video className="h-6 w-6 text-blue-600 dark:text-blue-500" />
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-500 bg-clip-text text-transparent">
               AI Vision
             </span>
           </Link>
@@ -98,7 +98,7 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
                     {!simple && (
                       <Link id="u-balance" href="/dashboard/wallet" className="hidden md:flex flex-col items-end mr-2 cursor-pointer hover:opacity-80 transition-opacity">
                 <span className="text-xs text-muted-foreground">余额</span>
-                <span className="text-sm font-bold text-yellow-400">
+                <span className="text-sm font-bold text-yellow-600 dark:text-yellow-400">
                   {profile?.balance ? `¥${profile.balance}` : "¥0"}
                 </span>
               </Link>

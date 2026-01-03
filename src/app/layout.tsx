@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { SITE_CONFIG } from "@/lib/constants";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { FloatingToolbar } from "@/components/layout/FloatingToolbar";
-import { Footer } from "@/components/layout/Footer";
+import { FooterWrapper } from "@/components/layout/FooterWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -63,7 +63,7 @@ export default function RootLayout({
               <div className="flex-1">
                 {children}
               </div>
-              <Footer />
+              <FooterWrapper />
             </div>
             <FloatingToolbar />
           </AuthProvider>
