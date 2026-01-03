@@ -89,14 +89,13 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl, h
         }
 
         // 4. Trigger Secure Download
+        toast.success("正在打包下载，请稍候...");
         const link = document.createElement('a');
         link.href = `/api/download?id=${video.id}`;
         link.download = '';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
-        toast.success("正在打包下载，请稍候...");
     } catch (error) {
         console.error("Download error:", error);
         toast.error("下载失败，请稍后重试");
