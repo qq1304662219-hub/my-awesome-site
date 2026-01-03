@@ -131,10 +131,17 @@ export function LandingHero() {
           {/* Trending Tags */}
           <div className="mt-8 flex flex-wrap justify-center gap-3">
              <span className="text-muted-foreground text-sm py-1.5">热门搜索:</span>
-             {['Sora', 'Runway Gen-3', 'Midjourney V6', 'Cyberpunk', 'Nature', 'Abstract'].map((tag, i) => (
-                <Link key={tag} href={`/explore?q=${tag}`}>
+             {[
+                { label: 'Sora', href: '/explore?model=sora' },
+                { label: 'Runway Gen-3', href: '/explore?model=runway_gen3' },
+                { label: 'Midjourney', href: '/explore?model=midjourney' },
+                { label: 'Cyberpunk', href: '/explore?style=cyberpunk' },
+                { label: 'Nature', href: '/explore?category=nature' },
+                { label: 'Abstract', href: '/explore?style=abstract' }
+             ].map((tag) => (
+                <Link key={tag.label} href={tag.href}>
                     <span className="px-3 py-1.5 rounded-lg bg-muted border border-border text-muted-foreground text-sm hover:bg-muted/80 hover:text-foreground hover:border-foreground/20 transition-all cursor-pointer">
-                        {tag}
+                        {tag.label}
                     </span>
                 </Link>
              ))}
