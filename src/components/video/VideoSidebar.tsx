@@ -14,13 +14,15 @@ import {
   FileVideo, 
   Maximize2, 
   Clock,
-  HardDrive
+  HardDrive,
+  ShoppingCart
 } from "lucide-react"
 import { LicenseSelector } from "@/components/video/LicenseSelector"
 import { FollowButton } from "@/components/profile/FollowButton"
 import { formatBytes } from "@/lib/utils"
 import { toast } from "sonner"
 import { useAuthStore } from "@/store/useAuthStore"
+import { useCartStore } from "@/store/useCartStore"
 import { useRouter } from "next/navigation"
 
 import { supabase } from "@/lib/supabase"
@@ -36,11 +38,46 @@ interface VideoSidebarProps {
 export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl, hasPurchased = false }: VideoSidebarProps) {
   const [selectedLicense, setSelectedLicense] = useState<'personal' | 'commercial'>('personal')
   const { user } = useAuthStore()
+  const { fetchCartCount } = useCartStore()
   const router = useRouter()
   const [downloading, setDownloading] = useState(false)
+  const [addingToCart, setAddingToCart] = useState(false)
   
   const isOwner = user?.id === video.user_id
   const canDownload = isOwner || hasPurchased || !video.price || video.price === 0;
+
+  const handleAddToCart = async () => {
+    if (!user) {
+      toast.error("请先登录")
+      router.push('/auth?tab=login')
+      return
+    }
+
+    setAddingToCart(true)
+    try {
+      const { error } = await supabase.from('cart_items').insert({
+        user_id: user.id,
+        video_id: video.id,
+        license_type: selectedLicense
+      })
+
+      if (error) {
+        if (error.code === '23505') { // Unique violation
+          toast.warning("该视频已在购物车中")
+        } else {
+          throw error
+        }
+      } else {
+        await fetchCartCount()
+        toast.success("已加入购物车")
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error("加入购物车失败")
+    } finally {
+      setAddingToCart(false)
+    }
+  }
 
   const handleDownloadClick = async () => {
     if (!user) {
@@ -130,23 +167,41 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl, h
              </div>
         )}
 
-        <Button 
-            onClick={handleDownloadClick}
-            disabled={downloading}
-            className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg shadow-blue-900/20 transition-all hover:scale-[1.02]"
-        >
-            {downloading ? (
-                <>
-                    <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                    准备下载...
-                </>
-            ) : (
-                <>
-                    <Download className="mr-2 h-5 w-5" />
-                    {canDownload ? (isOwner ? '下载源文件' : '立即下载') : '购买并下载'}
-                </>
-            )}
-        </Button>
+        <div className="space-y-3">
+          {video.price > 0 && !canDownload && (
+            <Button 
+                variant="outline"
+                onClick={handleAddToCart}
+                disabled={addingToCart}
+                className="w-full h-12 text-lg font-semibold border-2 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all hover:border-primary/50"
+            >
+                {addingToCart ? (
+                    <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                ) : (
+                    <ShoppingCart className="mr-2 h-5 w-5" />
+                )}
+                加入购物车
+            </Button>
+          )}
+
+          <Button 
+              onClick={handleDownloadClick}
+              disabled={downloading}
+              className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg shadow-blue-900/20 transition-all hover:scale-[1.02]"
+          >
+              {downloading ? (
+                  <>
+                      <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                      准备下载...
+                  </>
+              ) : (
+                  <>
+                      <Download className="mr-2 h-5 w-5" />
+                      {canDownload ? (isOwner ? '下载源文件' : '立即下载') : '购买并下载'}
+                  </>
+              )}
+          </Button>
+        </div>
         
         <p className="text-xs text-muted-foreground mt-3 flex items-center justify-center gap-1">
             <ShieldCheck className="h-3 w-3" />
