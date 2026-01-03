@@ -97,7 +97,7 @@ export function MaterialHeader() {
                 {/* Row 1: Search & Filter Dropdowns */}
                 <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center">
                     {/* Search Bar */}
-                    <div className="relative w-full xl:w-80 shrink-0 group">
+                    <div className="relative w-full xl:w-[500px] shrink-0 group">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input 
                             className="pl-10 h-10 bg-muted/50 border-transparent hover:bg-muted focus:bg-background focus:border-primary/20 transition-all rounded-full"
@@ -117,7 +117,7 @@ export function MaterialHeader() {
 
                     {/* Filter Dropdowns - Scrollable on mobile */}
                     <div className="flex-1 w-full overflow-x-auto no-scrollbar pb-2 xl:pb-0">
-                        <div className="flex items-center gap-2 min-w-max">
+                        <div className="flex items-center gap-2 min-w-max xl:w-full xl:justify-end">
                             <span className="text-xs font-medium text-muted-foreground mr-1 hidden md:inline-block">筛选属性:</span>
                             
                             {filterConfig.map((config) => (

@@ -10,11 +10,11 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
           <div className="space-y-4 sm:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <Video className="h-6 w-6 text-primary" />
-                <span className="text-xl font-bold text-foreground">AI Vision</span>
+                <Video className="h-6 w-6 text-blue-500" />
+                <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">AI Vision</span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
-                全球领先的AI视频素材共享平台，让创意无限可能。
+                探索 AI 视频生成的无限可能，连接创作者与未来的桥梁。
             </p>
           </div>
           

@@ -217,7 +217,7 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
 
   return (
     <div 
-      className={`relative group bg-black rounded-xl overflow-hidden border border-border shadow-2xl ${!width ? 'aspect-video' : ''}`}
+      className={`relative group bg-black rounded-lg overflow-hidden ${!width ? 'aspect-video' : ''}`}
       style={aspectRatioStyle}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => setShowControls(false)}

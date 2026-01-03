@@ -4,7 +4,6 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Home, Compass, Users, HelpCircle, ArrowLeft } from "lucide-react"
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { motion } from "framer-motion"
 
 export default function NotFound() {
@@ -102,8 +101,6 @@ export default function NotFound() {
             </motion.div>
         </div>
       </main>
-
-      <Footer />
     </div>
   )
 }

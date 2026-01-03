@@ -89,8 +89,8 @@ export function DiscoverHero() {
         className="absolute inset-0 bg-cover bg-center transition-transform duration-[10000ms] ease-linear transform scale-100 group-hover:scale-105"
         style={{ backgroundImage: `url(${currentVideo.thumbnail_url})` }}
       />
-      {/* Overlay Gradient - Adapted for theme but keeping dark overlay for text contrast if needed, or using theme gradients */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
+      {/* Dark Overlay for text readability */}
+      <div className="absolute inset-0 bg-black/20" />
       
       {/* Content */}
       <div className="absolute bottom-0 left-0 p-8 md:p-12 w-full md:w-2/3">
@@ -99,30 +99,30 @@ export function DiscoverHero() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="flex items-center gap-2 mb-4 text-primary">
+          <div className="flex items-center gap-2 mb-4 text-white">
             <Star className="w-4 h-4 fill-current" />
             <span className="text-sm font-bold uppercase tracking-wider">本周精选</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4 leading-tight">
+          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-md">
             {currentVideo.title}
           </h2>
-          <p className="text-muted-foreground text-lg mb-8 line-clamp-2 max-w-xl">
+          <p className="text-gray-200 text-lg mb-8 line-clamp-2 max-w-xl drop-shadow-sm">
             {currentVideo.description || "探索 AI 生成的无限可能，体验震撼视觉盛宴。"}
           </p>
           
           <div className="flex items-center gap-4">
             <Link href={`/video/${currentVideo.id}`}>
-              <Button size="lg" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-8 h-12 text-base">
+              <Button size="lg" className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 gap-2 px-8 h-12 text-base shadow-lg">
                 <Play className="w-4 h-4 fill-current" /> 立即观看
               </Button>
             </Link>
-            <div className="flex items-center gap-3 bg-background/30 backdrop-blur-md px-4 py-2 rounded-full border border-border/50">
+            <div className="flex items-center gap-3 bg-black/30 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
               <img 
                 src={currentVideo.author?.avatar_url || "/default-avatar.png"} 
                 alt={currentVideo.author?.full_name}
-                className="w-8 h-8 rounded-full border border-border/20"
+                className="w-8 h-8 rounded-full border border-white/20"
               />
-              <span className="text-foreground text-sm font-medium">
+              <span className="text-white text-sm font-medium">
                 {currentVideo.author?.full_name}
               </span>
             </div>

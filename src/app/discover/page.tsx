@@ -89,19 +89,20 @@ function DiscoverContent() {
     // Logic to simulate distinct content sections using available DB fields
     switch (activeTab) {
         case "shorts":
-            base.category = "Commerce"; // Default bucket for shorts
-            if (activeSubTab === "drama") base.category = "Live";
-            if (activeSubTab === "ads") base.category = "Commerce";
-            if (activeSubTab === "doc") base.style = "Realism"; // Assuming style exists or fallback
+            base.style = "photorealistic"; // Default bucket for shorts
+            if (activeSubTab === "drama") base.category = "character";
+            if (activeSubTab === "ads") base.category = "tech";
+            if (activeSubTab === "doc") base.category = "nature"; 
             break;
         case "design":
-            base.category = "Wallpaper"; // Default bucket for design
-            if (activeSubTab === "3d") base.category = "Game";
-            if (activeSubTab === "ui") base.style = "Sci-Fi";
+            base.style = "artistic"; // Default bucket for design
+            if (activeSubTab === "motion") base.style = "abstract";
+            if (activeSubTab === "3d") base.style = "3d_cg";
+            if (activeSubTab === "ui") base.style = "cyberpunk";
             break;
         case "awarded":
-            base.style = "Sci-Fi"; // High visual quality bucket
-            if (activeSubTab === "best_visual") base.category = "Wallpaper";
+            base.style = "photorealistic"; // High visual quality bucket
+            if (activeSubTab === "best_visual") base.style = "artistic";
             break;
     }
 

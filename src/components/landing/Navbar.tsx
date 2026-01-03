@@ -19,11 +19,13 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 import { NotificationsPopover } from "@/components/layout/NotificationsPopover";
 import { UserHoverMenu } from "@/components/landing/UserHoverMenu";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { ModeToggle } from "@/components/shared/ModeToggle";
+import { CartDrawerContent } from "@/components/cart/CartDrawerContent";
 
 export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boolean; showMobileMenu?: boolean }) {
   const router = useRouter();
@@ -34,6 +36,7 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -155,16 +158,21 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
                     
                     <UserHoverMenu user={user} profile={profile} onSignOut={handleSignOut} />
                     
-                    <Link href="/cart" className="relative group">
-                        <Button variant="ghost" size="icon" className={cn("transition-colors", pathname === '/cart' ? "text-foreground bg-accent" : "text-muted-foreground hover:text-foreground")}>
-                            <ShoppingCart className="h-5 w-5" />
-                            {cartCount > 0 && (
-                              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-background">
-                                {cartCount > 99 ? '99+' : cartCount}
-                              </span>
-                            )}
-                        </Button>
-                    </Link>
+                    <Sheet open={cartOpen} onOpenChange={setCartOpen}>
+                        <SheetTrigger asChild>
+                            <Button variant="ghost" size="icon" className={cn("relative group transition-colors", pathname === '/cart' ? "text-foreground bg-accent" : "text-muted-foreground hover:text-foreground")}>
+                                <ShoppingCart className="h-5 w-5" />
+                                {cartCount > 0 && (
+                                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-background">
+                                    {cartCount > 99 ? '99+' : cartCount}
+                                  </span>
+                                )}
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent className="w-full sm:max-w-md bg-background border-border text-foreground p-0">
+                            <CartDrawerContent onClose={() => setCartOpen(false)} />
+                        </SheetContent>
+                    </Sheet>
 
                     <div className={cn("transition-colors", pathname === '/notifications' ? "text-foreground" : "text-muted-foreground")}>
                       <NotificationsPopover />

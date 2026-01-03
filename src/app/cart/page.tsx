@@ -10,6 +10,7 @@ import { useAuthStore } from "@/store/useAuthStore"
 import { useCartStore } from "@/store/useCartStore"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { Navbar } from "@/components/landing/Navbar"
 
 interface CartItem {
   id: string
@@ -56,13 +57,10 @@ export default function CartPage() {
 
       if (error) throw error
       
-      // Transform data to match interface if needed, or rely on loose typing
-      // Note: supabase join returns array or object depending on relationship.
-      // Assuming video_id is FK to videos(id)
       const formattedItems = data?.map((item: any) => ({
         id: item.id,
         video: item.video,
-        price: item.video.price || 0, // Default price if not set
+        price: item.video.price || 0,
         license_type: item.license_type
       })) || []
 
@@ -154,13 +152,11 @@ export default function CartPage() {
 
       if (error) throw error
 
-      // Remove purchased items from cart
       await supabase
         .from('cart_items')
         .delete()
         .in('id', Array.from(selectedItems))
 
-      // Update local balance
       if (profile) {
         setProfile({ ...profile, balance: balance - total })
       }
@@ -185,8 +181,8 @@ export default function CartPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      
+    <div className="min-h-screen bg-background">
+      <Navbar />
       <div className="container mx-auto px-4 py-24 max-w-5xl">
         <h1 className="text-3xl font-bold mb-8 flex items-center gap-3">
           <ShoppingCart className="text-primary" />
@@ -204,7 +200,6 @@ export default function CartPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Cart Items List */}
             <div className="lg:col-span-2 space-y-4">
               <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl border border-border">
                 <Checkbox 
@@ -263,7 +258,6 @@ export default function CartPage() {
               ))}
             </div>
 
-            {/* Summary Panel */}
             <div className="lg:col-span-1">
               <div className="bg-card border border-border rounded-2xl p-6 text-foreground sticky top-24 shadow-sm">
                 <h3 className="text-lg font-bold mb-6">订单摘要</h3>
@@ -306,6 +300,6 @@ export default function CartPage() {
           </div>
         )}
       </div>
-    </main>
+    </div>
   )
 }

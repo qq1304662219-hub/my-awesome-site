@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Play, Heart, Clock, ShoppingCart, Loader2 } from "lucide-react";
+import { Play, Heart, Clock, ShoppingCart, Loader2, FolderPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -343,13 +343,13 @@ export function VideoCard({
                         <Button 
                             size="icon" 
                             variant="secondary" 
-                            className="h-8 w-8 rounded-full bg-black/60 backdrop-blur-md hover:bg-white hover:text-black border border-white/10 transition-colors" 
-                            aria-label="稍后观看"
+                            className="h-8 w-8 rounded-full bg-black/50 hover:bg-primary text-white backdrop-blur-sm border border-white/10 transition-colors" 
+                            aria-label="添加到收藏"
                             onClick={(e) => {
                                 e.stopPropagation(); 
                             }}
                         >
-                            <Clock className="h-4 w-4" />
+                            <FolderPlus className="h-4 w-4" />
                         </Button>
                     }
                 />

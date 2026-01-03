@@ -64,9 +64,30 @@ export default function CreatorsPage() {
                 .order('created_at', { ascending: false })
 
             // Apply filters
-            if (filters.verified === 'verified') {
+            if (filters.verified !== 'all') {
                 query = query.eq('is_verified', true)
+                
+                if (filters.verified === 'company') {
+                    // Assuming 'company' type is distinguished by a badge or specific verified_title logic
+                    // For now, we'll use a badge 'company' or check if verified_title contains 'Company'/'企业'
+                    // A more robust way is to have verified_type column. 
+                    // Let's use badges for flexibility if schema isn't changed.
+                    query = query.contains('badges', ['company'])
+                } else if (filters.verified === 'verified') {
+                    // 'verified' in UI likely means "Personal/Individual Creator" vs "Company"
+                    // So we might want to exclude companies, or just show all verified.
+                    // If the UI treats them as mutually exclusive types:
+                    // query = query.not('badges', 'cs', '{"company"}') // logic might be complex with Supabase client
+                    
+                    // Simplified: 'verified' shows all verified users (including companies if not strictly separated), 
+                    // OR strictly personal. Let's assume strictly personal if we have 'company' badge.
+                    // But Supabase client doesn't support "array does not contain" easily.
+                    // We will fetch all verified and filter in memory if needed, OR just show all verified for this option.
+                    // However, given the screenshot, "认证创作者" usually means Individual.
+                    // Let's try to filter by absence of 'company' badge if possible, or just ignore for now.
+                }
             }
+
             if (filters.role !== 'all') {
                 query = query.eq('job_title', filters.role)
             }
@@ -74,10 +95,6 @@ export default function CreatorsPage() {
                 query = query.eq('location', filters.location)
             }
             if (filters.honors !== 'all') {
-                // Assuming badges is a text array or jsonb containing the tag
-                // Since Supabase filtering on arrays can be tricky with simple 'eq',
-                // we might need 'cs' (contains) for array column.
-                // Assuming 'badges' is a text[] column.
                 if (filters.honors === 'award_winner') {
                     query = query.contains('badges', ['award_winner'])
                 } else if (filters.honors === 'recommended') {
@@ -252,13 +269,13 @@ export default function CreatorsPage() {
                                                                 {creator.full_name || creator.username}
                                                             </Link>
                                                             {creator.is_verified && (
-                                                                <BadgeCheck className="w-4 h-4 text-amber-500" />
+                                                                <BadgeCheck className={`w-4 h-4 ${creator.badges?.includes('company') ? 'text-blue-500' : 'text-amber-500'}`} />
                                                             )}
                                                         </div>
                                                         <div className="flex items-center text-xs text-muted-foreground truncate">
                                                             {creator.location || '未知'}
                                                             <span className="mx-1">|</span>
-                                                            {creator.job_title || '创作者'}
+                                                            {creator.job_title || (creator.badges?.includes('company') ? '知名企业' : '创作者')}
                                                         </div>
                                                     </div>
                                                 </div>

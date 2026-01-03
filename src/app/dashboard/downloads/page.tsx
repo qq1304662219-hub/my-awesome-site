@@ -51,12 +51,24 @@ export default function MyAssetsPage() {
 
       const formattedDownloads = data
         ?.filter(item => item.videos)
-        .map(item => ({
-          ...item.videos,
-          downloaded_at: item.created_at
-        })) || []
+        .map(item => {
+          const videoData = item.videos as any;
+          return {
+            ...videoData,
+            downloaded_at: item.created_at
+          };
+        }) || []
 
-      setDownloads(formattedDownloads)
+      // Filter out duplicate downloads, keeping only the most recent one per video
+      const uniqueDownloadsMap = new Map();
+      formattedDownloads.forEach(item => {
+        if (!uniqueDownloadsMap.has(item.id)) {
+          uniqueDownloadsMap.set(item.id, item);
+        }
+      });
+      const uniqueDownloads = Array.from(uniqueDownloadsMap.values());
+
+      setDownloads(uniqueDownloads)
     } catch (error) {
       console.error("Error fetching downloads:", error)
     }
@@ -132,7 +144,28 @@ export default function MyAssetsPage() {
         }
       }))
 
-      setOrders(formattedData)
+      const seenVideoIds = new Set<string>();
+      const uniqueOrders: any[] = [];
+
+      for (const order of formattedData) {
+        const uniqueItems: any[] = [];
+        
+        for (const item of order.order_items) {
+          if (item.video && item.video.id && !seenVideoIds.has(item.video.id)) {
+            seenVideoIds.add(item.video.id);
+            uniqueItems.push(item);
+          }
+        }
+
+        if (uniqueItems.length > 0) {
+          uniqueOrders.push({
+            ...order,
+            order_items: uniqueItems
+          });
+        }
+      }
+
+      setOrders(uniqueOrders)
     } catch (error) {
       console.error("Error fetching orders:", error)
     }

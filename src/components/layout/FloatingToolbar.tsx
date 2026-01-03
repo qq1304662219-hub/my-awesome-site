@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
-import { ShoppingCart, HeadphonesIcon, Ticket, X, ArrowUp } from "lucide-react"
+import { ShoppingCart, HeadphonesIcon, Ticket, ArrowUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { ServiceDialogContent } from "@/components/shared/ServiceDialogContent"
 import { FeedbackDialogContent } from "@/components/shared/FeedbackDialogContent"
-import { cn } from "@/lib/utils"
+import { useCartStore } from "@/store/useCartStore"
+
+import { CartDrawerContent } from "@/components/cart/CartDrawerContent"
 
 export function FloatingToolbar() {
     const pathname = usePathname()
@@ -17,6 +19,7 @@ export function FloatingToolbar() {
     const [serviceOpen, setServiceOpen] = useState(false)
     const [ticketOpen, setTicketOpen] = useState(false)
     const [showScrollTop, setShowScrollTop] = useState(false)
+    const cartCount = useCartStore((state) => state.count)
 
     // Prevent hydration mismatch
     useEffect(() => {
@@ -55,12 +58,17 @@ export function FloatingToolbar() {
                         <Button 
                             variant="secondary" 
                             size="icon" 
-                            className="h-12 w-12 rounded-full shadow-lg bg-card hover:bg-accent text-foreground border border-border transition-transform group-hover:scale-110"
+                            className="h-12 w-12 rounded-full shadow-lg bg-card hover:bg-accent text-foreground border border-border transition-transform group-hover:scale-110 relative"
                         >
                             <ShoppingCart className="h-5 w-5" />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center border-2 border-card">
+                                    {cartCount > 99 ? '99+' : cartCount}
+                                </span>
+                            )}
                         </Button>
                         <span className="absolute right-14 bg-foreground text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                            购物车
+                            我的购物车
                         </span>
                     </div>
                 </SheetTrigger>
@@ -125,50 +133,6 @@ export function FloatingToolbar() {
                     <span className="absolute right-14 bg-foreground text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                         回到顶部
                     </span>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-function CartDrawerContent({ onClose }: { onClose: () => void }) {
-    // Mock cart items
-    const cartItems: any[] = [] // Empty for now to match "暂无数据" in reference image
-
-    return (
-        <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-4 border-b border-border">
-                <div className="flex items-center gap-4 text-sm font-medium">
-                    <span className="text-foreground border-b-2 border-foreground pb-4 -mb-4.5 cursor-pointer">视频 0</span>
-                    <span className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors">图片 0</span>
-                    <span className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors">音乐 0</span>
-                </div>
-                <Button variant="ghost" size="icon" onClick={onClose} className="text-muted-foreground hover:text-foreground">
-                    <X className="h-4 w-4" />
-                </Button>
-            </div>
-
-            <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-4">
-                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
-                    <ShoppingCart className="h-8 w-8 opacity-50" />
-                </div>
-                <p>暂无数据</p>
-            </div>
-
-            <div className="p-4 border-t border-border bg-muted/50">
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded border border-border" />
-                        <span className="text-sm text-muted-foreground">全选</span>
-                    </div>
-                    <div className="flex gap-2">
-                         <Button disabled variant="outline" className="border-border text-muted-foreground">
-                            修改授权
-                         </Button>
-                         <Button disabled className="bg-muted text-muted-foreground">
-                            删除
-                         </Button>
-                    </div>
                 </div>
             </div>
         </div>

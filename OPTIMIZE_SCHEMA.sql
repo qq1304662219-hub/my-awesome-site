@@ -119,18 +119,20 @@ SET
     ELSE 'SVD' 
   END,
   style = COALESCE(style, CASE floor(random() * 6) 
-    WHEN 0 THEN 'Sci-Fi' 
-    WHEN 1 THEN 'Chinese' 
-    WHEN 2 THEN 'Anime' 
-    WHEN 3 THEN 'Realistic' 
-    WHEN 4 THEN 'Abstract' 
-    ELSE '3D' 
+    WHEN 0 THEN 'cyberpunk' 
+    WHEN 1 THEN 'artistic' 
+    WHEN 2 THEN 'anime' 
+    WHEN 3 THEN 'photorealistic' 
+    WHEN 4 THEN 'abstract' 
+    ELSE '3d_cg' 
   END),
-  category = COALESCE(category, CASE floor(random() * 4) 
-    WHEN 0 THEN 'Live' 
-    WHEN 1 THEN 'Commerce' 
-    WHEN 2 THEN 'Game' 
-    ELSE 'Wallpaper' 
+  category = COALESCE(category, CASE(CASE floor(random() * 6) 
+    WHEN 0 THEN 'nature' 
+    WHEN 1 THEN 'architecture' 
+    WHEN 2 THEN 'character' 
+    WHEN 3 THEN 'animals'
+    WHEN 4 THEN 'vfx'
+    ELSE 'tech' 
   END),
   format = 'MP4',
   size = floor(random() * 50000000) + 10000000 -- 10MB to 60MB

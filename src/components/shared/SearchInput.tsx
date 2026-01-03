@@ -16,6 +16,7 @@ interface SearchInputProps {
 
 export interface SearchInputHandle {
   search: () => void;
+  focus: () => void;
 }
 
 export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(({ 
@@ -35,7 +36,8 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(({
   const containerRef = useRef<HTMLDivElement>(null)
 
   useImperativeHandle(ref, () => ({
-    search: () => handleSearch(query)
+    search: () => handleSearch(query),
+    focus: () => inputRef.current?.focus()
   }))
 
   useEffect(() => {

@@ -232,7 +232,7 @@ export default function NotificationsPage() {
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-1 pr-8">
                       <span className="font-semibold text-sm text-blue-500 dark:text-blue-400">
                         {notification.actor?.full_name || "Unknown User"}
                       </span>

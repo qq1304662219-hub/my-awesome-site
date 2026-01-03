@@ -109,17 +109,23 @@ export function LandingHero() {
           {/* Search Section */}
           <div className="w-full max-w-3xl mx-auto relative group">
              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 group-hover:opacity-40 blur transition duration-500" />
-             <div className="relative flex items-center p-2 bg-background/80 backdrop-blur-xl border border-border rounded-full shadow-2xl transition-all duration-300 hover:border-blue-500/50 hover:shadow-blue-500/20">
+             <div 
+                className="relative flex items-center p-2 bg-background/80 backdrop-blur-xl border border-border rounded-full shadow-2xl transition-all duration-300 hover:border-blue-500/50 hover:shadow-blue-500/20 cursor-text"
+                onClick={() => searchInputRef.current?.focus()}
+             >
                 <Search className="w-6 h-6 text-muted-foreground ml-4" />
                 <SearchInput 
                     ref={searchInputRef}
                     className="flex-1"
-                    inputClassName="!bg-transparent !border-none !text-lg !h-14 !text-foreground !placeholder:text-muted-foreground/70 !shadow-none !rounded-none focus:!ring-0"
-                    placeholder="[ 寻找灵感... 🔍 ]"
+                    inputClassName="!bg-transparent !border-none !text-lg !h-14 !text-foreground !placeholder:text-muted-foreground/70 !shadow-none !rounded-none focus:!ring-0 focus:!outline-none focus-visible:!ring-0 focus-visible:!ring-offset-0"
+                    placeholder="输入关键词，寻找灵感..."
                     showIcon={false}
                 />
                 <Button 
-                    onClick={handleLearnMore} 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleLearnMore();
+                    }}
                     size="icon" 
                     className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-[0_0_15px_rgba(79,70,229,0.4)] hover:shadow-[0_0_25px_rgba(79,70,229,0.6)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center group/btn"
                 >
@@ -135,9 +141,9 @@ export function LandingHero() {
                 { label: 'Sora', href: '/explore?model=sora' },
                 { label: 'Runway Gen-3', href: '/explore?model=runway_gen3' },
                 { label: 'Midjourney', href: '/explore?model=midjourney' },
-                { label: 'Cyberpunk', href: '/explore?style=cyberpunk' },
-                { label: 'Nature', href: '/explore?category=nature' },
-                { label: 'Abstract', href: '/explore?style=abstract' }
+                { label: '赛博/科幻', href: '/explore?style=cyberpunk' },
+                { label: '自然风光', href: '/explore?category=nature' },
+                { label: '抽象/超现实', href: '/explore?style=abstract' }
              ].map((tag) => (
                 <Link key={tag.label} href={tag.href}>
                     <span className="px-3 py-1.5 rounded-lg bg-muted border border-border text-muted-foreground text-sm hover:bg-muted/80 hover:text-foreground hover:border-foreground/20 transition-all cursor-pointer">

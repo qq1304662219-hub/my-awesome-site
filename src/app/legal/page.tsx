@@ -2,7 +2,6 @@
 
 import { useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function LegalPage() {
@@ -54,7 +53,6 @@ export default function LegalPage() {
           </div>
         </Tabs>
       </div>
-      <Footer />
     </main>
   )
 }

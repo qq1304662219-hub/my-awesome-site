@@ -273,7 +273,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                     ]} 
                     className="mb-6 opacity-70 hover:opacity-100 transition-opacity"
                 />
-               <div className="max-w-6xl mx-auto shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden bg-black border border-white/10">
+               <div className="max-w-6xl mx-auto">
                     <VideoPlayer 
                       src={videoUrl} 
                       poster={video.thumbnail_url || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1920&auto=format&fit=crop"}
