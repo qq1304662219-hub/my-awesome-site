@@ -4,52 +4,16 @@ import { Navbar } from "@/components/landing/Navbar";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, HelpCircle, Mail, MessageCircle, Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+import { Search, HelpCircle, Mail, MessageCircle, Ticket } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { useState } from "react"
-import { supabase } from "@/lib/supabase"
-import { toast } from "sonner"
-import { useAuthStore } from "@/store/useAuthStore"
+import { Badge } from "@/components/ui/badge";
+import { ServiceDialogContent } from "@/components/shared/ServiceDialogContent"
+import { FeedbackDialogContent } from "@/components/shared/FeedbackDialogContent"
 
 export default function HelpPage() {
-  const [isTicketOpen, setIsTicketOpen] = useState(false)
-  const [ticketSubject, setTicketSubject] = useState("")
-  const [ticketMessage, setTicketMessage] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { user } = useAuthStore()
-
-  const handleSubmitTicket = async () => {
-    if (!user) {
-        toast.error("请先登录")
-        return
-    }
-    if (!ticketSubject.trim() || !ticketMessage.trim()) {
-        toast.error("请填写完整信息")
-        return
-    }
-
-    setIsSubmitting(true)
-    try {
-        const { error } = await supabase.from('tickets').insert({
-            user_id: user.id,
-            subject: ticketSubject,
-            message: ticketMessage,
-            status: 'open'
-        })
-        if (error) throw error
-        toast.success("工单提交成功，我们会尽快联系您")
-        setIsTicketOpen(false)
-        setTicketSubject("")
-        setTicketMessage("")
-    } catch (e) {
-        console.error(e)
-        toast.error("提交失败")
-    } finally {
-        setIsSubmitting(false)
-    }
-  }
+  const [isServiceOpen, setIsServiceOpen] = useState(false)
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false)
 
   const faqs = [
     {
@@ -128,49 +92,27 @@ export default function HelpPage() {
               发送邮件
             </Button>
             
-            <Dialog open={isTicketOpen} onOpenChange={setIsTicketOpen}>
+            <Dialog open={isServiceOpen} onOpenChange={setIsServiceOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" className="border-border hover:bg-accent text-foreground h-12 px-8">
                   <MessageCircle className="mr-2 h-4 w-4" />
-                  在线客服 / 提交工单
+                  在线客服
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-card border-border text-foreground sm:max-w-[500px]">
-                <DialogHeader>
-                  <DialogTitle>提交工单</DialogTitle>
-                  <DialogDescription className="text-muted-foreground">
-                    请详细描述您遇到的问题，我们会尽快回复。
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="subject">主题</Label>
-                    <Input 
-                      id="subject" 
-                      placeholder="简要描述问题..." 
-                      className="bg-background border-border text-foreground"
-                      value={ticketSubject}
-                      onChange={(e) => setTicketSubject(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="message">详细描述</Label>
-                    <Textarea 
-                      id="message" 
-                      placeholder="请提供更多细节..." 
-                      className="bg-background border-border text-foreground min-h-[150px]"
-                      value={ticketMessage}
-                      onChange={(e) => setTicketMessage(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="ghost" onClick={() => setIsTicketOpen(false)} className="text-muted-foreground hover:text-foreground">取消</Button>
-                  <Button onClick={handleSubmitTicket} disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                    提交
-                  </Button>
-                </DialogFooter>
+              <DialogContent className="sm:max-w-[400px] bg-background border-border text-foreground p-0 overflow-hidden gap-0">
+                  <ServiceDialogContent />
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isFeedbackOpen} onOpenChange={setIsFeedbackOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="border-border hover:bg-accent text-foreground h-12 px-8">
+                  <Ticket className="mr-2 h-4 w-4" />
+                  反馈工单
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px] bg-background border-border text-foreground">
+                  <FeedbackDialogContent onClose={() => setIsFeedbackOpen(false)} />
               </DialogContent>
             </Dialog>
           </div>
@@ -179,5 +121,3 @@ export default function HelpPage() {
     </main>
   );
 }
-
-import { Badge } from "@/components/ui/badge";
