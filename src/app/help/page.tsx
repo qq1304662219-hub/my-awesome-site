@@ -80,7 +80,6 @@ export default function HelpPage() {
       
       {/* Hero Section */}
       <div className="relative py-24 px-4 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-600/20 rounded-full blur-[128px] pointer-events-none" />
         
         <div className="container mx-auto max-w-4xl text-center relative z-10">
           <Badge variant="outline" className="mb-4 text-blue-400 border-blue-500/30 bg-blue-500/10">帮助中心</Badge>
@@ -119,7 +118,7 @@ export default function HelpPage() {
 
       {/* Contact Section */}
       <div className="container mx-auto px-4 max-w-4xl mb-24">
-        <div className="bg-gradient-to-r from-blue-900/10 to-purple-900/10 border border-border rounded-2xl p-8 md:p-12 text-center">
+        <div className="rounded-2xl p-8 md:p-12 text-center">
           <h2 className="text-2xl font-bold text-foreground mb-4">没找到答案？</h2>
           <p className="text-muted-foreground mb-8">我们的团队随时为您提供帮助，请通过以下方式联系我们。</p>
           
