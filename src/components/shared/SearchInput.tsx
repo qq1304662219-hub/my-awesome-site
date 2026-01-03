@@ -108,7 +108,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(({
 
   return (
     <div ref={containerRef} className={`relative group ${className}`}>
-        {showIcon && <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />}
+        {showIcon && <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />}
         <input 
             ref={inputRef}
             type="text" 
@@ -127,29 +127,29 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(({
               setSuggestions([])
               inputRef.current?.focus()
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <X className="w-3 h-3" />
           </button>
         )}
         
         {isOpen && (history.length > 0 || suggestions.length > 0) && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1f2e] border border-white/10 rounded-lg shadow-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-lg shadow-lg overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
                 {suggestions.length > 0 && (
-                  <div className="border-b border-white/5 pb-2">
-                    <div className="px-3 py-2 text-xs font-medium text-gray-500 bg-white/5">
+                  <div className="border-b border-border pb-2">
+                    <div className="px-3 py-2 text-xs font-medium text-muted-foreground bg-muted/30">
                       相关视频
                     </div>
                     {suggestions.map((video) => (
                       <div 
                         key={video.id}
-                        className="px-3 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white cursor-pointer flex items-center gap-2"
+                        className="px-3 py-2 text-sm text-foreground hover:bg-accent cursor-pointer flex items-center gap-2 transition-colors"
                         onClick={() => {
                           setIsOpen(false)
                           router.push(`/video/${video.id}`)
                         }}
                       >
-                        <Video className="w-3 h-3 text-blue-500" />
+                        <Video className="w-3 h-3 text-primary" />
                         <span className="truncate">{video.title}</span>
                       </div>
                     ))}
@@ -158,19 +158,19 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(({
 
                 {history.length > 0 && (
                   <div>
-                    <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b border-border flex justify-between items-center bg-muted/50">
+                    <div className="px-3 py-2 text-xs font-medium text-muted-foreground border-b border-border flex justify-between items-center bg-muted/30">
                         <span>搜索历史</span>
                         <button onClick={() => {
                             setHistory([])
                             localStorage.removeItem("search_history")
-                        }} className="hover:text-destructive">
+                        }} className="hover:text-destructive transition-colors">
                             清空
                         </button>
                     </div>
                     {history.map((item, index) => (
                         <div 
                             key={index}
-                            className="px-3 py-2 text-sm text-foreground hover:bg-muted cursor-pointer flex justify-between items-center group/item"
+                            className="px-3 py-2 text-sm text-foreground hover:bg-accent cursor-pointer flex justify-between items-center group/item transition-colors"
                             onClick={() => handleSearch(item)}
                         >
                             <div className="flex items-center gap-2">
@@ -179,7 +179,8 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(({
                             </div>
                             <button 
                                 onClick={(e) => removeHistory(e, item)}
-                                className="opacity-0 group-hover/item:opacity-100 text-muted-foreground hover:text-destructive p-1"
+                                className="opacity-0 group-hover/item:opacity-100 text-muted-foreground hover:text-destructive p-1 transition-all"
+                                title="删除此记录"
                             >
                                 <X className="w-3 h-3" />
                             </button>
