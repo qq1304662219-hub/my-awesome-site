@@ -132,15 +132,20 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
 
   // 5. Generate Signed URL (Security)
   let videoUrl = video.url;
-  const storagePath = getStoragePathFromUrl(video.url);
-  if (storagePath) {
-      // For playback, do NOT set download: true
-      const { data: signedData } = await supabase
-          .storage
-          .from('uploads')
-          .createSignedUrl(storagePath, 60 * 60 * 2); // 2 hours validity
-      if (signedData) {
-          videoUrl = signedData.signedUrl;
+  // Skip signing for HLS/m3u8 files as they are served from public bucket
+  if (videoUrl && !videoUrl.includes('.m3u8')) {
+      const storagePath = getStoragePathFromUrl(video.url);
+      if (storagePath) {
+          // Try to guess bucket from path or default to 'videos'
+          // If the path starts with a bucket name, getStoragePathFromUrl might strip it or keep it depending on implementation.
+          // Assuming 'videos' bucket for legacy files.
+          const { data: signedData } = await supabase
+              .storage
+              .from('videos') 
+              .createSignedUrl(storagePath, 60 * 60 * 2); 
+          if (signedData) {
+              videoUrl = signedData.signedUrl;
+          }
       }
   }
 

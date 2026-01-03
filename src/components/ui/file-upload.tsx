@@ -245,12 +245,10 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
         throw new Error("存储空间已满，无法上传此视频。请联系管理员升级套餐。")
       }
 
-      // 1. Upload Video
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${userId}/${Date.now()}.${fileExt}`
-      
+      // 1. Upload Video (Original to Private Bucket)
+      const fileName = `${userId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`
       const { data: videoUploadData, error: videoUploadError } = await supabase.storage
-        .from('videos')
+        .from('raw_videos') // Changed to private bucket
         .upload(fileName, file, {
             cacheControl: '3600',
             upsert: false
@@ -267,10 +265,10 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
         .upload(coverName, coverBlob)
 
       if (coverUploadError) throw coverUploadError
-      setProgress(80)
+      setProgress(70)
 
       // 3. Get Public URLs
-      const { data: { publicUrl: videoUrl } } = supabase.storage.from('videos').getPublicUrl(fileName)
+      // Note: Video URL will be set to empty or placeholder initially, updated after processing
       const { data: { publicUrl: coverPublicUrl } } = supabase.storage.from('covers').getPublicUrl(coverName)
 
       // Determine numeric FPS from tag if possible, or use default
@@ -289,10 +287,11 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           user_id: userId,
           title,
           description,
-          url: videoUrl,
+          url: '', // Will be updated by processing
+          original_url: fileName, // Store path to raw video
           cover_url: coverPublicUrl,
           price: parseFloat(price) || 0,
-          status: 'pending', // Default to pending
+          status: 'processing', // Set to processing
           tags,
           category,
           style,
@@ -300,23 +299,47 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           duration: durationSec,
           duration_range: durationTag,
           ai_model: aiModel,
-          movement, // New field
+          movement, 
           prompt,
-          resolution, // Storing the tag string (e.g. '1080p') matches VideoGrid filter
+          resolution, 
           fps_range: fpsTag,
           width: videoRef.current?.dataset.width ? parseInt(videoRef.current.dataset.width) : null,
           height: videoRef.current?.dataset.height ? parseInt(videoRef.current.dataset.height) : null,
           size: file.size,
           format: file.type.split('/')[1]?.toUpperCase() || 'MP4',
-          fps: finalFps
+          fps: finalFps,
+          is_processed: false
         })
         .select()
         .single()
 
       if (dbError) throw dbError
+      
+      // 5. Trigger Backend Processing
+      setProgress(85)
+      try {
+        const response = await fetch('/api/upload/process', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                videoId: videoData.id,
+                filePath: fileName,
+                userId: userId
+            })
+        });
+        
+        if (!response.ok) {
+            console.error('Processing trigger failed');
+            // We don't throw here to avoid blocking the UI, but we should notify
+            toast.error('视频处理请求失败，请稍后重试');
+        }
+      } catch (procErr) {
+        console.error('Processing error:', procErr);
+      }
+
       setProgress(100)
 
-      // 5. Notify Followers
+      // 6. Notify Followers
       try {
         // Self notification
         await supabase.from('notifications').insert({

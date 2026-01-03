@@ -101,18 +101,38 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl, h
 
     setDownloading(true)
     try {
-        // 1. Increment counter
-        await supabase.rpc('increment_downloads', { video_id: video.id });
-
-        // 2. Record history
-        const { error } = await supabase.from('user_downloads').insert({
-            user_id: user.id,
-            video_id: video.id
+        // 1. Get Secure Download URL
+        const response = await fetch(`/api/video/${video.id}/download`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: user.id })
         });
-        
-        if (error) console.error("Error recording download history:", error);
 
-        // 3. Notification for Author
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || '下载请求失败');
+        }
+
+        const { downloadUrl } = await response.json();
+
+        // 2. Trigger Download
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = video.title || 'download';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // 3. Increment counter & Record history (Background)
+        await Promise.all([
+            supabase.rpc('increment_downloads', { video_id: video.id }),
+            supabase.from('user_downloads').insert({
+                user_id: user.id,
+                video_id: video.id
+            })
+        ]);
+
+        // 4. Notification for Author
         if (video.user_id && user.id !== video.user_id) {
             await supabase.from("notifications").insert({
                 user_id: video.user_id,
@@ -124,18 +144,11 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl, h
                 is_read: false
             });
         }
-
-        // 4. Trigger Secure Download
-        toast.success("正在打包下载，请稍候...");
-        const link = document.createElement('a');
-        link.href = `/api/download?id=${video.id}`;
-        link.download = '';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } catch (error) {
-        console.error("Download error:", error);
-        toast.error("下载失败，请稍后重试");
+        
+        toast.success("开始下载原片")
+    } catch (error: any) {
+        console.error("Download error:", error)
+        toast.error(error.message || "下载失败")
     } finally {
         setDownloading(false)
     }

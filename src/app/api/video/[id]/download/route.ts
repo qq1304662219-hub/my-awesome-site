@@ -1,116 +1,80 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
-import { getStoragePathFromUrl } from '@/lib/utils'
-import { rateLimit } from '@/lib/rate-limit'
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-export async function GET(
-  request: Request,
+// Initialize Supabase Admin Client
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function POST(
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params
-  const cookieStore = await cookies()
-  const ip = request.headers.get('x-forwarded-for') || 'unknown'
+  try {
+    const { id: videoId } = await params;
+    const { userId } = await req.json(); // Or get from auth header
 
-  // Rate Limit: 10 downloads per minute per IP
-  const { success, reset } = await rateLimit(`download:${ip}`, 10, 60)
-  if (!success) {
-    return NextResponse.json(
-      { error: 'Too many requests', reset },
-      { status: 429, headers: { 'Retry-After': reset.toString() } }
-    )
-  }
-  
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            // In Next.js App Router API routes, we can set cookies
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            // Handle error
-          }
-        },
-      },
+    if (!videoId || !userId) {
+      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
     }
-  )
 
-  // 1. Check Auth
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
-    return new NextResponse('Unauthorized', { status: 401 })
-  }
+    // 1. Check if user is owner
+    const { data: video, error: videoError } = await supabaseAdmin
+      .from('videos')
+      .select('user_id, original_url, price')
+      .eq('id', videoId)
+      .single();
 
-  // 2. Fetch Video Info
-  const { data: video, error: videoError } = await supabase
-    .from('videos')
-    .select('url, user_id, title')
-    .eq('id', id)
-    .single()
+    if (videoError || !video) {
+      return NextResponse.json({ error: 'Video not found' }, { status: 404 });
+    }
 
-  if (videoError || !video) {
-    return new NextResponse('Video not found', { status: 404 })
-  }
+    let canDownload = false;
 
-  // 3. Check Permissions (Owner or Purchaser)
-  const isOwner = video.user_id === session.user.id
-  let hasAccess = isOwner
-
-  if (!hasAccess) {
-    // Check if user has purchased the video
-    // We query orders that are 'completed' and contain an item with this video_id
-    const { data: purchases, error: purchaseError } = await supabase
-        .from('orders')
-        .select(`
-            id,
-            status,
-            order_items!inner (
-                video_id
-            )
-        `)
-        .eq('user_id', session.user.id)
-        .eq('status', 'completed')
-        .eq('order_items.video_id', id)
+    if (video.user_id === userId) {
+      canDownload = true;
+    } else if (video.price === 0) {
+       canDownload = true; // Free video
+    } else {
+      // 2. Check Purchase Status
+      const { data: purchase } = await supabaseAdmin
+        .from('order_items')
+        .select('orders!inner(user_id, status)')
+        .eq('video_id', videoId)
+        .eq('orders.user_id', userId)
+        .eq('orders.status', 'completed')
         .limit(1)
+        .maybeSingle();
 
-    if (purchases && purchases.length > 0) {
-        hasAccess = true
+      if (purchase) canDownload = true;
     }
+
+    if (!canDownload) {
+      return NextResponse.json({ error: 'Unauthorized: Purchase required' }, { status: 403 });
+    }
+
+    // 3. Generate Signed URL for Original File
+    if (!video.original_url) {
+        return NextResponse.json({ error: 'Original file not found' }, { status: 404 });
+    }
+
+    const { data, error: signError } = await supabaseAdmin
+      .storage
+      .from('raw_videos')
+      .createSignedUrl(video.original_url, 300); // 5 minutes validity
+
+    if (signError) {
+      throw new Error(`Failed to generate signed URL: ${signError.message}`);
+    }
+
+    return NextResponse.json({ 
+        downloadUrl: data.signedUrl,
+        expiresIn: 300 
+    });
+
+  } catch (error: any) {
+    console.error('Download API Error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  if (!hasAccess) {
-    return new NextResponse('Forbidden: You must purchase this video to download it.', { status: 403 })
-  }
-
-  // 4. Generate Signed URL with Download Disposition
-  const storagePath = getStoragePathFromUrl(video.url)
-  if (!storagePath) {
-     return new NextResponse('Invalid video URL', { status: 400 })
-  }
-
-  const { data: signedData, error: signError } = await supabase
-    .storage
-    .from('uploads')
-    .createSignedUrl(storagePath, 300, { // 5 minutes validity (reduced from 1 hour)
-        download: true 
-    })
-
-  if (signError || !signedData) {
-      return new NextResponse('Error generating download link', { status: 500 })
-  }
-
-  // Redirect to the signed URL
-  return NextResponse.redirect(signedData.signedUrl)
 }

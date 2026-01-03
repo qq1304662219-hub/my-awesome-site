@@ -5,6 +5,7 @@ import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Settings, AlertTrian
 import { Slider } from "@/components/ui/slider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { supabase } from "@/lib/supabase"
+import Hls from "hls.js"
 
 interface VideoPlayerProps {
   src: string
@@ -35,6 +36,41 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
+
+    let hls: Hls | null = null;
+
+    // HLS Support
+    if (src && (src.endsWith('.m3u8') || src.includes('m3u8'))) {
+        if (Hls.isSupported()) {
+            hls = new Hls({
+                debug: false,
+                enableWorker: true,
+            });
+            hls.loadSource(src);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            console.error("fatal network error encountered, try to recover");
+                            hls?.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            console.error("fatal media error encountered, try to recover");
+                            hls?.recoverMediaError();
+                            break;
+                        default:
+                            hls?.destroy();
+                            break;
+                    }
+                }
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = src;
+        }
+    } else if (src) {
+        video.src = src;
+    }
 
     const updateTime = () => setCurrentTime(video.currentTime)
     const updateDuration = () => setDuration(video.duration)
@@ -229,7 +265,6 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
 
       <video
         ref={videoRef}
-        src={src}
         poster={poster}
         className="w-full h-full object-contain cursor-pointer"
         onClick={togglePlay}
