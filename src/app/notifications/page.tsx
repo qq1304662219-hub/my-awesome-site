@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Bell, MessageSquare, Heart, Video, CheckCheck, Trash2, UserPlus } from "lucide-react"
@@ -280,8 +279,6 @@ export default function NotificationsPage() {
           )}
         </div>
       </div>
-      
-      <Footer />
     </div>
   )
 }

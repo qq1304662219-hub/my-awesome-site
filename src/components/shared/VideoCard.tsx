@@ -167,7 +167,7 @@ export function VideoCard({
   return (
     <div 
       ref={containerRef}
-      className="group relative bg-card rounded-xl overflow-hidden border border-border hover:border-foreground/20 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+      className="group relative bg-card rounded-xl overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
       onMouseEnter={() => {
         if (!isMobile) {
             hoverTimeoutRef.current = setTimeout(() => {

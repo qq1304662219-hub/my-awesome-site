@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/landing/Navbar";
-import { Footer } from "@/components/landing/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -107,9 +106,8 @@ export default async function EventsPage() {
                     </Card>
                 ))}
             </div>
-        )}
+        )}</div>
       </div>
-      <Footer />
-    </div>
+    </main>
   );
 }

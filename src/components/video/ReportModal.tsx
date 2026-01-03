@@ -71,13 +71,13 @@ export function ReportModal({ isOpen, onClose, resourceId, resourceType }: Repor
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-[#0f172a] border-white/10 text-white sm:max-w-[425px]">
+      <DialogContent className="bg-background border-border text-foreground sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-red-400">
+          <DialogTitle className="flex items-center gap-2 text-red-500">
             <AlertTriangle className="w-5 h-5" />
             举报{resourceType === 'video' ? '视频' : '评论'}
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             请选择举报原因，帮助我们维护社区环境。
           </DialogDescription>
         </DialogHeader>
@@ -88,7 +88,7 @@ export function ReportModal({ isOpen, onClose, resourceId, resourceType }: Repor
             <RadioGroup value={reason} onValueChange={setReason} className="gap-2">
               {REPORT_REASONS.map((r) => (
                 <div key={r.id} className="flex items-center space-x-2">
-                  <RadioGroupItem value={r.id} id={r.id} className="border-white/20 text-blue-500" />
+                  <RadioGroupItem value={r.id} id={r.id} className="border-border text-blue-500" />
                   <Label htmlFor={r.id} className="font-normal cursor-pointer">{r.label}</Label>
                 </div>
               ))}
@@ -102,13 +102,13 @@ export function ReportModal({ isOpen, onClose, resourceId, resourceType }: Repor
               placeholder="请提供更多细节..."
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              className="bg-black/20 border-white/10 min-h-[100px]"
+              className="bg-muted border-border min-h-[100px]"
             />
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose} disabled={submitting} className="hover:bg-white/10 hover:text-white">
+          <Button variant="ghost" onClick={onClose} disabled={submitting} className="hover:bg-accent hover:text-foreground">
             取消
           </Button>
           <Button onClick={handleSubmit} disabled={submitting} className="bg-red-600 hover:bg-red-700 text-white">

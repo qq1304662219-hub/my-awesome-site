@@ -1,6 +1,5 @@
 
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { supabase } from "@/lib/supabase"
 import { VideoCard } from "@/components/shared/VideoCard"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -151,8 +150,6 @@ export default async function PublicCollectionPage({ params }: { params: Promise
             </div>
         )}
       </div>
-
-      <Footer />
     </div>
   )
 }

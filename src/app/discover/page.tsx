@@ -2,7 +2,6 @@
 
 import { useState, Suspense, useMemo } from "react"
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { VideoGrid } from "@/components/landing/VideoGrid"
 import { Button } from "@/components/ui/button"
 import { Zap, Film, PenTool, Trophy, ArrowRight } from "lucide-react"
@@ -228,7 +227,6 @@ export default function DiscoverPage() {
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
         <DiscoverContent />
       </Suspense>
-      <Footer />
     </main>
   )
 }

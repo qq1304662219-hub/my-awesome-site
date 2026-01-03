@@ -1,8 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Loader2, Trash2, ShoppingCart } from "lucide-react"
@@ -180,28 +178,27 @@ export default function CartPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <Navbar />
+    <main className="min-h-screen bg-background text-foreground">
       
       <div className="container mx-auto px-4 py-24 max-w-5xl">
         <h1 className="text-3xl font-bold mb-8 flex items-center gap-3">
-          <ShoppingCart className="text-blue-500" />
+          <ShoppingCart className="text-primary" />
           我的购物车
-          <span className="text-sm font-normal text-gray-500 mt-2">({items.length} 件商品)</span>
+          <span className="text-sm font-normal text-muted-foreground mt-2">({items.length} 件商品)</span>
         </h1>
 
         {items.length === 0 ? (
-          <div className="text-center py-20 bg-white/5 rounded-2xl border border-white/10">
-            <ShoppingCart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400 mb-6">购物车是空的</p>
-            <Button onClick={() => router.push('/explore')} variant="outline" className="border-white/10 text-white hover:bg-white/10">
+          <div className="text-center py-20 bg-muted/50 rounded-2xl border border-border">
+            <ShoppingCart className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground mb-6">购物车是空的</p>
+            <Button onClick={() => router.push('/explore')} variant="outline" className="border-input hover:bg-accent hover:text-accent-foreground">
               去逛逛
             </Button>
           </div>
@@ -209,26 +206,26 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items List */}
             <div className="lg:col-span-2 space-y-4">
-              <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
+              <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl border border-border">
                 <Checkbox 
                   checked={selectedItems.size === items.length && items.length > 0}
                   onCheckedChange={toggleAll}
-                  className="border-white/20 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                  className="border-input data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
-                <span className="text-sm text-gray-400">全选</span>
+                <span className="text-sm text-muted-foreground">全选</span>
               </div>
 
               {items.map(item => (
-                <div key={item.id} className="flex gap-4 p-4 bg-[#0f172a] rounded-xl border border-white/10 group">
+                <div key={item.id} className="flex gap-4 p-4 bg-card rounded-xl border border-border group hover:border-primary/50 transition-colors">
                   <div className="flex items-center">
                     <Checkbox 
                       checked={selectedItems.has(item.id)}
                       onCheckedChange={() => toggleSelect(item.id)}
-                      className="border-white/20 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                      className="border-input data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                     />
                   </div>
                   
-                  <div className="relative w-32 aspect-video bg-black rounded-lg overflow-hidden border border-white/5">
+                  <div className="relative w-32 aspect-video bg-muted rounded-lg overflow-hidden border border-border">
                     {item.video.thumbnail_url ? (
                        <Image 
                          src={item.video.thumbnail_url} 
@@ -237,7 +234,7 @@ export default function CartPage() {
                          className="object-cover"
                        />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-700 bg-gray-900">
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-muted">
                         No Image
                       </div>
                     )}
@@ -245,20 +242,20 @@ export default function CartPage() {
 
                   <div className="flex-1 flex flex-col justify-between py-1">
                     <div>
-                      <h3 className="font-medium text-white line-clamp-1">{item.video.title}</h3>
-                      <p className="text-xs text-gray-500 mt-1">ID: {item.video.id.slice(0, 8)}...</p>
+                      <h3 className="font-medium text-foreground line-clamp-1">{item.video.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-1">ID: {item.video.id.slice(0, 8)}...</p>
                     </div>
                     <div className="flex justify-between items-end">
-                      <div className="text-xs text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
+                      <div className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20">
                         {item.license_type === 'personal' ? '个人授权' : '企业授权'}
                       </div>
-                      <div className="font-bold text-lg">¥{item.price}</div>
+                      <div className="font-bold text-lg text-foreground">¥{item.price}</div>
                     </div>
                   </div>
 
                   <button 
                     onClick={() => handleRemove(item.id)}
-                    className="self-center p-2 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                    className="self-center p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full transition-colors opacity-0 group-hover:opacity-100"
                   >
                     <Trash2 className="w-5 h-5" />
                   </button>
@@ -268,33 +265,33 @@ export default function CartPage() {
 
             {/* Summary Panel */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-2xl p-6 text-black sticky top-24">
+              <div className="bg-card border border-border rounded-2xl p-6 text-foreground sticky top-24 shadow-sm">
                 <h3 className="text-lg font-bold mb-6">订单摘要</h3>
                 
                 <div className="space-y-4 mb-8">
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-muted-foreground">
                     <span>已选商品</span>
                     <span>{selectedItems.size} 件</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-muted-foreground">
                     <span>总计金额</span>
-                    <span className="font-medium">¥{calculateTotal()}</span>
+                    <span className="font-medium text-foreground">¥{calculateTotal()}</span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
+                  <div className="flex justify-between text-muted-foreground">
                     <span>账户余额</span>
-                    <span className="font-medium">¥{profile?.balance || 0}</span>
+                    <span className="font-medium text-foreground">¥{profile?.balance || 0}</span>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-gray-100 mb-6">
+                <div className="pt-4 border-t border-border mb-6">
                   <div className="flex justify-between items-end">
                     <span className="font-bold text-lg">应付总额</span>
-                    <span className="text-3xl font-bold text-blue-600">¥{calculateTotal()}</span>
+                    <span className="text-3xl font-bold text-primary">¥{calculateTotal()}</span>
                   </div>
                 </div>
 
                 <Button 
-                  className="w-full h-12 text-lg font-bold bg-blue-600 hover:bg-blue-700 text-white"
+                  className="w-full h-12 text-lg font-bold bg-primary hover:bg-primary/90 text-primary-foreground"
                   disabled={selectedItems.size === 0 || processing}
                   onClick={handleCheckout}
                 >
@@ -302,7 +299,7 @@ export default function CartPage() {
                 </Button>
 
                 {(profile?.balance || 0) < calculateTotal() && (
-                   <p className="text-red-500 text-sm text-center mt-3">余额不足，请先充值</p>
+                   <p className="text-destructive text-sm text-center mt-3">余额不足，请先充值</p>
                 )}
               </div>
             </div>

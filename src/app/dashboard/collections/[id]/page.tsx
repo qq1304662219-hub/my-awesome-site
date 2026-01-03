@@ -3,7 +3,6 @@
 import { useState, useEffect, use } from "react"
 import { supabase } from "@/lib/supabase"
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { VideoCard } from "@/components/shared/VideoCard"
 import { Loader2, ArrowLeft, MoreHorizontal, Globe, Lock, Trash2, Edit } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -197,8 +196,6 @@ export default function CollectionDetailPage({ params }: CollectionDetailPagePro
             </div>
         )}
       </div>
-
-      <Footer />
     </div>
   )
 }

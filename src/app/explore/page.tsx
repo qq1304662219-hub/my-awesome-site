@@ -3,7 +3,6 @@
 import { Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { VideoGrid } from "@/components/landing/VideoGrid"
 import { MaterialHeader } from "@/components/explore/MaterialHeader"
 
@@ -45,7 +44,6 @@ export default function ExplorePage() {
             <ExploreContent />
         </Suspense>
       </div>
-      <Footer />
     </main>
   )
 }

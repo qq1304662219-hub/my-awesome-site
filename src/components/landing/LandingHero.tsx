@@ -78,11 +78,13 @@ export function LandingHero() {
           className="flex flex-col items-center"
         >
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 dark:text-blue-300 mb-8 backdrop-blur-sm hover:bg-blue-500/20 transition-all cursor-pointer group">
-            <Zap className="h-4 w-4 fill-blue-500/50 group-hover:fill-blue-500 transition-colors" />
-            <span className="text-sm font-medium">AI 视频生成与素材交易平台</span>
-            <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
-          </div>
+          <Link href="/explore">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 dark:text-blue-300 mb-8 backdrop-blur-sm hover:bg-blue-500/20 transition-all cursor-pointer group">
+              <Zap className="h-4 w-4 fill-blue-500/50 group-hover:fill-blue-500 transition-colors" />
+              <span className="text-sm font-medium">AI 视频生成与素材交易平台</span>
+              <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
 
           {/* Main Title */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-foreground mb-6 leading-tight">
@@ -93,32 +95,36 @@ export function LandingHero() {
           </h1>
 
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-            汇聚全球顶尖 AI 创作者，探索 Sora, Midjourney, Runway 等前沿模型生成的 4K 视频素材。
+            当 AI 抹平了技术的门槛，审美，便是唯一的壁垒。
             <br className="hidden md:block" />
-            为您的创意项目注入无限灵感。
+            汇聚全球顶尖 AI 创作者，让每一次灵感的迸发，都为你的创作开路。
           </p>
 
           {/* Search Section */}
           <div className="w-full max-w-3xl mx-auto relative group">
-             <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-500"></div>
-             <div className="relative bg-card/80 backdrop-blur-xl rounded-2xl border border-border p-2 flex items-center shadow-2xl">
-                <Search className="h-6 w-6 text-muted-foreground ml-4" />
+             <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 group-hover:opacity-40 blur transition duration-500" />
+             <div className="relative flex items-center p-2 bg-background/80 backdrop-blur-xl border border-white/20 rounded-full shadow-2xl transition-all duration-300 hover:border-blue-500/50 hover:shadow-blue-500/20">
+                <Search className="w-6 h-6 text-muted-foreground ml-4" />
                 <SearchInput 
                     ref={searchInputRef}
                     className="flex-1"
-                    inputClassName="!bg-transparent !border-none !text-lg !h-14 !text-foreground !placeholder:text-muted-foreground !shadow-none !rounded-none focus:!ring-0"
-                    placeholder="搜索: 赛博朋克, 自然风光, 商业广告, 4K..."
+                    inputClassName="!bg-transparent !border-none !text-lg !h-14 !text-foreground !placeholder:text-muted-foreground/70 !shadow-none !rounded-none focus:!ring-0"
+                    placeholder="[ 寻找灵感... 🔍 ]"
                     showIcon={false}
                 />
-                <Button onClick={handleLearnMore} size="lg" className="h-12 px-8 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium shadow-lg shadow-blue-500/25 transition-all hover:scale-105">
-                    搜索
+                <Button 
+                    onClick={handleLearnMore} 
+                    size="icon" 
+                    className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-[0_0_15px_rgba(79,70,229,0.4)] hover:shadow-[0_0_25px_rgba(79,70,229,0.6)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center group/btn"
+                >
+                    <ArrowRight className="h-6 w-6 group-hover/btn:-rotate-45 transition-transform duration-300" />
                 </Button>
              </div>
           </div>
 
           {/* Trending Tags */}
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-             <span className="text-muted-foreground text-sm py-1.5">热门趋势:</span>
+             <span className="text-muted-foreground text-sm py-1.5">热门搜索:</span>
              {['Sora', 'Runway Gen-3', 'Midjourney V6', 'Cyberpunk', 'Nature', 'Abstract'].map((tag, i) => (
                 <Link key={tag} href={`/explore?q=${tag}`}>
                     <span className="px-3 py-1.5 rounded-lg bg-muted border border-border text-muted-foreground text-sm hover:bg-muted/80 hover:text-foreground hover:border-foreground/20 transition-all cursor-pointer">

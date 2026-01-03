@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Copy, Gift, Users, Coins } from "lucide-react"
@@ -151,8 +150,6 @@ export default function InvitePage() {
               </div>
           </div>
       </section>
-
-      <Footer />
     </div>
   )
 }

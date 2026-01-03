@@ -10,7 +10,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { toast } from "sonner"
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { Loader2 } from "lucide-react"
 
 export default function SettingsPage() {
@@ -141,7 +140,6 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </div>
-      <Footer />
     </div>
   )
 }

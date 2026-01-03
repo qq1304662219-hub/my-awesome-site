@@ -3,7 +3,6 @@
 import { useState, useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Loader2, ShieldCheck, Ticket, Wallet } from "lucide-react"
@@ -235,7 +234,6 @@ export default function CheckoutPage() {
             <Suspense fallback={<div className="pt-32 text-center">Loading...</div>}>
                 <CheckoutContent />
             </Suspense>
-            <Footer />
         </div>
     )
 }

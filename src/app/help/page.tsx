@@ -1,7 +1,6 @@
 "use client"
 
 import { Navbar } from "@/components/landing/Navbar";
-import { Footer } from "@/components/landing/Footer";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,7 +75,7 @@ export default function HelpPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#020817] text-foreground">
+    <main className="min-h-screen bg-background text-foreground">
       <Navbar />
       
       {/* Hero Section */}
@@ -85,13 +84,13 @@ export default function HelpPage() {
         
         <div className="container mx-auto max-w-4xl text-center relative z-10">
           <Badge variant="outline" className="mb-4 text-blue-400 border-blue-500/30 bg-blue-500/10">帮助中心</Badge>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">我们能为您做些什么？</h1>
-          <p className="text-xl text-gray-400 mb-10">搜索常见问题，或直接联系我们的支持团队</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">我们能为您做些什么？</h1>
+          <p className="text-xl text-muted-foreground mb-10">搜索常见问题，或直接联系我们的支持团队</p>
           
           <div className="relative max-w-2xl mx-auto">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input 
-              className="w-full h-14 pl-12 pr-4 bg-white/5 border-white/10 text-white rounded-full text-lg focus-visible:ring-blue-500 placeholder:text-gray-500 shadow-2xl"
+              className="w-full h-14 pl-12 pr-4 bg-background/50 border-border text-foreground rounded-full text-lg focus-visible:ring-blue-500 placeholder:text-muted-foreground shadow-2xl backdrop-blur-sm"
               placeholder="搜索问题关键词..." 
             />
           </div>
@@ -100,17 +99,17 @@ export default function HelpPage() {
 
       {/* FAQ Section */}
       <div className="container mx-auto px-4 max-w-3xl mb-24">
-        <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-foreground mb-8 flex items-center gap-2">
           <HelpCircle className="text-blue-500" /> 常见问题
         </h2>
         
         <Accordion type="single" collapsible className="w-full space-y-4">
           {faqs.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`} className="border border-white/10 bg-white/5 rounded-lg px-4 data-[state=open]:bg-white/10 transition-colors">
-              <AccordionTrigger className="text-white hover:no-underline hover:text-blue-400 text-left">
+            <AccordionItem key={index} value={`item-${index}`} className="border border-border bg-card/50 rounded-lg px-4 data-[state=open]:bg-card transition-colors">
+              <AccordionTrigger className="text-foreground hover:no-underline hover:text-blue-400 text-left">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-gray-400 leading-relaxed">
+              <AccordionContent className="text-muted-foreground leading-relaxed">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>
@@ -120,9 +119,9 @@ export default function HelpPage() {
 
       {/* Contact Section */}
       <div className="container mx-auto px-4 max-w-4xl mb-24">
-        <div className="bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-white/10 rounded-2xl p-8 md:p-12 text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">没找到答案？</h2>
-          <p className="text-gray-400 mb-8">我们的团队随时为您提供帮助，请通过以下方式联系我们。</p>
+        <div className="bg-gradient-to-r from-blue-900/10 to-purple-900/10 border border-border rounded-2xl p-8 md:p-12 text-center">
+          <h2 className="text-2xl font-bold text-foreground mb-4">没找到答案？</h2>
+          <p className="text-muted-foreground mb-8">我们的团队随时为您提供帮助，请通过以下方式联系我们。</p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button className="bg-blue-600 hover:bg-blue-700 h-12 px-8">
@@ -132,15 +131,15 @@ export default function HelpPage() {
             
             <Dialog open={isTicketOpen} onOpenChange={setIsTicketOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="border-white/10 hover:bg-white/10 text-white h-12 px-8">
+                <Button variant="outline" className="border-border hover:bg-accent text-foreground h-12 px-8">
                   <MessageCircle className="mr-2 h-4 w-4" />
                   在线客服 / 提交工单
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-[#0f172a] border-white/10 text-white sm:max-w-[500px]">
+              <DialogContent className="bg-card border-border text-foreground sm:max-w-[500px]">
                 <DialogHeader>
                   <DialogTitle>提交工单</DialogTitle>
-                  <DialogDescription className="text-gray-400">
+                  <DialogDescription className="text-muted-foreground">
                     请详细描述您遇到的问题，我们会尽快回复。
                   </DialogDescription>
                 </DialogHeader>
@@ -150,7 +149,7 @@ export default function HelpPage() {
                     <Input 
                       id="subject" 
                       placeholder="简要描述问题..." 
-                      className="bg-white/5 border-white/10 text-white"
+                      className="bg-background border-border text-foreground"
                       value={ticketSubject}
                       onChange={(e) => setTicketSubject(e.target.value)}
                     />
@@ -160,14 +159,14 @@ export default function HelpPage() {
                     <Textarea 
                       id="message" 
                       placeholder="请提供更多细节..." 
-                      className="bg-white/5 border-white/10 text-white min-h-[150px]"
+                      className="bg-background border-border text-foreground min-h-[150px]"
                       value={ticketMessage}
                       onChange={(e) => setTicketMessage(e.target.value)}
                     />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="ghost" onClick={() => setIsTicketOpen(false)} className="text-gray-400 hover:text-white">取消</Button>
+                  <Button variant="ghost" onClick={() => setIsTicketOpen(false)} className="text-muted-foreground hover:text-foreground">取消</Button>
                   <Button onClick={handleSubmitTicket} disabled={isSubmitting} className="bg-blue-600 hover:bg-blue-700 text-white">
                     {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     提交
@@ -178,8 +177,6 @@ export default function HelpPage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </main>
   );
 }

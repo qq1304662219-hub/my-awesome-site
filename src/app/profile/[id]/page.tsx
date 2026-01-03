@@ -3,7 +3,6 @@
 import { useEffect, useState, use } from "react"
 import { supabase } from "@/lib/supabase"
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -217,7 +216,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#020817] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
       </div>
     )
@@ -228,18 +227,18 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#020817] text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Navbar />
       
       <main className="flex-1 container mx-auto px-4 pt-32 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-8">
             {/* Left Sidebar: Profile Card */}
             <aside className="space-y-6">
-                <div className="bg-[#0f172a] rounded-2xl border border-white/10 overflow-hidden relative group">
+                <div className="bg-card rounded-2xl border border-border overflow-hidden relative group">
                     {/* Cover/Background Effect */}
-                    <div className="h-32 bg-gradient-to-b from-blue-900/20 to-[#0f172a] relative">
+                    <div className="h-32 bg-gradient-to-b from-blue-900/20 to-card relative">
                         <div className="absolute top-4 right-4">
-                             <Button variant="ghost" size="icon" className="text-white/50 hover:text-white hover:bg-white/10">
+                             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hover:bg-accent">
                                 <MoreHorizontal className="w-5 h-5" />
                             </Button>
                         </div>
@@ -248,14 +247,14 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     <div className="px-6 pb-8 -mt-12 relative">
                          {/* Avatar */}
                         <div className="relative inline-block mb-4">
-                            <Avatar className="w-24 h-24 border-4 border-[#0f172a] shadow-xl">
+                            <Avatar className="w-24 h-24 border-4 border-card shadow-xl">
                                 <AvatarImage src={profile.avatar_url} />
                                 <AvatarFallback className="text-2xl bg-blue-900/50 text-blue-200">
                                     {profile.username?.[0]?.toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
                             {profile.is_verified && (
-                                <div className="absolute bottom-1 right-1 bg-[#0f172a] rounded-full p-1">
+                                <div className="absolute bottom-1 right-1 bg-card rounded-full p-1">
                                     <CheckCircle className="w-5 h-5 text-blue-500 fill-blue-500/20" />
                                 </div>
                             )}
@@ -264,14 +263,14 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                         {/* Name & Badge */}
                         <div className="mb-4">
                             <div className="flex items-center gap-2 mb-1">
-                                <h1 className="text-2xl font-bold text-white truncate">{profile.username || "Unknown User"}</h1>
+                                <h1 className="text-2xl font-bold text-foreground truncate">{profile.username || "Unknown User"}</h1>
                                 {profile.role === 'admin' && (
                                     <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 px-1.5 py-0.5 h-5 text-[10px]">
                                         <Trophy className="w-3 h-3 mr-1" /> 官方
                                     </Badge>
                                 )}
                             </div>
-                            <div className="text-sm text-gray-400 flex items-center gap-2">
+                            <div className="text-sm text-muted-foreground flex items-center gap-2">
                                 <span>{profile.job_title || "创作者"}</span>
                                 <span className="w-1 h-1 bg-gray-600 rounded-full" />
                                 <span className="flex items-center">
@@ -283,7 +282,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 
                         {/* Bio */}
                         <div className="mb-6">
-                            <p className="text-sm text-gray-400 leading-relaxed line-clamp-3">
+                            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
                                 {profile.bio || "这个人很懒，什么都没有写..."}
                             </p>
                         </div>
@@ -296,7 +295,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                                         className={cn(
                                             "w-full font-medium transition-all",
                                             isFollowing 
-                                                ? "bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10" 
+                                                ? "bg-muted hover:bg-accent text-muted-foreground border border-border" 
                                                 : "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-900/20"
                                         )}
                                         onClick={handleFollow}
@@ -314,39 +313,39 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                                         )}
                                     </Button>
                                     <Link href={`/dashboard/messages/${profile.id}`} className="w-full">
-                                        <Button variant="outline" className="w-full border-white/10 text-gray-300 hover:bg-white/5 hover:text-white bg-transparent">
+                                        <Button variant="outline" className="w-full border-border text-muted-foreground hover:bg-accent hover:text-foreground bg-transparent">
                                             联系合作
                                         </Button>
                                     </Link>
                                 </>
                             ) : (
-                                <Button variant="outline" className="w-full col-span-2 border-white/10 text-gray-300 hover:bg-white/5">
+                                <Button variant="outline" className="w-full col-span-2 border-border text-muted-foreground hover:bg-accent">
                                     编辑资料
                                 </Button>
                             )}
                         </div>
 
                         {/* Stats Grid */}
-                        <div className="grid grid-cols-3 gap-4 py-6 border-t border-white/5">
+                        <div className="grid grid-cols-3 gap-4 py-6 border-t border-border">
                             <div className="text-center">
-                                <div className="text-lg font-bold text-white mb-1">{stats.viewsCount.toLocaleString()}</div>
-                                <div className="text-xs text-gray-500">人气</div>
+                                <div className="text-lg font-bold text-foreground mb-1">{stats.viewsCount.toLocaleString()}</div>
+                                <div className="text-xs text-muted-foreground">人气</div>
                             </div>
-                            <div className="text-center border-l border-white/5">
-                                <div className="text-lg font-bold text-white mb-1">{stats.followersCount.toLocaleString()}</div>
-                                <div className="text-xs text-gray-500">粉丝</div>
+                            <div className="text-center border-l border-border">
+                                <div className="text-lg font-bold text-foreground mb-1">{stats.followersCount.toLocaleString()}</div>
+                                <div className="text-xs text-muted-foreground">粉丝</div>
                             </div>
-                            <div className="text-center border-l border-white/5">
-                                <div className="text-lg font-bold text-white mb-1">{stats.followingCount.toLocaleString()}</div>
-                                <div className="text-xs text-gray-500">关注</div>
+                            <div className="text-center border-l border-border">
+                                <div className="text-lg font-bold text-foreground mb-1">{stats.followingCount.toLocaleString()}</div>
+                                <div className="text-xs text-muted-foreground">关注</div>
                             </div>
                         </div>
 
                         {/* Additional Info */}
-                        <div className="space-y-4 pt-6 border-t border-white/5">
+                        <div className="space-y-4 pt-6 border-t border-border">
                             <div className="flex items-center justify-between text-sm">
-                                <span className="text-gray-500">身份认证</span>
-                                <span className="text-gray-300 flex items-center">
+                                <span className="text-muted-foreground">身份认证</span>
+                                <span className="text-foreground flex items-center">
                                     {profile.is_verified ? (
                                         <>
                                             <CheckCircle className="w-3.5 h-3.5 text-blue-500 mr-1.5" />
@@ -358,15 +357,15 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                                 </span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
-                                <span className="text-gray-500">加入时间</span>
-                                <span className="text-gray-300">
+                                <span className="text-muted-foreground">加入时间</span>
+                                <span className="text-foreground">
                                     {new Date(profile.created_at).getFullYear()}年
                                     {new Date(profile.created_at).getMonth() + 1}月
                                 </span>
                             </div>
                              <div className="flex items-center justify-between text-sm">
-                                <span className="text-gray-500">IP属地</span>
-                                <span className="text-gray-300">{profile.location || "未知"}</span>
+                                <span className="text-muted-foreground">IP属地</span>
+                                <span className="text-foreground">{profile.location || "未知"}</span>
                             </div>
                         </div>
                     </div>
@@ -376,32 +375,32 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             {/* Right Content */}
             <div className="min-w-0">
                 <Tabs defaultValue="videos" className="w-full">
-                    <div className="bg-[#0f172a] border border-white/10 rounded-xl mb-6 px-2 sticky top-24 z-30 shadow-xl shadow-black/20 backdrop-blur-xl bg-[#0f172a]/90">
+                    <div className="bg-card border border-border rounded-xl mb-6 px-2 sticky top-24 z-30 shadow-xl shadow-black/20 backdrop-blur-xl bg-card/90">
                         <TabsList className="w-full justify-start h-14 bg-transparent p-0">
                             <TabsTrigger 
                                 value="videos" 
-                                className="h-full rounded-none border-b-2 border-transparent px-6 data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-gray-400 font-medium transition-all"
+                                className="h-full rounded-none border-b-2 border-transparent px-6 data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-foreground text-muted-foreground font-medium transition-all"
                             >
                                 创作
-                                <span className="ml-2 text-xs bg-white/10 px-1.5 py-0.5 rounded-full text-gray-400 data-[state=active]:text-blue-400">
+                                <span className="ml-2 text-xs bg-accent px-1.5 py-0.5 rounded-full text-muted-foreground data-[state=active]:text-blue-400">
                                     {videos.length}
                                 </span>
                             </TabsTrigger>
                             <TabsTrigger 
                                 value="likes" 
-                                className="h-full rounded-none border-b-2 border-transparent px-6 data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-gray-400 font-medium transition-all"
+                                className="h-full rounded-none border-b-2 border-transparent px-6 data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-foreground text-muted-foreground font-medium transition-all"
                             >
                                 喜欢
-                                <span className="ml-2 text-xs bg-white/10 px-1.5 py-0.5 rounded-full text-gray-400 data-[state=active]:text-blue-400">
+                                <span className="ml-2 text-xs bg-accent px-1.5 py-0.5 rounded-full text-muted-foreground data-[state=active]:text-blue-400">
                                     {likedVideos.length}
                                 </span>
                             </TabsTrigger>
                             <TabsTrigger 
                                 value="collections" 
-                                className="h-full rounded-none border-b-2 border-transparent px-6 data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-gray-400 font-medium transition-all"
+                                className="h-full rounded-none border-b-2 border-transparent px-6 data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-foreground text-muted-foreground font-medium transition-all"
                             >
                                 收藏
-                                <span className="ml-2 text-xs bg-white/10 px-1.5 py-0.5 rounded-full text-gray-400 data-[state=active]:text-blue-400">
+                                <span className="ml-2 text-xs bg-accent px-1.5 py-0.5 rounded-full text-muted-foreground data-[state=active]:text-blue-400">
                                     {collections.length}
                                 </span>
                             </TabsTrigger>
@@ -410,13 +409,13 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 
                     <TabsContent value="videos" className="mt-0 space-y-6">
                         {/* Filters (Mock) */}
-                        <div className="flex items-center justify-between text-sm text-gray-500 px-1">
+                        <div className="flex items-center justify-between text-sm text-muted-foreground px-1">
                             <div className="flex items-center gap-4">
-                                <span className="text-white font-medium">全部</span>
-                                <span className="hover:text-white cursor-pointer transition-colors">视频</span>
-                                <span className="hover:text-white cursor-pointer transition-colors">图片</span>
+                                <span className="text-foreground font-medium">全部</span>
+                                <span className="hover:text-foreground cursor-pointer transition-colors">视频</span>
+                                <span className="hover:text-foreground cursor-pointer transition-colors">图片</span>
                             </div>
-                            <div className="flex items-center cursor-pointer hover:text-white transition-colors">
+                            <div className="flex items-center cursor-pointer hover:text-foreground transition-colors">
                                 按时间排序 <ChevronRight className="w-3 h-3 ml-1" />
                             </div>
                         </div>
@@ -433,12 +432,12 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-32 bg-[#0f172a] rounded-xl border border-white/5 border-dashed">
-                                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Video className="w-8 h-8 text-gray-500" />
+                            <div className="text-center py-32 bg-card rounded-xl border border-border border-dashed">
+                                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Video className="w-8 h-8 text-muted-foreground" />
                                 </div>
-                                <h3 className="text-lg font-medium text-white mb-2">暂无发布作品</h3>
-                                <p className="text-gray-500">该创作者还没有发布任何内容</p>
+                                <h3 className="text-lg font-medium text-foreground mb-2">暂无发布作品</h3>
+                                <p className="text-muted-foreground">该创作者还没有发布任何内容</p>
                             </div>
                         )}
                     </TabsContent>
@@ -454,12 +453,12 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-32 bg-[#0f172a] rounded-xl border border-white/5 border-dashed">
-                                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Heart className="w-8 h-8 text-gray-500" />
+                            <div className="text-center py-32 bg-card rounded-xl border border-border border-dashed">
+                                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Heart className="w-8 h-8 text-muted-foreground" />
                                 </div>
-                                <h3 className="text-lg font-medium text-white mb-2">暂无喜欢内容</h3>
-                                <p className="text-gray-500">该创作者还没有标记喜欢的视频</p>
+                                <h3 className="text-lg font-medium text-foreground mb-2">暂无喜欢内容</h3>
+                                <p className="text-muted-foreground">该创作者还没有标记喜欢的视频</p>
                             </div>
                         )}
                     </TabsContent>
@@ -469,26 +468,26 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {collections.map((collection) => (
                                     <Link key={collection.id} href={`/collections/${collection.id}`} className="group block">
-                                        <div className="bg-[#0f172a] border border-white/10 rounded-xl overflow-hidden aspect-[4/3] relative mb-3">
-                                            <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
-                                                <Folder className="w-12 h-12 text-gray-600" />
+                                        <div className="bg-card border border-border rounded-xl overflow-hidden aspect-[4/3] relative mb-3">
+                                            <div className="absolute inset-0 bg-muted flex items-center justify-center">
+                                                <Folder className="w-12 h-12 text-muted-foreground" />
                                             </div>
                                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                 <span className="text-white font-medium">查看收藏夹</span>
                                             </div>
                                         </div>
-                                        <h3 className="text-white font-medium group-hover:text-blue-400 transition-colors truncate">{collection.name}</h3>
-                                        <p className="text-sm text-gray-500">{collection.collection_items?.[0]?.count || 0} 个内容</p>
+                                        <h3 className="text-foreground font-medium group-hover:text-blue-400 transition-colors truncate">{collection.name}</h3>
+                                        <p className="text-sm text-muted-foreground">{collection.collection_items?.[0]?.count || 0} 个内容</p>
                                     </Link>
                                 ))}
                             </div>
                          ) : (
-                            <div className="text-center py-32 bg-[#0f172a] rounded-xl border border-white/5 border-dashed">
-                                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Folder className="w-8 h-8 text-gray-500" />
+                            <div className="text-center py-32 bg-card rounded-xl border border-border border-dashed">
+                                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Folder className="w-8 h-8 text-muted-foreground" />
                                 </div>
-                                <h3 className="text-lg font-medium text-white mb-2">暂无收藏夹</h3>
-                                <p className="text-gray-500">该创作者还没有创建公开收藏夹</p>
+                                <h3 className="text-lg font-medium text-foreground mb-2">暂无收藏夹</h3>
+                                <p className="text-muted-foreground">该创作者还没有创建公开收藏夹</p>
                             </div>
                          )}
                     </TabsContent>
@@ -496,7 +495,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             </div>
         </div>
       </main>
-      <Footer />
     </div>
   )
 }

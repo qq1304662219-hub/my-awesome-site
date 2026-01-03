@@ -203,18 +203,25 @@ export function NotificationsPopover() {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative text-gray-300 hover:text-white">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className={cn(
+            "relative transition-colors",
+            pathname === '/notifications' ? "text-foreground bg-accent" : "text-muted-foreground hover:text-foreground"
+          )}
+        >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full animate-pulse" />
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0 bg-[#1a1f2e] border-white/10" align="end">
-        <div className="p-4 border-b border-white/10 flex justify-between items-center">
-          <h4 className="font-medium text-white">通知</h4>
+      <PopoverContent className="w-80 p-0 bg-card border-border" align="end">
+        <div className="p-4 border-b border-border flex justify-between items-center">
+          <h4 className="font-medium text-foreground">通知</h4>
           {unreadCount > 0 && (
-            <Button variant="ghost" size="sm" className="h-6 text-xs text-gray-400 hover:text-white" onClick={markAllAsRead}>
+            <Button variant="ghost" size="sm" className="h-6 text-xs text-muted-foreground hover:text-foreground" onClick={markAllAsRead}>
               <CheckCheck className="h-3 w-3 mr-1" />
               全部已读
             </Button>
@@ -222,35 +229,35 @@ export function NotificationsPopover() {
         </div>
         <ScrollArea className="h-[300px]">
           {notifications.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 text-sm flex flex-col items-center gap-2">
+            <div className="p-8 text-center text-muted-foreground text-sm flex flex-col items-center gap-2">
               <Bell className="h-8 w-8 opacity-20" />
               暂无通知
             </div>
           ) : (
-            <div className="divide-y divide-white/5">
+            <div className="divide-y divide-border">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-white/5 cursor-pointer transition-colors relative ${!notification.is_read ? 'bg-blue-500/5' : ''}`}
+                  className={`p-4 hover:bg-accent/50 cursor-pointer transition-colors relative ${!notification.is_read ? 'bg-primary/5' : ''}`}
                   onClick={() => handleNotificationClick(notification)}
                 >
                   {!notification.is_read && (
-                    <div className="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-blue-500" />
+                    <div className="absolute left-2 top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-primary" />
                   )}
                   <div className="flex gap-3 pl-2">
                     <div className="relative">
-                        <Avatar className="h-10 w-10 border border-white/10">
+                        <Avatar className="h-10 w-10 border border-border">
                         <AvatarImage src={notification.actor?.avatar_url} />
                         <AvatarFallback>{notification.actor?.full_name?.[0] || "?"}</AvatarFallback>
                         </Avatar>
-                        <div className="absolute -bottom-1 -right-1 bg-[#1a1f2e] rounded-full p-0.5 border border-white/10">
+                        <div className="absolute -bottom-1 -right-1 bg-card rounded-full p-0.5 border border-border">
                             {getIcon(notification.type)}
                         </div>
                     </div>
                     
                     <div className="flex-1 space-y-1">
-                      <p className="text-sm text-gray-300">
-                        <span className="font-medium text-white">{notification.actor?.full_name || "有人"}</span>
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-medium text-foreground">{notification.actor?.full_name || "有人"}</span>
                         {" "}
                         {notification.type === 'like' && "赞了你的作品"}
                         {notification.type === 'comment' && "评论了你的作品"}
@@ -260,11 +267,11 @@ export function NotificationsPopover() {
                         {notification.type === 'system' && "系统通知"}
                       </p>
                       {notification.content && (
-                        <p className="text-xs text-gray-400 line-clamp-2 bg-black/20 p-2 rounded border border-white/5">
+                        <p className="text-xs text-muted-foreground line-clamp-2 bg-muted p-2 rounded border border-border">
                           "{notification.content}"
                         </p>
                       )}
-                      <p className="text-[10px] text-gray-500">
+                      <p className="text-[10px] text-muted-foreground/70">
                         {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: zhCN })}
                       </p>
                     </div>
@@ -274,8 +281,8 @@ export function NotificationsPopover() {
             </div>
           )}
         </ScrollArea>
-        <div className="p-2 border-t border-white/10 text-center">
-            <Button variant="ghost" size="sm" className="w-full text-xs text-blue-400 hover:text-blue-300" onClick={() => { setIsOpen(false); router.push('/notifications'); }}>
+        <div className="p-2 border-t border-border text-center">
+            <Button variant="ghost" size="sm" className="w-full text-xs text-primary hover:text-primary/80" onClick={() => { setIsOpen(false); router.push('/notifications'); }}>
                 查看所有通知
             </Button>
         </div>

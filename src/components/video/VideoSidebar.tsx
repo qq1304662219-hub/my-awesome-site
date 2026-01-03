@@ -94,10 +94,10 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl }:
   return (
     <div className="space-y-6">
       {/* 1. Action Box (Download/Buy) */}
-      <div className="bg-[#1e293b]/50 backdrop-blur-sm border border-white/10 rounded-xl p-6 shadow-xl">
+      <div className="bg-card backdrop-blur-sm border border-border rounded-xl p-6 shadow-xl">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white">获取素材</h3>
-          <Badge variant="outline" className="border-blue-500/30 text-blue-400 bg-blue-500/10">
+          <h3 className="text-lg font-semibold text-card-foreground">获取素材</h3>
+          <Badge variant="outline" className="border-blue-500/30 text-blue-500 bg-blue-500/10">
             {video.price && video.price > 0 ? `¥${video.price}` : '免费'}
           </Badge>
         </div>
@@ -185,22 +185,22 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl }:
                 <span className="text-gray-200 font-mono">{video.duration ? `${Math.round(video.duration)}s` : '--'}</span>
             </div>
              <div className="space-y-1">
-                <span className="text-gray-500 text-xs block flex items-center gap-1"><HardDrive className="h-3 w-3" /> 大小</span>
-                <span className="text-gray-200 font-mono">{video.size ? formatBytes(video.size) : '--'}</span>
+                <span className="text-muted-foreground text-xs block flex items-center gap-1"><HardDrive className="h-3 w-3" /> 大小</span>
+                <span className="text-foreground font-mono">{video.size ? formatBytes(video.size) : '--'}</span>
             </div>
         </div>
 
-        <Separator className="bg-white/5" />
+        <Separator className="bg-border" />
         
         <div className="space-y-2">
-            <span className="text-gray-500 text-xs block">AI 模型</span>
+            <span className="text-muted-foreground text-xs block">AI 模型</span>
             <div className="flex flex-wrap gap-2">
                 {video.ai_model ? (
-                    <Badge variant="secondary" className="bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 border-purple-500/20">
+                    <Badge variant="secondary" className="bg-purple-500/10 text-purple-500 hover:bg-purple-500/20 border-purple-500/20">
                         {video.ai_model}
                     </Badge>
                 ) : (
-                    <span className="text-gray-600 text-sm">未标注</span>
+                    <span className="text-muted-foreground text-sm">未标注</span>
                 )}
             </div>
         </div>

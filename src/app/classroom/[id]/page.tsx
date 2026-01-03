@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/landing/Navbar";
-import { Footer } from "@/components/landing/Footer";
 import { PlayCircle, Clock, CheckCircle, User, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
@@ -131,8 +130,6 @@ export default async function CourseDetailPage({ params }: { params: { id: strin
             </div>
         </div>
       </div>
-
-      <Footer />
-    </div>
+    </main>
   );
 }

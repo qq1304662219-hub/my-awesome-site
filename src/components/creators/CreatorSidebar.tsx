@@ -85,15 +85,15 @@ interface CreatorSidebarProps {
 export function CreatorSidebar({ filters, onFilterChange, className }: CreatorSidebarProps) {
   return (
     <div className={cn("w-full space-y-6", className)}>
-      <div className="flex items-center gap-2 text-white font-medium px-2">
+      <div className="flex items-center gap-2 text-foreground font-medium px-2">
         <Filter className="w-4 h-4 text-blue-500" />
         <span>筛选条件</span>
       </div>
 
       <Accordion type="multiple" defaultValue={["role", "location", "verified", "honors"]} className="w-full">
         {FILTER_GROUPS.map((group) => (
-          <AccordionItem key={group.id} value={group.id} className="border-white/10">
-            <AccordionTrigger className="text-sm hover:text-blue-400 hover:no-underline px-2">
+          <AccordionItem key={group.id} value={group.id} className="border-border">
+            <AccordionTrigger className="text-sm hover:text-blue-500 hover:no-underline px-2 text-foreground">
               {group.label}
             </AccordionTrigger>
             <AccordionContent>
@@ -109,8 +109,8 @@ export function CreatorSidebar({ filters, onFilterChange, className }: CreatorSi
                       className={cn(
                         "w-full justify-start text-xs h-8 font-normal",
                         isSelected 
-                          ? "bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 hover:text-blue-300" 
-                          : "text-gray-400 hover:text-white hover:bg-white/5"
+                          ? "bg-blue-600/20 text-blue-500 hover:bg-blue-600/30 hover:text-blue-400" 
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent"
                       )}
                     >
                       {option.label}

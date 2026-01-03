@@ -3,7 +3,6 @@
 import { useState, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Navbar } from "@/components/landing/Navbar"
-import { Footer } from "@/components/landing/Footer"
 import { Button } from "@/components/ui/button"
 import { Loader2, QrCode } from "lucide-react"
 import { toast } from "sonner"
@@ -176,8 +175,7 @@ export default function RechargePage() {
             <Navbar />
             <Suspense fallback={<div className="pt-32 text-center">Loading...</div>}>
                 <RechargeContent />
-            </Suspense>
-            <Footer />
-        </div>
+            </Suspense></div>
+        </main>
     )
 }

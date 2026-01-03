@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/landing/Navbar";
-import { Footer } from "@/components/landing/Footer";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Eye, Calendar, Download, ShieldCheck, Heart, Play, Copy, Check } from "lucide-react";
@@ -231,7 +230,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
   };
 
   return (
-    <main className="min-h-screen bg-[#020817] text-foreground">
+    <main className="min-h-screen bg-background text-foreground">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -241,7 +240,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
       </div>
       
       {/* Cinema Mode Player Section - High Impact Visual */}
-      <div className="w-full bg-black/95 border-b border-white/5 relative pt-24 pb-12 shadow-2xl">
+      <div className="w-full bg-black/95 border-b border-border relative pt-24 pb-12 shadow-2xl">
           {/* Subtle Background Glow */}
           <div className="absolute inset-0 bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none"></div>
           
@@ -252,7 +251,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                         { label: video.category || "视频", href: `/explore?category=${video.category}` },
                         { label: video.title }
                     ]} 
-                    className="mb-6 opacity-70 hover:opacity-100 transition-opacity"
+                    className="mb-6 opacity-70 hover:opacity-100 transition-opacity text-white"
                 />
                <div className="max-w-6xl mx-auto shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden bg-black border border-white/10">
                     <VideoPlayer 
@@ -272,12 +271,12 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
           {/* Main Content (Left) */}
           <div className="lg:col-span-2 space-y-8">
             {/* Video Info Header */}
-            <div className="border-b border-white/10 pb-8">
-              <h1 className="text-3xl font-bold text-white mb-4 leading-tight">{video.title}</h1>
+            <div className="border-b border-border pb-8">
+              <h1 className="text-3xl font-bold text-foreground mb-4 leading-tight">{video.title}</h1>
               
-              <div className="flex items-center gap-6 text-sm text-gray-400 flex-wrap">
-                <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full"><Eye className="h-4 w-4 text-blue-400" /> {views} 次观看</span>
-                <span className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full"><Download className="h-4 w-4 text-green-400" /> {video.downloads || 0} 次下载</span>
+              <div className="flex items-center gap-6 text-sm text-muted-foreground flex-wrap">
+                <span className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-full"><Eye className="h-4 w-4 text-blue-500" /> {views} 次观看</span>
+                <span className="flex items-center gap-2 bg-muted px-3 py-1.5 rounded-full"><Download className="h-4 w-4 text-green-500" /> {video.downloads || 0} 次下载</span>
                 <span className="flex items-center gap-2"><Calendar className="h-4 w-4" /> {date}</span>
                 <span className="flex items-center gap-1 text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded text-xs border border-blue-500/20">商用授权</span>
               </div>
@@ -285,21 +284,21 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
 
             {/* AI Info Card */}
             {(video.prompt || video.ai_model || (video.tags && video.tags.length > 0)) && (
-                 <div className="bg-[#0f172a] rounded-xl p-6 border border-white/10 shadow-lg relative overflow-hidden group">
+                 <div className="bg-card rounded-xl p-6 border border-border shadow-lg relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Check className="w-24 h-24 text-blue-500" />
                     </div>
                     
-                    <h3 className="text-sm font-bold text-gray-300 mb-4 flex items-center gap-2 uppercase tracking-wider">
+                    <h3 className="text-sm font-bold text-card-foreground mb-4 flex items-center gap-2 uppercase tracking-wider">
                         <span className="w-1.5 h-1.5 bg-blue-500 rounded-full shadow-[0_0_10px_#3b82f6]"></span>
                         AI 生成参数
                     </h3>
                     
                     {video.ai_model && (
                         <div className="mb-4">
-                            <span className="text-xs text-gray-500 uppercase tracking-wider block mb-2">Model (模型)</span>
+                            <span className="text-xs text-muted-foreground uppercase tracking-wider block mb-2">Model (模型)</span>
                             <Link href={`/explore?model=${encodeURIComponent(video.ai_model)}`}>
-                                <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-purple-500/10 to-blue-500/10 text-blue-300 border border-blue-500/20 hover:border-blue-500/50 transition-all cursor-pointer shadow-sm">
+                                <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-accent text-accent-foreground border border-border hover:border-blue-500/50 transition-all cursor-pointer shadow-sm">
                                     {video.ai_model}
                                 </div>
                             </Link>
@@ -309,10 +308,10 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                     {video.prompt && (
                         <div className="mb-4">
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs text-gray-500 uppercase tracking-wider">Prompt (提示词)</span>
-                                <CopyButton text={video.prompt} className="h-6 text-xs px-2 py-0 hover:bg-white/10" />
+                                <span className="text-xs text-muted-foreground uppercase tracking-wider">Prompt (提示词)</span>
+                                <CopyButton text={video.prompt} className="h-6 text-xs px-2 py-0 hover:bg-muted" />
                             </div>
-                            <div className="text-sm text-gray-300 bg-black/40 p-4 rounded-lg border border-white/5 font-mono whitespace-pre-wrap leading-relaxed select-all">
+                            <div className="text-sm text-card-foreground bg-muted p-4 rounded-lg border border-border font-mono whitespace-pre-wrap leading-relaxed select-all">
                                 {video.prompt}
                             </div>
                         </div>
@@ -320,11 +319,11 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
 
                     {video.tags && video.tags.length > 0 && (
                         <div>
-                            <span className="text-xs text-gray-500 uppercase tracking-wider block mb-2">Tags (标签)</span>
+                            <span className="text-xs text-muted-foreground uppercase tracking-wider block mb-2">Tags (标签)</span>
                             <div className="flex flex-wrap gap-2">
                                 {video.tags.map((tag: string, index: number) => (
                                     <Link key={index} href={`/explore?q=${encodeURIComponent(tag)}`}>
-                                        <span className="text-xs text-gray-400 bg-white/5 px-3 py-1.5 rounded hover:bg-white/10 hover:text-white cursor-pointer transition-all border border-transparent hover:border-white/10">
+                                        <span className="text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all border border-transparent hover:border-border">
                                             #{tag}
                                         </span>
                                     </Link>
@@ -345,18 +344,18 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                 authorId={video.user_id}
                 authorName={authorProfile?.full_name || authorProfile?.username}
             >
-                <Separator className="bg-white/10 my-8" />
+                <Separator className="bg-border my-8" />
                 
                 <div className="space-y-4">
-                     <h3 className="font-bold text-xl text-white">关于作品</h3>
-                     <p className="text-gray-300 leading-relaxed text-base">
+                     <h3 className="font-bold text-xl text-foreground">关于作品</h3>
+                     <p className="text-muted-foreground leading-relaxed text-base">
                         {video.description || "这是一个由 AI 生成的精彩视频。探索人工智能带来的无限创意可能。"}
                      </p>
                 </div>
 
             </VideoInteractions>
 
-            <Separator className="bg-white/10" />
+            <Separator className="bg-border" />
             
             <VideoComments 
                 videoId={video.id} 
@@ -377,16 +376,16 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
 
                 {/* Related Videos */}
                 <div>
-                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <Play className="w-4 h-4 fill-white" />
+                    <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                        <Play className="w-4 h-4 fill-foreground" />
                         相关推荐
                     </h3>
                     <div className="space-y-3">
                     {relatedVideos && relatedVideos.length > 0 ? (
                         relatedVideos.map((relatedVideo: any) => (
                             <Link href={`/video/${relatedVideo.id}`} key={relatedVideo.id}>
-                                <div className="flex gap-3 group cursor-pointer hover:bg-white/5 p-2 rounded-lg transition-colors border border-transparent hover:border-white/5">
-                                <div className="w-32 h-20 bg-gray-800 rounded-md overflow-hidden relative flex-shrink-0 border border-white/10">
+                                <div className="flex gap-3 group cursor-pointer hover:bg-accent p-2 rounded-lg transition-colors border border-transparent hover:border-border">
+                                <div className="w-32 h-20 bg-muted rounded-md overflow-hidden relative flex-shrink-0 border border-border">
                                     {relatedVideo.url.match(/\.(mp4|webm|mov)$/i) ? (
                                         <video 
                                             src={relatedVideo.url} 
@@ -408,8 +407,8 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                                     </div>
                                 </div>
                                 <div className="flex flex-col justify-center min-w-0">
-                                    <h4 className="text-sm font-medium text-gray-200 line-clamp-2 group-hover:text-blue-400 transition-colors leading-tight mb-1">{relatedVideo.title}</h4>
-                                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                                    <h4 className="text-sm font-medium text-foreground line-clamp-2 group-hover:text-blue-500 transition-colors leading-tight mb-1">{relatedVideo.title}</h4>
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                         <span className="truncate max-w-[80px]">{relatedVideo.user_id.slice(0, 6)}...</span>
                                         <span>•</span>
                                         <span>{relatedVideo.views || 0}次观看</span>
@@ -419,7 +418,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                             </Link>
                         ))
                     ) : (
-                        <div className="text-gray-500 text-sm py-8 text-center bg-white/5 rounded-lg border border-white/5 border-dashed">
+                        <div className="text-muted-foreground text-sm py-8 text-center bg-muted rounded-lg border border-border border-dashed">
                             暂无相关推荐
                         </div>
                     )}
@@ -429,7 +428,6 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
           </div>
         </div>
       </div>
-      <Footer />
     </main>
   );
 }

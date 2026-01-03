@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Navbar } from "@/components/landing/Navbar";
-import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -176,7 +175,6 @@ export default async function RequestsPage() {
 
         </div>
       </div>
-      <Footer />
-    </div>
+    </main>
   );
 }

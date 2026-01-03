@@ -142,10 +142,10 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {[...Array(8)].map((_, i) => (
           <div key={i} className="space-y-4">
-            <Skeleton className="aspect-video w-full rounded-xl bg-white/5" />
+            <Skeleton className="aspect-video w-full rounded-xl bg-muted" />
             <div className="space-y-2">
-              <Skeleton className="h-4 w-3/4 bg-white/5" />
-              <Skeleton className="h-4 w-1/2 bg-white/5" />
+              <Skeleton className="h-4 w-3/4 bg-muted" />
+              <Skeleton className="h-4 w-1/2 bg-muted" />
             </div>
           </div>
         ))}
@@ -157,8 +157,8 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
-        <h3 className="text-xl font-bold text-white mb-2">出错了</h3>
-        <p className="text-gray-400 mb-6">{error}</p>
+        <h3 className="text-xl font-bold text-foreground mb-2">出错了</h3>
+        <p className="text-muted-foreground mb-6">{error}</p>
         <Button onClick={() => fetchVideos(0, true)} variant="outline" className="gap-2">
           <RefreshCw className="h-4 w-4" />
           重试
@@ -170,8 +170,22 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
   return (
     <div className="space-y-8">
       {videos.length === 0 ? (
-        <div className="text-center py-20">
-            <p className="text-gray-400">没有找到相关视频</p>
+        <div className="flex flex-col items-center justify-center py-24 text-center border border-dashed border-border rounded-3xl bg-muted/30">
+            <div className="bg-background p-4 rounded-full mb-4 shadow-sm">
+                <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground mb-2">没有找到相关视频</h3>
+            <p className="text-muted-foreground max-w-sm mx-auto mb-6">
+                尝试调整筛选条件或搜索关键词，探索更多精彩内容
+            </p>
+            <Button 
+                onClick={() => window.location.reload()} // Simple reload or better filter reset logic could be passed down
+                variant="outline"
+                className="gap-2"
+            >
+                <RefreshCw className="h-4 w-4" />
+                重置筛选
+            </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
@@ -205,13 +219,19 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
 
       {hasMore && videos.length > 0 && (
         <div className="flex justify-center pt-8">
-          <button 
+          <Button 
             onClick={loadMore}
             disabled={loading}
-            className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-full text-sm transition-colors disabled:opacity-50"
+            variant="secondary"
+            className="px-8 rounded-full bg-secondary/50 hover:bg-secondary hover:text-foreground transition-all"
           >
-            {loading ? '加载中...' : '加载更多'}
-          </button>
+            {loading ? (
+                <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    加载中...
+                </>
+            ) : '加载更多'}
+          </Button>
         </div>
       )}
     </div>

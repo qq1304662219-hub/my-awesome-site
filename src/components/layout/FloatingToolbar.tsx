@@ -69,7 +69,7 @@ export function FloatingToolbar() {
                         </span>
                     </div>
                 </SheetTrigger>
-                <SheetContent className="w-full sm:max-w-md bg-[#0f172a] border-white/10 text-white p-0">
+                <SheetContent className="w-full sm:max-w-md bg-background border-border text-foreground p-0">
                     <CartDrawerContent onClose={() => setCartOpen(false)} />
                 </SheetContent>
             </Sheet>
@@ -81,16 +81,16 @@ export function FloatingToolbar() {
                         <Button 
                             variant="secondary" 
                             size="icon" 
-                            className="h-12 w-12 rounded-full shadow-lg bg-white hover:bg-gray-100 text-gray-800 border border-gray-200 transition-transform group-hover:scale-110"
+                            className="h-12 w-12 rounded-full shadow-lg bg-background hover:bg-accent text-foreground border border-border transition-transform group-hover:scale-110"
                         >
                             <HeadphonesIcon className="h-5 w-5" />
                         </Button>
-                        <span className="absolute right-14 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                        <span className="absolute right-14 bg-foreground/80 text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                             联系客服
                         </span>
                     </div>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[400px] bg-[#0f172a] border-white/10 text-white p-0 overflow-hidden gap-0">
+                <DialogContent className="sm:max-w-[400px] bg-background border-border text-foreground p-0 overflow-hidden gap-0">
                     <ServiceDialogContent />
                 </DialogContent>
             </Dialog>
@@ -102,16 +102,16 @@ export function FloatingToolbar() {
                         <Button 
                             variant="secondary" 
                             size="icon" 
-                            className="h-12 w-12 rounded-full shadow-lg bg-white hover:bg-gray-100 text-gray-800 border border-gray-200 transition-transform group-hover:scale-110"
+                            className="h-12 w-12 rounded-full shadow-lg bg-background hover:bg-accent text-foreground border border-border transition-transform group-hover:scale-110"
                         >
                             <Ticket className="h-5 w-5" />
                         </Button>
-                        <span className="absolute right-14 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                        <span className="absolute right-14 bg-foreground/80 text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                             反馈工单
                         </span>
                     </div>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px] bg-[#0f172a] border-white/10 text-white">
+                <DialogContent className="sm:max-w-[600px] bg-background border-border text-foreground">
                     <TicketDialogContent onClose={() => setTicketOpen(false)} />
                 </DialogContent>
             </Dialog>
@@ -142,35 +142,35 @@ function CartDrawerContent({ onClose }: { onClose: () => void }) {
 
     return (
         <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
+            <div className="flex items-center justify-between p-4 border-b border-border">
                 <div className="flex items-center gap-4 text-sm font-medium">
-                    <span className="text-white border-b-2 border-white pb-4 -mb-4.5 cursor-pointer">视频 0</span>
-                    <span className="text-gray-500 cursor-pointer hover:text-gray-300 transition-colors">图片 0</span>
-                    <span className="text-gray-500 cursor-pointer hover:text-gray-300 transition-colors">音乐 0</span>
+                    <span className="text-foreground border-b-2 border-foreground pb-4 -mb-4.5 cursor-pointer">视频 0</span>
+                    <span className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors">图片 0</span>
+                    <span className="text-muted-foreground cursor-pointer hover:text-foreground transition-colors">音乐 0</span>
                 </div>
-                <Button variant="ghost" size="icon" onClick={onClose} className="text-gray-400 hover:text-white">
+                <Button variant="ghost" size="icon" onClick={onClose} className="text-muted-foreground hover:text-foreground">
                     <X className="h-4 w-4" />
                 </Button>
             </div>
 
-            <div className="flex-1 flex flex-col items-center justify-center text-gray-500 gap-4">
-                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center">
+            <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground gap-4">
+                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
                     <ShoppingCart className="h-8 w-8 opacity-50" />
                 </div>
                 <p>暂无数据</p>
             </div>
 
-            <div className="p-4 border-t border-white/10 bg-[#020817]/50">
+            <div className="p-4 border-t border-border bg-muted/50">
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded border border-white/20" />
-                        <span className="text-sm text-gray-400">全选</span>
+                        <div className="w-4 h-4 rounded border border-border" />
+                        <span className="text-sm text-muted-foreground">全选</span>
                     </div>
                     <div className="flex gap-2">
-                         <Button disabled variant="outline" className="border-white/10 text-gray-500">
+                         <Button disabled variant="outline" className="border-border text-muted-foreground">
                             修改授权
                          </Button>
-                         <Button disabled className="bg-white/10 text-gray-500">
+                         <Button disabled className="bg-muted text-muted-foreground">
                             删除
                          </Button>
                     </div>
@@ -274,11 +274,11 @@ function TicketDialogContent({ onClose }: { onClose: () => void }) {
                 <DialogTitle className="text-center text-xl">反馈工单</DialogTitle>
             </DialogHeader>
             <div className="py-4">
-                <div className="text-center text-sm text-gray-400 mb-6">
+                <div className="text-center text-sm text-muted-foreground mb-6">
                     <p>尊敬的用户您好，我们非常重视您的反馈，将尽快给您回复，有价值的反馈将获得奖励</p>
                     <div className="flex justify-center gap-4 mt-2">
-                        <a href="#" className="text-blue-400 hover:underline">奖励说明</a>
-                        <a href="#" className="text-blue-400 hover:underline">工单记录</a>
+                        <a href="#" className="text-blue-500 hover:underline">奖励说明</a>
+                        <a href="#" className="text-blue-500 hover:underline">工单记录</a>
                     </div>
                 </div>
 
@@ -289,7 +289,7 @@ function TicketDialogContent({ onClose }: { onClose: () => void }) {
                             <Label htmlFor="bug" className="cursor-pointer">BUG反馈</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="other" id="other" className="border-gray-500" />
+                            <RadioGroupItem value="other" id="other" className="border-muted-foreground" />
                             <Label htmlFor="other" className="cursor-pointer">其他类</Label>
                         </div>
                     </RadioGroup>
@@ -298,19 +298,19 @@ function TicketDialogContent({ onClose }: { onClose: () => void }) {
                 <div className="space-y-4">
                     <Textarea 
                         placeholder="请准确描述您的反馈" 
-                        className="min-h-[150px] bg-white/5 border-white/10 resize-none focus:border-blue-500"
+                        className="min-h-[150px] bg-muted border-border resize-none focus:border-blue-500"
                     />
                     
-                    <div className="text-xs text-gray-500 text-center">
+                    <div className="text-xs text-muted-foreground text-center">
                         如需针对某个素材发起工单，可前往播放页或购买记录页点击“举报”或“售后”
                         <br />
-                        如对于平台有新的想法与建议，可参加 <span className="text-blue-400 cursor-pointer">【提建议，得奖励】</span> 活动
+                        如对于平台有新的想法与建议，可参加 <span className="text-blue-500 cursor-pointer">【提建议，得奖励】</span> 活动
                     </div>
                 </div>
             </div>
             <DialogFooter className="sm:justify-center">
                 <Button 
-                    className="w-full sm:w-1/3 bg-white text-black hover:bg-gray-200 rounded-full"
+                    className="w-full sm:w-1/3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
                     onClick={() => {
                         toast.success("工单已提交")
                         onClose()
