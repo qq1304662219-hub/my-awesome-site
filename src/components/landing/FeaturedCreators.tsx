@@ -76,7 +76,7 @@ export function FeaturedCreators() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="bg-card rounded-xl p-6 border border-border">
+                        <div key={i} className="bg-card rounded-xl p-6 border border-border shadow-sm">
                             <div className="flex flex-col items-center">
                                 <Skeleton className="h-20 w-20 rounded-full mb-4" />
                                 <Skeleton className="h-4 w-24 mb-2" />
@@ -118,7 +118,7 @@ export function FeaturedCreators() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className="group relative bg-card rounded-xl p-6 border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/5 hover:-translate-y-1"
+                        className="group relative bg-card rounded-xl p-6 border border-border hover:border-border transition-all duration-300 shadow-sm hover:shadow-md"
                     >
                         <div className="flex flex-col items-center text-center">
                             <Link href={`/profile/${creator.id}`} className="relative mb-4">
@@ -139,7 +139,7 @@ export function FeaturedCreators() {
                             )}
                             
                             <Link href={`/profile/${creator.id}`}>
-                                <h3 className="text-lg font-bold text-foreground mb-1 group-hover:text-blue-400 transition-colors">
+                                <h3 className="text-lg font-bold text-foreground mb-1 group-hover:text-blue-400 transition-colors truncate px-2">
                                     {creator.full_name || "Unknown"}
                                 </h3>
                             </Link>

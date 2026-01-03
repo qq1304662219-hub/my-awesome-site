@@ -175,23 +175,24 @@ export default function Finance() {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 md:p-8 space-y-8 min-h-screen bg-transparent text-white"
+      className="p-6 md:p-8 space-y-8 min-h-screen bg-background text-foreground"
     >
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">我的钱包</h1>
-          <p className="text-gray-400 mt-1">管理您的收益、充值与提现记录</p>
+          <h1 className="text-3xl font-bold text-foreground">我的钱包</h1>
+          <p className="text-muted-foreground mt-1">管理您的收益、充值与提现记录</p>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
             <Link href="/recharge" className="flex-1 md:flex-none">
-                <Button className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-900/20 transition-all hover:scale-105">
+                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-105">
                     <ArrowDownLeft className="h-4 w-4 mr-2" />
                     充值
                 </Button>
             </Link>
             <Button 
                 onClick={() => setIsWithdrawOpen(true)} 
-                className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20 transition-all hover:scale-105"
+                variant="outline"
+                className="flex-1 md:flex-none border-border hover:bg-secondary text-foreground transition-all hover:scale-105"
             >
                 <Wallet className="h-4 w-4 mr-2" />
                 提现
@@ -200,60 +201,60 @@ export default function Finance() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 border-blue-500/20 overflow-hidden relative group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-blue-500/20 transition-colors" />
+        <Card className="bg-gradient-to-br from-primary/20 to-purple-600/20 border-primary/20 overflow-hidden relative group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors" />
             <CardHeader className="pb-2 relative z-10">
-                <CardTitle className="text-sm font-medium text-blue-200 flex items-center gap-2">
+                <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
                     <Wallet className="h-4 w-4" />
                     账户余额
                 </CardTitle>
             </CardHeader>
             <CardContent className="relative z-10">
-                <div className="text-4xl font-bold text-white">¥ {balance.toFixed(2)}</div>
-                <p className="text-xs text-blue-300/70 mt-1">当前可用资金</p>
+                <div className="text-4xl font-bold text-foreground">¥ {balance.toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground mt-1">当前可用资金</p>
             </CardContent>
         </Card>
         
-        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm overflow-hidden relative group hover:border-green-500/30 transition-colors">
+        <Card className="bg-card border-border backdrop-blur-sm overflow-hidden relative group hover:border-green-500/30 transition-colors">
             <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
-                    <PieChart className="h-4 w-4 text-green-400" />
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <PieChart className="h-4 w-4 text-green-500" />
                     总收益
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="text-3xl font-bold text-white">
+                <div className="text-3xl font-bold text-foreground">
                     ¥ {transactions.filter(t => t.type === 'income' || t.type === 'tip_received').reduce((acc, t) => acc + Number(t.amount), 0).toFixed(2)}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">含创作收益与打赏</p>
+                <p className="text-xs text-muted-foreground mt-1">含创作收益与打赏</p>
             </CardContent>
         </Card>
 
-        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm overflow-hidden relative group hover:border-orange-500/30 transition-colors">
+        <Card className="bg-card border-border backdrop-blur-sm overflow-hidden relative group hover:border-orange-500/30 transition-colors">
             <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
-                    <CreditCard className="h-4 w-4 text-orange-400" />
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <CreditCard className="h-4 w-4 text-orange-500" />
                     已提现
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="text-3xl font-bold text-white">
+                <div className="text-3xl font-bold text-foreground">
                     ¥ {transactions.filter(t => t.type === 'withdrawal').reduce((acc, t) => acc + Number(t.amount), 0).toFixed(2)}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">累计提现金额</p>
+                <p className="text-xs text-muted-foreground mt-1">累计提现金额</p>
             </CardContent>
         </Card>
       </div>
 
       <div className="space-y-6">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Clock className="h-5 w-5 text-gray-400" />
+        <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <Clock className="h-5 w-5 text-muted-foreground" />
             交易明细
         </h2>
-        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm overflow-hidden">
+        <Card className="bg-card border-border backdrop-blur-sm overflow-hidden">
             <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-gray-400">
-                    <thead className="bg-black/20 text-gray-200 uppercase font-medium border-b border-white/5">
+                <table className="w-full text-left text-sm text-muted-foreground">
+                    <thead className="bg-secondary/50 text-foreground uppercase font-medium border-b border-border">
                         <tr>
                             <th className="px-6 py-4">时间</th>
                             <th className="px-6 py-4">类型</th>
@@ -261,7 +262,7 @@ export default function Finance() {
                             <th className="px-6 py-4 text-right">金额</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className="divide-y divide-border">
                         {transactions.length > 0 ? (
                             transactions.map((t, index) => {
                                 const { label, color, icon: Icon } = getTypeLabel(t.type)
@@ -272,23 +273,23 @@ export default function Finance() {
                                         initial={{ opacity: 0, x: -20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: index * 0.05 }}
-                                        className="hover:bg-white/[0.02] transition-colors"
+                                        className="hover:bg-secondary/20 transition-colors"
                                     >
-                                        <td className="px-6 py-4 font-mono text-xs text-gray-500">
+                                        <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
                                             {new Date(t.created_at).toLocaleString()}
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                <div className={`p-1.5 rounded-full bg-white/5 ${color} border border-white/5`}>
+                                                <div className={`p-1.5 rounded-full bg-secondary ${color.replace('text-', 'text-')} border border-border`}>
                                                     <Icon className="h-3 w-3" />
                                                 </div>
                                                 <span className={`${color} font-medium`}>{label}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-gray-300">
+                                        <td className="px-6 py-4 text-foreground">
                                             {t.description || '-'}
                                         </td>
-                                        <td className={`px-6 py-4 text-right font-bold font-mono ${isPositive ? 'text-green-400' : 'text-white'}`}>
+                                        <td className={`px-6 py-4 text-right font-bold font-mono ${isPositive ? 'text-green-500' : 'text-foreground'}`}>
                                             {isPositive ? '+' : '-'}{Math.abs(t.amount).toFixed(2)}
                                         </td>
                                     </motion.tr>
@@ -297,8 +298,8 @@ export default function Finance() {
                         ) : (
                             <tr>
                                 <td colSpan={4} className="px-6 py-20 text-center">
-                                    <div className="flex flex-col items-center justify-center text-gray-500">
-                                        <div className="h-12 w-12 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                                    <div className="flex flex-col items-center justify-center text-muted-foreground">
+                                        <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center mb-4">
                                             <Clock className="h-6 w-6" />
                                         </div>
                                         <p>暂无交易记录</p>
@@ -313,10 +314,10 @@ export default function Finance() {
       </div>
 
       <Dialog open={isWithdrawOpen} onOpenChange={setIsWithdrawOpen}>
-        <DialogContent className="bg-[#1a202c] border-white/10 text-white">
+        <DialogContent className="bg-background border-border text-foreground">
             <DialogHeader>
                 <DialogTitle>提现</DialogTitle>
-                <DialogDescription className="text-gray-400">
+                <DialogDescription className="text-muted-foreground">
                     提现金额将转入您指定的支付宝账户，预计 1-3 个工作日到账。
                 </DialogDescription>
             </DialogHeader>
@@ -324,7 +325,7 @@ export default function Finance() {
                 <div className="space-y-2">
                     <Label htmlFor="amount">提现金额 (元)</Label>
                     <div className="relative">
-                        <span className="absolute left-3 top-2.5 text-gray-400">¥</span>
+                        <span className="absolute left-3 top-2.5 text-muted-foreground">¥</span>
                         <Input 
                             id="amount" 
                             type="number"
@@ -332,7 +333,7 @@ export default function Finance() {
                             max={balance}
                             value={withdrawAmount} 
                             onChange={(e) => setWithdrawAmount(e.target.value)}
-                            className="bg-black/20 border-white/10 pl-7"
+                            className="bg-secondary/50 border-border pl-7"
                             placeholder={`可提现余额: ${balance.toFixed(2)}`}
                         />
                     </div>
@@ -343,74 +344,19 @@ export default function Finance() {
                         id="alipay" 
                         value={alipayAccount} 
                         onChange={(e) => setAlipayAccount(e.target.value)}
-                        className="bg-black/20 border-white/10"
+                        className="bg-secondary/50 border-border"
                         placeholder="请输入支付宝账号/手机号"
                     />
                 </div>
             </div>
             <DialogFooter>
-                <Button variant="outline" onClick={() => setIsWithdrawOpen(false)} className="border-white/10 hover:bg-white/10 text-white">取消</Button>
-                <Button onClick={handleWithdraw} disabled={submitting} className="bg-red-600 hover:bg-red-700 text-white">
+                <Button variant="outline" onClick={() => setIsWithdrawOpen(false)} className="border-border hover:bg-secondary text-foreground">取消</Button>
+                <Button onClick={handleWithdraw} disabled={submitting} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
                     {submitting ? '提交中...' : '确认提现'}
                 </Button>
             </DialogFooter>
         </DialogContent>
       </Dialog>
-      {/* <Dialog open={isRechargeOpen} onOpenChange={setIsRechargeOpen}>
-        <DialogContent className="bg-[#1a202c] border-white/10 text-white sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>账户充值</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              充值金额将立即到账，可用于购买视频素材或打赏。
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="recharge-amount">充值金额 (元)</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-2.5 text-gray-400">¥</span>
-                <Input
-                  id="recharge-amount"
-                  type="number"
-                  min="1"
-                  value={rechargeAmount}
-                  onChange={(e) => setRechargeAmount(e.target.value)}
-                  className="bg-black/20 border-white/10 pl-7 text-white"
-                  placeholder="请输入充值金额"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-                {[10, 50, 100, 500].map((amt) => (
-                    <Button
-                        key={amt}
-                        variant="outline"
-                        onClick={() => setRechargeAmount(amt.toString())}
-                        className={`border-white/10 ${rechargeAmount === amt.toString() ? 'bg-blue-600/20 border-blue-500 text-blue-400' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
-                    >
-                        ¥{amt}
-                    </Button>
-                ))}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button 
-                variant="outline" 
-                onClick={() => setIsRechargeOpen(false)}
-                className="border-white/10 text-gray-400 hover:bg-white/5 hover:text-white"
-            >
-                取消
-            </Button>
-            <Button 
-                onClick={handleRecharge} 
-                disabled={rechargeSubmitting}
-                className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              {rechargeSubmitting ? '充值中...' : '确认充值'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
     </motion.div>
   )
 }

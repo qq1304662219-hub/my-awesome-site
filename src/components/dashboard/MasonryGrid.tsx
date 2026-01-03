@@ -46,7 +46,7 @@ export function MasonryGrid({ videos, onVideoDeleted }: { videos: Video[], onVid
       {videos.map((video) => (
         <div 
           key={video.id} 
-          className="break-inside-avoid relative group rounded-xl overflow-hidden bg-white/5 border border-white/10 hover:border-white/20 transition-all hover:transform hover:-translate-y-1 cursor-pointer"
+          className="break-inside-avoid relative group rounded-xl overflow-hidden bg-card border border-border hover:border-primary/50 transition-all hover:transform hover:-translate-y-1 cursor-pointer"
           onClick={() => setSelectedVideo(video)}
         >
           <div className="relative">
@@ -72,7 +72,7 @@ export function MasonryGrid({ videos, onVideoDeleted }: { videos: Video[], onVid
             
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
                <h3 className="text-white font-medium truncate">{video.title}</h3>
-               <p className="text-xs text-gray-400">{new Date(video.created_at).toLocaleDateString()}</p>
+               <p className="text-xs text-gray-300">{new Date(video.created_at).toLocaleDateString()}</p>
             </div>
           </div>
         </div>
@@ -80,8 +80,8 @@ export function MasonryGrid({ videos, onVideoDeleted }: { videos: Video[], onVid
 
       {/* Detail Dialog */}
       <Dialog open={!!selectedVideo} onOpenChange={(open) => !open && setSelectedVideo(null)}>
-        <DialogContent className="max-w-4xl bg-black/90 border-white/10 p-0 overflow-hidden">
-          <div className="relative w-full h-[60vh] md:h-[80vh] flex items-center justify-center bg-black">
+        <DialogContent className="max-w-4xl bg-background/95 border-border p-0 overflow-hidden">
+          <div className="relative w-full h-[60vh] md:h-[80vh] flex items-center justify-center bg-black/5 dark:bg-black">
              {selectedVideo && (
                  isVideo(selectedVideo.url) ? (
                      <video src={selectedVideo.url} controls className="max-w-full max-h-full" autoPlay />
@@ -104,15 +104,15 @@ export function MasonryGrid({ videos, onVideoDeleted }: { videos: Video[], onVid
                      <Trash2 className="h-4 w-4" />
                  </Button>
                  <DialogClose asChild>
-                     <Button variant="secondary" size="icon" className="bg-white/10 hover:bg-white/20 text-white border-0">
+                     <Button variant="secondary" size="icon" className="bg-secondary/80 hover:bg-secondary text-secondary-foreground border-0">
                          <X className="h-4 w-4" />
                      </Button>
                  </DialogClose>
              </div>
           </div>
-          <div className="p-4 bg-[#020817] border-t border-white/10">
-              <h2 className="text-xl font-bold text-white mb-1">{selectedVideo?.title}</h2>
-              <p className="text-gray-400 text-sm">Created at {selectedVideo && new Date(selectedVideo.created_at).toLocaleString()}</p>
+          <div className="p-4 bg-card border-t border-border">
+              <h2 className="text-xl font-bold text-foreground mb-1">{selectedVideo?.title}</h2>
+              <p className="text-muted-foreground text-sm">Created at {selectedVideo && new Date(selectedVideo.created_at).toLocaleString()}</p>
           </div>
         </DialogContent>
       </Dialog>

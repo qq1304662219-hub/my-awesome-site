@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { CheckCircle, Trophy, MapPin, Users, Video, Search, MessageSquare, Plus, Filter, BadgeCheck, UserPlus } from "lucide-react"
+import { CheckCircle, Trophy, MapPin, Users, Video, Search, MessageSquare, Plus, Filter, BadgeCheck, UserPlus, User } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 import { useAuthStore } from "@/store/useAuthStore"
 import { CreatorSidebar } from "@/components/creators/CreatorSidebar"
+import { CreatorCardSkeleton } from "@/components/shared/Skeletons"
+import { EmptyState } from "@/components/shared/EmptyState"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 interface Creator {
@@ -43,11 +45,16 @@ export default function CreatorsPage() {
         verified: "all",
         honors: "all"
     })
+    const [showFilters, setShowFilters] = useState(true)
     const { user } = useAuthStore()
 
     useEffect(() => {
         fetchCreators()
     }, [filters])
+
+    const formatPopularity = (num: number) => {
+        return (num / 1000).toFixed(1) + 'k'
+    }
 
     const fetchCreators = async () => {
         setLoading(true)
@@ -186,18 +193,31 @@ export default function CreatorsPage() {
             <div className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                     {/* Sidebar */}
-                    <div className="md:col-span-3 hidden md:block">
-                        <div className="sticky top-24">
-                            <CreatorSidebar filters={filters} onFilterChange={handleFilterChange} />
+                    {showFilters && (
+                        <div className="md:col-span-3 hidden md:block">
+                            <div className="sticky top-24">
+                                <CreatorSidebar filters={filters} onFilterChange={handleFilterChange} />
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Main Content */}
-                    <div className="md:col-span-9">
+                    <div className={showFilters ? "md:col-span-9" : "md:col-span-12"}>
                         {/* Mobile Filter & Search */}
                         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
-                            <div className="md:hidden w-full">
-                                {/* Mobile Filter Trigger could go here, for now just hidden on mobile */}
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={() => setShowFilters(!showFilters)}
+                                    className="hidden md:flex gap-2 bg-card hover:bg-accent border-border"
+                                >
+                                    <Filter className="w-4 h-4" />
+                                    {showFilters ? "隐藏筛选" : "显示筛选"}
+                                </Button>
+                                <div className="md:hidden w-full">
+                                    {/* Mobile Filter Trigger could go here, for now just hidden on mobile */}
+                                </div>
                             </div>
                             <div className="relative w-full sm:w-72 ml-auto">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -210,20 +230,15 @@ export default function CreatorsPage() {
 
                         {/* Creators Grid */}
                         {loading ? (
-                            <div className="flex flex-col space-y-6">
+                            <div className="flex flex-col gap-6">
                                 {[1, 2, 3, 4].map((i) => (
-                                    <div key={i} className="h-[240px] bg-muted animate-pulse rounded-xl" />
+                                    <CreatorCardSkeleton key={i} />
                                 ))}
                             </div>
-                        ) : (
-                            <div className="flex flex-col space-y-6">
-                                {creators.map((creator, index) => (
-                                    <motion.div
-                                        key={creator.id}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: index * 0.05 }}
-                                    >
+                        ) : creators.length > 0 ? (
+                            <div className="flex flex-col gap-6">
+                                {creators.map((creator) => (
+                                    <div key={creator.id} className="w-full">
                                         <div className="flex flex-col md:flex-row bg-card border border-border rounded-xl overflow-hidden hover:border-primary/30 transition-all duration-300 group shadow-sm hover:shadow-md">
                                             {/* Left: Profile Info */}
                                             <div className="p-6 md:w-[280px] flex flex-col gap-5 border-b md:border-b-0 md:border-r border-border shrink-0 bg-card relative">
@@ -257,7 +272,7 @@ export default function CreatorsPage() {
                                                 <div className="flex items-center justify-between text-sm text-muted-foreground py-3 border-t border-b border-border">
                                                     <div className="text-center flex-1 border-r border-border">
                                                         <span className="text-foreground font-bold block text-lg mb-0.5">
-                                                            {creator.views_count > 1000 ? (creator.views_count / 1000).toFixed(1) + 'k' : creator.views_count}
+                                                            {formatPopularity(creator.views_count)}
                                                         </span>
                                                         <span className="text-xs">人气</span>
                                                     </div>
@@ -271,21 +286,16 @@ export default function CreatorsPage() {
                                                     </div>
                                                 </div>
 
-                                                <div className="flex gap-2">
-                                                    <Button 
-                                                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors shadow-sm"
-                                                        onClick={() => handleFollow(creator.id)}
-                                                    >
-                                                        <UserPlus className="w-4 h-4 mr-1.5" />
-                                                        关注
-                                                    </Button>
-                                                    <Button 
-                                                        variant="outline"
-                                                        className="flex-1 border-input text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                                                    >
-                                                        <MessageSquare className="w-4 h-4 mr-1.5" />
-                                                        联系
-                                                    </Button>
+                                                <div className="mt-2">
+                                                    <Link href={`/profile/${creator.id}`} className="w-full block">
+                                                        <Button 
+                                                            variant="outline"
+                                                            className="w-full border-input text-foreground hover:bg-accent hover:text-accent-foreground transition-colors group-hover:border-primary/50 group-hover:text-primary"
+                                                        >
+                                                            <User className="w-4 h-4 mr-2" />
+                                                            访问主页
+                                                        </Button>
+                                                    </Link>
                                                 </div>
                                             </div>
 
@@ -338,15 +348,14 @@ export default function CreatorsPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 ))}
                             </div>
-                        )}
-                        
-                        {!loading && creators.length === 0 && (
-                            <div className="text-center py-20 text-muted-foreground">
-                                没有找到符合条件的创作者
-                            </div>
+                        ) : (
+                            <EmptyState 
+                                title="没有找到符合条件的创作者" 
+                                description="换个筛选条件试试看吧" 
+                            />
                         )}
                     </div>
                 </div>

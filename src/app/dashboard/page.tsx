@@ -112,20 +112,20 @@ export default function Dashboard() {
     >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h1 className="text-3xl font-bold text-white mb-2">创作者中心</h1>
-            <p className="text-gray-400">欢迎回来，{username || 'Creator'}</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">创作者中心</h1>
+            <p className="text-muted-foreground">欢迎回来，{username || 'Creator'}</p>
         </div>
         <div className="flex gap-3 w-full md:w-auto">
              <Button 
                 variant="outline" 
-                className="flex-1 md:flex-none border-white/10 text-white hover:bg-white/5"
+                className="flex-1 md:flex-none border-border hover:bg-secondary text-foreground"
                 onClick={() => router.push('/dashboard/wallet')}
             >
                 <Wallet className="mr-2 h-4 w-4" />
                 我的钱包
             </Button>
             <Button 
-                className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-900/20"
+                className="flex-1 md:flex-none bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
                 onClick={() => router.push('/dashboard/upload')}
             >
                 <Plus className="mr-2 h-4 w-4" />
@@ -141,8 +141,8 @@ export default function Dashboard() {
         {/* Left Column: Recent Videos */}
         <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-white">最近发布</h2>
-                <Link href="/dashboard/videos" className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                <h2 className="text-xl font-semibold text-foreground">最近发布</h2>
+                <Link href="/dashboard/videos" className="text-sm text-primary hover:text-primary/80 flex items-center gap-1">
                     查看全部 <ArrowRight className="h-4 w-4" />
                 </Link>
             </div>
@@ -150,8 +150,8 @@ export default function Dashboard() {
             {videos.length > 0 ? (
                 <div className="grid gap-4">
                     {videos.slice(0, 3).map((video) => (
-                        <div key={video.id} className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-[#1e293b]/50 border border-white/5 hover:bg-[#1e293b] hover:border-white/10 transition-all">
-                            <div className="relative w-full sm:w-32 aspect-video rounded-lg overflow-hidden bg-black/20 shrink-0">
+                        <div key={video.id} className="group flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-card border border-border hover:border-primary/50 transition-all shadow-sm">
+                            <div className="relative w-full sm:w-32 aspect-video rounded-lg overflow-hidden bg-muted shrink-0">
                                 <video 
                                     src={video.url} 
                                     className="w-full h-full object-cover"
@@ -159,8 +159,8 @@ export default function Dashboard() {
                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
                             </div>
                             <div className="flex-1 min-w-0 w-full">
-                                <h3 className="text-white font-medium truncate mb-1">{video.title}</h3>
-                                <div className="flex items-center gap-4 text-sm text-gray-500">
+                                <h3 className="text-foreground font-medium truncate mb-1">{video.title}</h3>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
                                     <span className="flex items-center gap-1">
                                         <Eye className="h-3.5 w-3.5" /> {video.views || 0}
                                     </span>
@@ -173,11 +173,11 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             <div className="text-left sm:text-right w-full sm:w-auto mt-2 sm:mt-0 flex flex-row sm:flex-col justify-between sm:justify-center items-center sm:items-end">
-                                <p className="text-white font-medium">¥{video.price}</p>
+                                <p className="text-foreground font-medium">¥{video.price}</p>
                                 <Badge variant="secondary" className={`mt-0 sm:mt-1 ${
-                                    video.status === 'published' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 
-                                    video.status === 'rejected' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 
-                                    'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                                    video.status === 'published' ? 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20' : 
+                                    video.status === 'rejected' ? 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20' : 
+                                    'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20'
                                 }`}>
                                     {video.status === 'published' ? '已发布' : video.status === 'rejected' ? '已拒绝' : '审核中'}
                                 </Badge>
@@ -186,15 +186,15 @@ export default function Dashboard() {
                     ))}
                 </div>
             ) : (
-                <div className="text-center py-12 rounded-xl bg-white/5 border border-dashed border-white/10">
-                    <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                        <Film className="h-8 w-8 text-gray-500" />
+                <div className="text-center py-12 rounded-xl bg-card border border-dashed border-border">
+                    <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
+                        <Film className="h-8 w-8 text-muted-foreground" />
                     </div>
-                    <h3 className="text-lg font-medium text-white mb-2">还没有发布作品</h3>
-                    <p className="text-gray-400 mb-6 max-w-sm mx-auto">
+                    <h3 className="text-lg font-medium text-foreground mb-2">还没有发布作品</h3>
+                    <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                         开始您的创作之旅，发布第一个 AI 视频作品，赚取收益。
                     </p>
-                    <Button onClick={() => router.push('/dashboard/upload')} className="bg-blue-600 hover:bg-blue-700">
+                    <Button onClick={() => router.push('/dashboard/upload')} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                         立即发布
                     </Button>
                 </div>
@@ -204,27 +204,27 @@ export default function Dashboard() {
         {/* Right Column: Quick Actions & Referral */}
         <div className="space-y-6">
              {/* Referral Card */}
-            <Card className="bg-gradient-to-br from-purple-600/20 to-blue-600/20 border-purple-500/20 overflow-hidden">
+            <Card className="bg-gradient-to-br from-purple-600/90 to-blue-600/90 text-white border-none overflow-hidden shadow-lg">
                 <CardContent className="p-6 relative">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
                     
                     <div className="relative z-10">
-                        <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center mb-4 shadow-lg shadow-purple-900/20">
+                        <div className="h-10 w-10 rounded-lg bg-white/20 flex items-center justify-center mb-4 shadow-inner border border-white/10">
                             <Share2 className="h-5 w-5 text-white" />
                         </div>
                         <h3 className="text-lg font-bold text-white mb-2">邀请好友加入</h3>
-                        <p className="text-sm text-gray-300 mb-6">
-                            每邀请一位好友注册并发布作品，您和好友都将获得 <span className="text-yellow-400 font-bold">100</span> 积分奖励。
+                        <p className="text-sm text-blue-100 mb-6">
+                            每邀请一位好友注册，您将获得 <span className="text-yellow-300 font-bold">50</span> A币奖励。
                         </p>
                         
-                        <div className="bg-black/20 rounded-lg p-3 flex items-center justify-between gap-2 mb-4 border border-white/5">
-                            <code className="text-sm text-purple-300 font-mono truncate">
+                        <div className="bg-black/20 rounded-lg p-3 flex items-center justify-between gap-2 mb-4 border border-white/10">
+                            <code className="text-sm text-blue-200 font-mono truncate">
                                 {username ? `${origin}/auth?tab=register&ref=${username}` : '请先设置用户名'}
                             </code>
                             <Button 
                                 size="sm" 
                                 variant="ghost" 
-                                className="h-8 text-white hover:bg-white/10"
+                                className="h-8 text-white hover:bg-white/20 hover:text-white"
                                 onClick={() => {
                                     if (!username) {
                                         toast.error('请先设置用户名')
@@ -239,7 +239,7 @@ export default function Dashboard() {
                         </div>
                         
                         <Button 
-                            className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/10"
+                            className="w-full bg-white text-blue-600 hover:bg-blue-50 font-semibold border-none"
                             onClick={() => router.push('/dashboard/invite')}
                         >
                             查看邀请详情
@@ -249,9 +249,9 @@ export default function Dashboard() {
             </Card>
 
             {/* Platform News or Tips */}
-            <Card className="bg-[#1e293b]/50 border-white/10">
+            <Card className="bg-card border-border shadow-sm">
                 <CardHeader>
-                    <CardTitle className="text-base text-white flex items-center gap-2">
+                    <CardTitle className="text-base text-foreground flex items-center gap-2">
                         <Zap className="h-4 w-4 text-yellow-500" />
                         创作贴士
                     </CardTitle>
@@ -259,19 +259,19 @@ export default function Dashboard() {
                 <CardContent className="space-y-4">
                     <div className="flex gap-3 items-start">
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
-                        <p className="text-sm text-gray-400">
-                            高质量的 <span className="text-gray-300">Prompt</span> 描述能显著提升 AI 视频生成的准确度。
+                        <p className="text-sm text-muted-foreground">
+                            高质量的 <span className="text-foreground font-medium">Prompt</span> 描述能显著提升 AI 视频生成的准确度。
                         </p>
                     </div>
                     <div className="flex gap-3 items-start">
                         <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 shrink-0" />
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-muted-foreground">
                             上传 4K 分辨率的源视频可以获得更多的推荐流量。
                         </p>
                     </div>
                     <div className="flex gap-3 items-start">
                         <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-2 shrink-0" />
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-muted-foreground">
                             完善个人主页信息有助于建立品牌形象，吸引粉丝。
                         </p>
                     </div>

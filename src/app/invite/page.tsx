@@ -8,9 +8,11 @@ import { Copy, Gift, Users, Coins } from "lucide-react"
 import { toast } from "sonner"
 import { useAuthStore } from "@/store/useAuthStore"
 import { supabase } from "@/lib/supabase"
+import { useRouter } from "next/navigation"
 
 export default function InvitePage() {
   const { user } = useAuthStore()
+  const router = useRouter()
   const [inviteLink, setInviteLink] = useState("")
   const [username, setUsername] = useState("")
   const [stats, setStats] = useState({
@@ -22,38 +24,16 @@ export default function InvitePage() {
 
   useEffect(() => {
     if (user) {
-      // Fetch username
-      supabase.from('profiles').select('username').eq('id', user.id).single().then(({ data }) => {
-        if (data && data.username) {
-          setUsername(data.username)
-          setInviteLink(`${window.location.origin}/auth?tab=register&ref=${data.username}`)
-        }
-      })
-      fetchStats()
+      router.push('/dashboard/invite')
+      return
     } else {
       setInviteLink("请先登录获取邀请链接")
     }
-  }, [user])
+  }, [user, router])
 
   const fetchStats = async () => {
-    if (!user) return
-
-    try {
-      // Get invited users count
-      const { count, error } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('invited_by', user.id)
-
-      if (error) throw error
-
-      setStats(prev => ({
-        ...prev,
-        invitedCount: count || 0
-      }))
-    } catch (error) {
-      console.error('Error fetching invite stats:', error)
-    }
+    // Legacy stats fetch - no longer needed as we redirect logged in users
+    // Keeping function structure to minimize churn if we revert
   }
 
   const handleCopy = () => {

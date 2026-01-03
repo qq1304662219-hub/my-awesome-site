@@ -139,8 +139,8 @@ export function DragDropUpload({ onUploadComplete }: { onUploadComplete: () => v
       className={cn(
         "relative group border-2 border-dashed rounded-xl p-8 transition-all duration-200 ease-in-out cursor-pointer",
         isDragging
-          ? "border-blue-500 bg-blue-500/10 scale-[1.01]"
-          : "border-white/10 hover:border-white/20 hover:bg-white/5",
+          ? "border-primary bg-primary/10 scale-[1.01]"
+          : "border-border hover:border-primary/50 hover:bg-secondary/50",
         isUploading && "pointer-events-none opacity-50"
       )}
       onDragOver={handleDragOver}
@@ -157,19 +157,19 @@ export function DragDropUpload({ onUploadComplete }: { onUploadComplete: () => v
       />
 
       <div className="flex flex-col items-center justify-center gap-4 text-center">
-        <div className="p-4 rounded-full bg-white/5 group-hover:bg-white/10 transition-colors">
+        <div className="p-4 rounded-full bg-secondary group-hover:bg-secondary/80 transition-colors">
             {isUploading ? (
-                <Loader2 className="h-8 w-8 text-blue-400 animate-spin" />
+                <Loader2 className="h-8 w-8 text-primary animate-spin" />
             ) : (
-                <Upload className="h-8 w-8 text-gray-400 group-hover:text-white transition-colors" />
+                <Upload className="h-8 w-8 text-muted-foreground group-hover:text-foreground transition-colors" />
             )}
         </div>
         
         <div className="space-y-1">
-          <h3 className="font-semibold text-white">
+          <h3 className="font-semibold text-foreground">
             {isUploading ? "正在上传..." : "点击或拖拽上传"}
           </h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             支持 JPG, PNG, MP4, WebM (最大 50MB)
           </p>
         </div>
@@ -177,9 +177,9 @@ export function DragDropUpload({ onUploadComplete }: { onUploadComplete: () => v
 
       {/* Progress Bar */}
       {isUploading && (
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10 overflow-hidden rounded-b-xl">
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-secondary overflow-hidden rounded-b-xl">
           <div 
-            className="h-full bg-blue-500 transition-all duration-300"
+            className="h-full bg-primary transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>

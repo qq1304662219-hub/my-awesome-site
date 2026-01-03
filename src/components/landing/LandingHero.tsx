@@ -68,6 +68,9 @@ export function LandingHero() {
         {/* Moving Gradient Orbs */}
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] animate-pulse"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] animate-pulse delay-1000"></div>
+
+        {/* Bottom Fade Mask */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none"></div>
       </div>
 
       <div className="container relative z-10 px-4 text-center max-w-5xl mx-auto pt-20">

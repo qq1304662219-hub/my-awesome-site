@@ -18,6 +18,8 @@ import Link from 'next/link'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Badge } from "@/components/ui/badge"
+import { EmptyState } from "@/components/shared/EmptyState"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -172,8 +174,20 @@ export default function MyVideos() {
   }
 
   if (loading) return (
-    <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+    <div className="p-8 space-y-8 max-w-7xl mx-auto pb-24">
+        <div className="flex justify-between items-center">
+             <div className="space-y-2">
+                 <Skeleton className="h-8 w-48" />
+                 <Skeleton className="h-4 w-96" />
+             </div>
+             <Skeleton className="h-10 w-32" />
+        </div>
+        <Skeleton className="h-20 w-full rounded-xl" />
+        <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            ))}
+        </div>
     </div>
   )
 
@@ -332,14 +346,12 @@ export default function MyVideos() {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan={6} className="px-6 py-24 text-center">
-                                <div className="flex flex-col items-center justify-center text-gray-500">
-                                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                                        <Filter className="h-8 w-8 opacity-50" />
-                                    </div>
-                                    <p className="text-lg font-medium text-white mb-1">未找到相关作品</p>
-                                    <p className="text-sm max-w-sm mx-auto">尝试调整搜索关键词或筛选条件，或者发布一个新的作品。</p>
-                                </div>
+                            <td colSpan={6}>
+                                <EmptyState 
+                                    title="未找到相关作品" 
+                                    description="尝试调整搜索关键词或筛选条件，或者发布一个新的作品。"
+                                    icon={Filter}
+                                />
                             </td>
                         </tr>
                     )}

@@ -130,25 +130,25 @@ export default function RequestDetailPage() {
 
   if (loading) {
     return (
-        <div className="min-h-screen bg-[#020817] flex flex-col">
+        <div className="min-h-screen bg-background flex flex-col">
             <Navbar />
             <div className="flex-1 container mx-auto px-4 py-24">
                 <div className="mb-6">
-                    <Skeleton className="h-6 w-32 bg-white/10" />
+                    <Skeleton className="h-6 w-32 bg-muted" />
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-8">
-                        <div className="bg-white/5 border border-white/10 rounded-xl p-8">
-                             <Skeleton className="h-10 w-3/4 mb-4 bg-white/10" />
+                        <div className="bg-card border border-border rounded-xl p-8">
+                             <Skeleton className="h-10 w-3/4 mb-4 bg-muted" />
                              <div className="flex gap-4 mb-8">
-                                 <Skeleton className="h-4 w-24 bg-white/10" />
-                                 <Skeleton className="h-4 w-24 bg-white/10" />
+                                 <Skeleton className="h-4 w-24 bg-muted" />
+                                 <Skeleton className="h-4 w-24 bg-muted" />
                              </div>
-                             <Skeleton className="h-32 w-full bg-white/10" />
+                             <Skeleton className="h-32 w-full bg-muted" />
                         </div>
                     </div>
                     <div className="space-y-6">
-                        <Skeleton className="h-64 w-full rounded-xl bg-white/10" />
+                        <Skeleton className="h-64 w-full rounded-xl bg-muted" />
                     </div>
                 </div>
             </div>
@@ -158,8 +158,8 @@ export default function RequestDetailPage() {
 
   if (!request) {
     return (
-        <div className="min-h-screen bg-[#020817] flex items-center justify-center">
-            <div className="text-white">任务不存在</div>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="text-foreground">任务不存在</div>
         </div>
     );
   }
@@ -168,11 +168,11 @@ export default function RequestDetailPage() {
   const isClosed = request.status === 'closed';
 
   return (
-    <div className="min-h-screen bg-[#020817] text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <Navbar />
       
       <div className="flex-1 container mx-auto px-4 py-24">
-        <Link href="/requests" className="inline-flex items-center text-gray-400 hover:text-white mb-6 transition-colors">
+        <Link href="/requests" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4 mr-2" />
             返回任务大厅
         </Link>
@@ -181,16 +181,16 @@ export default function RequestDetailPage() {
             {/* Left: Request Details */}
             <div className="lg:col-span-2 space-y-8">
                 {/* Header Info */}
-                <div className="bg-white/5 border border-white/10 rounded-xl p-8 relative overflow-hidden">
+                <div className="bg-card border border-border rounded-xl p-8 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4">
                          {isClosed ? (
-                            <Badge className="bg-gray-700 text-gray-300 px-3 py-1 text-base">
+                            <Badge className="bg-secondary text-secondary-foreground px-3 py-1 text-base">
                                 <CheckCircle2 className="w-4 h-4 mr-2" />
                                 已结束
                             </Badge>
                          ) : (
-                            <Badge className="bg-green-500/20 text-green-400 border-green-500/50 px-3 py-1 text-base">
-                                <div className="w-2 h-2 rounded-full bg-green-400 mr-2 animate-pulse" />
+                            <Badge className="bg-green-500/10 text-green-600 border-green-500/20 px-3 py-1 text-base dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/50">
+                                <div className="w-2 h-2 rounded-full bg-green-600 dark:bg-green-400 mr-2 animate-pulse" />
                                 进行中
                             </Badge>
                          )}
@@ -198,7 +198,7 @@ export default function RequestDetailPage() {
 
                     <h1 className="text-3xl font-bold mb-4 pr-20">{request.title}</h1>
                     
-                    <div className="flex flex-wrap gap-6 text-sm text-gray-400 mb-8">
+                    <div className="flex flex-wrap gap-6 text-sm text-muted-foreground mb-8">
                         <div className="flex items-center gap-2">
                             <Avatar className="h-6 w-6">
                                 <AvatarImage src={request.profiles?.avatar_url} />
@@ -216,7 +216,7 @@ export default function RequestDetailPage() {
                         </div>
                     </div>
 
-                    <div className="bg-black/30 rounded-lg p-6 text-gray-300 leading-relaxed whitespace-pre-wrap border border-white/5">
+                    <div className="bg-muted/50 rounded-lg p-6 text-muted-foreground leading-relaxed whitespace-pre-wrap border border-border">
                         {request.description}
                     </div>
                 </div>
@@ -229,19 +229,19 @@ export default function RequestDetailPage() {
                     </h2>
                     
                     {submissions.length === 0 ? (
-                        <div className="text-center py-12 bg-white/5 rounded-xl border border-white/10 text-gray-500">
+                        <div className="text-center py-12 bg-card rounded-xl border border-border text-muted-foreground">
                             暂无投稿，快来抢占先机！
                         </div>
                     ) : (
                         <div className="grid gap-4">
                             {submissions.map((sub) => (
-                                <div key={sub.id} className={`bg-white/5 border ${sub.status === 'accepted' ? 'border-yellow-500/50 bg-yellow-500/5' : 'border-white/10'} rounded-xl p-4 flex gap-4 items-start`}>
+                                <div key={sub.id} className={`bg-card border ${sub.status === 'accepted' ? 'border-yellow-500/50 bg-yellow-500/5' : 'border-border'} rounded-xl p-4 flex gap-4 items-start`}>
                                     {/* Thumbnail */}
-                                    <div className="w-40 aspect-video bg-black rounded-lg overflow-hidden flex-shrink-0 border border-white/10 relative group">
+                                    <div className="w-40 aspect-video bg-muted rounded-lg overflow-hidden flex-shrink-0 border border-border relative group">
                                         {sub.videos?.thumbnail_url ? (
                                             <img src={sub.videos.thumbnail_url} alt={sub.videos.title} className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-gray-600 bg-gray-900">
+                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-muted">
                                                 No Image
                                             </div>
                                         )}
@@ -257,13 +257,13 @@ export default function RequestDetailPage() {
                                         <div className="flex justify-between items-start">
                                             <div>
                                                 <h3 className="font-bold text-lg mb-1">{sub.videos?.title || 'Unknown Video'}</h3>
-                                                <div className="flex items-center gap-2 text-sm text-gray-400">
+                                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                                     <Avatar className="h-5 w-5">
                                                         <AvatarImage src={sub.profiles?.avatar_url} />
                                                         <AvatarFallback>U</AvatarFallback>
                                                     </Avatar>
                                                     {sub.profiles?.full_name}
-                                                    <span className="text-gray-600">•</span>
+                                                    <span className="text-muted-foreground/50">•</span>
                                                     {new Date(sub.created_at).toLocaleDateString()}
                                                 </div>
                                             </div>
@@ -298,10 +298,10 @@ export default function RequestDetailPage() {
 
             {/* Right: Actions */}
             <div className="space-y-6">
-                <div className="bg-white/5 border border-white/10 rounded-xl p-6 sticky top-24">
+                <div className="bg-card border border-border rounded-xl p-6 sticky top-24">
                     <div className="text-center mb-6">
-                        <div className="text-sm text-gray-400 mb-1">悬赏金额</div>
-                        <div className="text-4xl font-bold text-yellow-400 flex items-center justify-center gap-2">
+                        <div className="text-sm text-muted-foreground mb-1">悬赏金额</div>
+                        <div className="text-4xl font-bold text-yellow-600 dark:text-yellow-400 flex items-center justify-center gap-2">
                             <Coins className="w-8 h-8" />
                             {request.budget}
                         </div>
@@ -310,11 +310,11 @@ export default function RequestDetailPage() {
                     {!isClosed && !isOwner && (
                          <Dialog open={isSubmitOpen} onOpenChange={setIsSubmitOpen}>
                             <DialogTrigger asChild>
-                                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 text-lg">
+                                <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 text-lg">
                                     我要投稿
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="bg-[#0f172a] border-white/10 text-white">
+                            <DialogContent className="bg-background border-border text-foreground">
                                 <DialogHeader>
                                     <DialogTitle>提交作品</DialogTitle>
                                 </DialogHeader>
@@ -325,9 +325,9 @@ export default function RequestDetailPage() {
                                             placeholder="请输入您已上传的视频 ID" 
                                             value={submissionVideoId}
                                             onChange={(e) => setSubmissionVideoId(e.target.value)}
-                                            className="bg-black/20 border-white/10"
+                                            className="bg-background border-input"
                                         />
-                                        <p className="text-xs text-gray-400">
+                                        <p className="text-xs text-muted-foreground">
                                             * 请先在“我的作品”中上传视频，然后复制 ID 填入此处。
                                             <br />
                                             (目前简化流程，未来可支持直接选择)
@@ -342,13 +342,13 @@ export default function RequestDetailPage() {
                     )}
 
                     {isClosed && (
-                        <div className="w-full bg-gray-700/50 text-gray-400 font-bold py-4 text-center rounded-lg border border-white/5">
+                        <div className="w-full bg-secondary/50 text-muted-foreground font-bold py-4 text-center rounded-lg border border-border">
                             任务已结束
                         </div>
                     )}
 
                     {isOwner && !isClosed && (
-                        <div className="text-center text-sm text-gray-400 mt-4">
+                        <div className="text-center text-sm text-muted-foreground mt-4">
                             您是任务发布者，请在左侧列表选择满意的投稿进行采纳。
                         </div>
                     )}

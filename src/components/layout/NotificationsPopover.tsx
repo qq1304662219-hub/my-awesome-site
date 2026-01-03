@@ -257,8 +257,8 @@ export function NotificationsPopover() {
                         </div>
                     </div>
                     
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm text-muted-foreground">
+                    <div className="flex-1 space-y-1 min-w-0">
+                      <p className="text-sm text-muted-foreground truncate">
                         <span className="font-medium text-foreground">{notification.actor?.full_name || "有人"}</span>
                         {" "}
                         {notification.type === 'like' && "赞了你的作品"}

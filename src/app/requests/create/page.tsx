@@ -84,7 +84,7 @@ export default function CreateRequestPage() {
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="text-2xl font-bold flex items-center gap-2">
-                <span className="bg-blue-500 w-2 h-6 rounded-full inline-block" />
+                <span className="bg-primary w-2 h-6 rounded-full inline-block" />
                 发布悬赏任务
               </CardTitle>
               <CardDescription className="text-muted-foreground">
@@ -119,7 +119,7 @@ export default function CreateRequestPage() {
                 <div className="space-y-2">
                   <Label htmlFor="budget" className="text-foreground">悬赏金额 (A币)</Label>
                   <div className="relative">
-                    <Coins className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-400" />
+                    <Coins className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-600 dark:text-yellow-400" />
                     <Input 
                       id="budget"
                       type="number"
@@ -138,7 +138,7 @@ export default function CreateRequestPage() {
 
                 <Button 
                   type="submit" 
-                  className="w-full bg-blue-600 hover:bg-blue-700 font-bold py-6"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6"
                   disabled={loading}
                 >
                   {loading ? "发布中..." : "确认发布并支付"}

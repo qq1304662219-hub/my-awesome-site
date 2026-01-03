@@ -33,6 +33,15 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
   const { count: cartCount, fetchCartCount } = useCartStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -62,8 +71,15 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
     );
   };
 
+  const isHome = pathname === '/';
+
   return (
-    <nav className="fixed top-0 w-full z-50 border-b border-border bg-background/80 backdrop-blur-md">
+    <nav className={cn(
+      "fixed top-0 w-full z-50 transition-all duration-300",
+      isHome && !isScrolled 
+        ? "bg-transparent border-transparent" 
+        : "border-b border-border bg-background/80 backdrop-blur-md"
+    )}>
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-8">

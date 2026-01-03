@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/useAuthStore";
 import { AddToCollectionModal } from "@/components/video/AddToCollectionModal";
+import { cn } from "@/lib/utils";
 
 export interface VideoCardProps {
   id: string;
@@ -33,6 +34,8 @@ export interface VideoCardProps {
   showRank?: boolean;
   price?: number;
   ai_model?: string;
+  className?: string;
+  aspectRatio?: "video" | "square" | "portrait" | "auto";
 }
 
 export function VideoCard({
@@ -50,6 +53,8 @@ export function VideoCard({
   showRank = false,
   price = 0,
   ai_model,
+  className,
+  aspectRatio = "video",
 }: VideoCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const isVideoUrl = url?.match(/\.(mp4|webm|mov)$/i);
@@ -167,7 +172,12 @@ export function VideoCard({
   return (
     <div 
       ref={containerRef}
-      className="group relative bg-card rounded-xl overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+      className={cn(
+        "group relative flex flex-col gap-3 rounded-xl overflow-hidden bg-card transition-all duration-300",
+        "border border-border/50 hover:border-border",
+        "shadow-sm hover:shadow-md",
+        className
+      )}
       onMouseEnter={() => {
         if (!isMobile) {
             hoverTimeoutRef.current = setTimeout(() => {
@@ -186,7 +196,12 @@ export function VideoCard({
       }}
     >
       {/* Thumbnail Area */}
-      <div className="aspect-video relative overflow-hidden bg-muted">
+      <div className={cn(
+        "relative overflow-hidden bg-muted",
+        aspectRatio === "video" ? "aspect-video" : 
+        aspectRatio === "square" ? "aspect-square" :
+        aspectRatio === "portrait" ? "aspect-[3/4]" : ""
+      )}>
             {/* AI Model Badge */}
           {ai_model && (
             <div className="absolute bottom-2 left-2 z-20">
@@ -201,7 +216,7 @@ export function VideoCard({
           {isVideoUrl && isHovered ? (
             <video
               src={url}
-              className="w-full h-full object-cover animate-in fade-in duration-300"
+              className={cn("w-full object-cover animate-in fade-in duration-300", aspectRatio !== "auto" ? "h-full" : "h-auto")}
               autoPlay
               muted
               loop
@@ -209,27 +224,49 @@ export function VideoCard({
             />
           ) : (
             /* Show Image otherwise */
-            <div className="relative w-full h-full">
-              {displayImage ? (
-                <Image
-                    src={displayImage}
-                    alt={title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-              ) : (
-                /* Fallback for video without thumbnail and not hovering */
-                 isVideoUrl && (
-                    <video
-                        src={url}
-                        className="w-full h-full object-cover opacity-90"
-                        muted
-                        playsInline
+            aspectRatio === "auto" ? (
+                 <div className="relative w-full">
+                   {displayImage ? (
+                     <img
+                         src={displayImage}
+                         alt={title}
+                         className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                         loading="lazy"
+                     />
+                   ) : (
+                      isVideoUrl && (
+                         <video
+                             src={url}
+                             className="w-full h-auto object-cover opacity-90"
+                             muted
+                             playsInline
+                         />
+                      )
+                   )}
+                 </div>
+            ) : (
+                <div className="relative w-full h-full">
+                  {displayImage ? (
+                    <Image
+                        src={displayImage}
+                        alt={title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
-                 )
-              )}
-            </div>
+                  ) : (
+                    /* Fallback for video without thumbnail and not hovering */
+                     isVideoUrl && (
+                        <video
+                            src={url}
+                            className="w-full h-full object-cover opacity-90"
+                            muted
+                            playsInline
+                        />
+                     )
+                  )}
+                </div>
+            )
           )}
 
           {/* Add to Cart Button (Hover) */}
@@ -351,7 +388,7 @@ export function VideoCard({
                 </Link>
                 
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0 overflow-hidden">
                          {user_id ? (
                             <Link href={`/profile/${user_id}`} className="hover:text-blue-400 transition-colors cursor-pointer truncate" onClick={(e) => e.stopPropagation()}>
                                 {author || "Unknown"}
@@ -362,7 +399,7 @@ export function VideoCard({
                             </span>
                          )}
                     </div>
-                    <span>{views} 次观看</span>
+                    <span className="flex-shrink-0 ml-2">{views} 次观看</span>
                 </div>
                 
                 <div className="flex items-center justify-between mt-2">

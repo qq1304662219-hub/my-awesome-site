@@ -27,6 +27,12 @@ export function ProfileStats({ user, profile, stats }: ProfileStatsProps) {
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url
   const bio = profile?.bio || user?.user_metadata?.bio
   
+  const formatBalance = (balance: number) => {
+    if (balance === undefined || balance === null) return '0.00';
+    if (balance > 99999999 || balance.toString().includes('e')) return '99,999,999+';
+    return balance.toFixed(2);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -35,17 +41,17 @@ export function ProfileStats({ user, profile, stats }: ProfileStatsProps) {
       className="space-y-6"
     >
       {/* Profile Header Card */}
-      <Card className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] border-white/10 overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <Card className="bg-card border-border overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         
         <CardContent className="p-8 relative z-10">
           <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between">
             <div className="flex items-center gap-6">
               <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-75 group-hover:opacity-100 transition duration-500 blur"></div>
-                <Avatar className="h-24 w-24 border-2 border-[#0B1120] relative">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-purple-600 rounded-full opacity-75 group-hover:opacity-100 transition duration-500 blur"></div>
+                <Avatar className="h-24 w-24 border-2 border-background relative">
                     <AvatarImage src={avatarUrl} />
-                    <AvatarFallback className="text-3xl bg-[#1e293b] text-blue-400 font-bold">
+                    <AvatarFallback className="text-3xl bg-secondary text-primary font-bold">
                     {user?.email?.[0]?.toUpperCase()}
                     </AvatarFallback>
                 </Avatar>
@@ -53,17 +59,17 @@ export function ProfileStats({ user, profile, stats }: ProfileStatsProps) {
               
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
-                  <h1 className="text-3xl font-bold text-white tracking-tight">
+                  <h1 className="text-3xl font-bold text-foreground tracking-tight">
                     {displayName}
                   </h1>
-                  <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1">
+                  <Badge variant="secondary" className="bg-primary/10 text-primary border border-primary/20 px-3 py-1">
                     {profile?.role === 'super_admin' ? '👑 超级管理员' : 
                      profile?.role === 'admin' ? '🛡️ 管理员' : '✨ 创作者'}
                   </Badge>
                 </div>
                 
-                <div className="flex items-center gap-4 text-gray-400 text-sm">
-                  <span className="flex items-center gap-1.5 bg-white/5 px-3 py-1 rounded-full border border-white/5">
+                <div className="flex items-center gap-4 text-muted-foreground text-sm">
+                  <span className="flex items-center gap-1.5 bg-secondary/50 px-3 py-1 rounded-full border border-border">
                     <CalendarDays className="h-3.5 w-3.5" />
                     已加入 {daysJoined} 天
                   </span>
@@ -78,7 +84,7 @@ export function ProfileStats({ user, profile, stats }: ProfileStatsProps) {
 
             <div className="flex gap-3">
                <Link href="/dashboard/settings">
-                  <Button variant="outline" className="border-white/10 hover:bg-white/5 text-gray-300 hover:text-white transition-colors">
+                  <Button variant="outline" className="border-border hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
                       编辑资料
                   </Button>
                </Link>
@@ -90,7 +96,7 @@ export function ProfileStats({ user, profile, stats }: ProfileStatsProps) {
              <StatItem label="发布作品" value={stats.videoCount} unit="个" />
              <StatItem label="获得浏览" value={stats.totalViews} unit="次" />
              <StatItem label="总下载量" value={stats.totalDownloads} unit="次" />
-             <StatItem label="创作收益" value={stats.totalIncome.toFixed(2)} unit="元" highlight />
+             <StatItem label="创作收益" value={formatBalance(stats.totalIncome)} unit="元" highlight />
           </div>
         </CardContent>
       </Card>
@@ -100,13 +106,13 @@ export function ProfileStats({ user, profile, stats }: ProfileStatsProps) {
 
 function StatItem({ label, value, unit, highlight = false }: { label: string, value: string | number, unit: string, highlight?: boolean }) {
     return (
-        <div className="space-y-1 p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors">
-            <p className="text-sm text-gray-400">{label}</p>
+        <div className="space-y-1 p-4 rounded-xl bg-secondary/30 border border-border hover:bg-secondary/50 transition-colors">
+            <p className="text-sm text-muted-foreground">{label}</p>
             <div className="flex items-baseline gap-1">
-                <p className={`text-2xl font-bold ${highlight ? 'text-green-400' : 'text-white'}`}>
+                <p className={`text-2xl font-bold ${highlight ? 'text-primary' : 'text-foreground'}`}>
                     {value}
                 </p>
-                <span className="text-xs text-gray-500">{unit}</span>
+                <span className="text-xs text-muted-foreground">{unit}</span>
             </div>
         </div>
     )

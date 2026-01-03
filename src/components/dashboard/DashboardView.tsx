@@ -47,8 +47,8 @@ export function DashboardView() {
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h1 className="text-3xl font-bold text-white mb-2">我的素材库</h1>
-                <p className="text-gray-400">管理您的所有 AI 生成内容</p>
+                <h1 className="text-3xl font-bold text-foreground mb-2">我的素材库</h1>
+                <p className="text-muted-foreground">管理您的所有 AI 生成内容</p>
             </div>
             {/* Upload Area */}
             <div className="w-full md:w-auto min-w-[300px]">
@@ -60,19 +60,19 @@ export function DashboardView() {
         {loading ? (
             <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
                 {[1,2,3,4,5,6].map(i => (
-                    <Skeleton key={i} className="w-full h-64 rounded-xl bg-white/5" />
+                    <Skeleton key={i} className="w-full h-64 rounded-xl bg-muted" />
                 ))}
             </div>
         ) : videos.length > 0 ? (
             <MasonryGrid videos={videos} onVideoDeleted={fetchVideos} />
         ) : (
-            <div className="text-center py-20 bg-white/5 rounded-xl border border-white/10 border-dashed">
-                <p className="text-gray-400 mb-4">您的素材库空空如也</p>
+            <div className="text-center py-20 bg-muted/20 rounded-xl border border-dashed border-border">
+                <p className="text-muted-foreground mb-4">您的素材库空空如也</p>
                 <div className="flex justify-center gap-4">
                     <Button 
                         variant="outline" 
                         onClick={() => document.getElementById('videos')?.scrollIntoView({ behavior: 'smooth' })}
-                        className="gap-2 border-white/20 hover:bg-white/10"
+                        className="gap-2 border-border hover:bg-secondary"
                     >
                         <Compass className="w-4 h-4" /> 探索社区灵感
                     </Button>

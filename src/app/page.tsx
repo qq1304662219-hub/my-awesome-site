@@ -54,27 +54,29 @@ export default function Home() {
       </section>
 
       {/* Featured Videos Section */}
-      <section className="container mx-auto px-4 py-20 bg-muted/30">
-        <div className="flex items-center justify-between mb-12">
-            <div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2 flex items-center gap-2">
-                    <Sparkles className="w-8 h-8 text-blue-400" />
-                    内容精选
-                </h2>
-                <p className="text-muted-foreground">
-                    官方甄选优质 AI 视频作品，激发你的创作灵感
-                </p>
+      <section className="w-full py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-12">
+                <div>
+                    <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2 flex items-center gap-2">
+                        <Sparkles className="w-8 h-8 text-blue-400" />
+                        内容精选
+                    </h2>
+                    <p className="text-muted-foreground">
+                        官方甄选优质 AI 视频作品，激发你的创作灵感
+                    </p>
+                </div>
+                <Link href="/explore">
+                    <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent gap-2">
+                        查看全部 <ArrowRight className="w-4 h-4" />
+                    </Button>
+                </Link>
             </div>
-            <Link href="/explore">
-                <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:bg-accent gap-2">
-                    查看全部 <ArrowRight className="w-4 h-4" />
-                </Button>
-            </Link>
+            
+            <ErrorBoundary>
+                <VideoGrid filters={{ category: null, style: null, ratio: null, model: null }} sort="popular" />
+            </ErrorBoundary>
         </div>
-        
-        <ErrorBoundary>
-            <VideoGrid filters={{ category: null, style: null, ratio: null, model: null }} sort="popular" />
-        </ErrorBoundary>
       </section>
 
       {/* Featured Creators Section */}

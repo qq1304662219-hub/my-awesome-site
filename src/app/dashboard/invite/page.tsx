@@ -10,12 +10,10 @@ import {
   Copy, 
   Users, 
   Coins, 
-  Gift, 
   Share2, 
   CheckCircle2, 
-  Clock, 
-  AlertCircle,
-  Loader2
+  Loader2,
+  Gift
 } from "lucide-react"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
@@ -91,14 +89,12 @@ export default function InviteDashboardPage() {
       const publishedCount = formattedUsers.filter(u => u.videos[0]?.count > 0).length
       
       // Fetch earnings from transactions
-      // Assuming 'income' type and description contains 'invite' or 'reward' 
-      // OR specific type if exists. For now, let's query 'income'
       const { data: transactions } = await supabase
         .from('transactions')
         .select('amount')
         .eq('user_id', user!.id)
         .eq('type', 'income')
-        .ilike('description', '%邀请%') // Simple filter for now
+        .ilike('description', '%邀请%')
 
       const totalEarned = transactions?.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0) || 0
 
@@ -154,49 +150,56 @@ export default function InviteDashboardPage() {
     >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">邀请返利</h1>
-          <p className="text-gray-400 mt-1">邀请好友加入，共同赚取高额收益</p>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">邀请有礼</h1>
+          <p className="text-gray-400 mt-1">邀请好友加入，共同赚取 A币 奖励</p>
         </div>
       </div>
 
       {/* Hero / Invite Link Section */}
       <motion.div variants={item}>
-        <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-blue-500/20 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <Card className="bg-gradient-to-br from-purple-900/40 to-blue-900/40 border-purple-500/20 overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <CardContent className="p-8 relative z-10">
             <div className="flex flex-col md:flex-row gap-8 items-center">
               <div className="flex-1 space-y-4 text-center md:text-left">
-                <h2 className="text-2xl font-bold text-white">
-                  每邀请一位好友注册并发布作品，双方各得 <span className="text-yellow-400 text-3xl mx-1">100</span> 积分
+                <h2 className="text-2xl font-bold text-white leading-relaxed">
+                  每邀请一位好友注册，您将获得 <span className="text-yellow-400 text-3xl mx-1 font-extrabold">50</span> A币<br/>
+                  <span className="text-lg font-normal text-gray-300">好友将获得 <span className="text-yellow-400 font-bold">20 A币</span> 新人礼包</span>
                 </h2>
-                <p className="text-gray-300 max-w-xl">
-                  您的好友将获得新人礼包，您将获得永久返利。奖励自动到账，无上限，多邀多得。
+                <p className="text-gray-400 max-w-xl">
+                  奖励自动到账，无上限，多邀多得。快去分享给您的朋友吧！
                 </p>
                 
-                <div className="flex items-center gap-2 max-w-md mx-auto md:mx-0 mt-6 bg-black/30 p-1.5 rounded-xl border border-white/10">
+                <div className="flex items-center gap-2 max-w-md mx-auto md:mx-0 mt-6 bg-black/30 p-1.5 rounded-xl border border-white/10 shadow-inner">
                   <Input 
                     value={inviteLink} 
                     readOnly 
-                    className="bg-transparent border-none text-gray-300 focus-visible:ring-0 h-10 font-mono text-sm"
+                    className="bg-transparent border-none text-gray-300 focus-visible:ring-0 h-10 font-mono text-sm selection:bg-purple-500/30"
                   />
-                  <Button onClick={handleCopy} className="bg-blue-600 hover:bg-blue-700 text-white shrink-0">
+                  <Button onClick={handleCopy} className="bg-purple-600 hover:bg-purple-700 text-white shrink-0 font-medium px-6">
                     <Copy className="mr-2 h-4 w-4" /> 复制
                   </Button>
                 </div>
               </div>
               
-              <div className="hidden md:flex gap-4">
-                 <div className="w-24 h-24 rounded-2xl bg-blue-500/20 flex flex-col items-center justify-center border border-blue-500/30 backdrop-blur-sm">
-                    <Share2 className="w-8 h-8 text-blue-400 mb-2" />
-                    <span className="text-xs text-blue-200">分享链接</span>
+              <div className="hidden md:flex gap-6 pr-8">
+                 <div className="flex flex-col items-center gap-3">
+                     <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30 backdrop-blur-sm shadow-lg shadow-blue-500/10">
+                        <Share2 className="w-8 h-8 text-blue-400" />
+                     </div>
+                     <span className="text-xs text-blue-200 font-medium">1. 发送邀请</span>
                  </div>
-                 <div className="w-24 h-24 rounded-2xl bg-purple-500/20 flex flex-col items-center justify-center border border-purple-500/30 backdrop-blur-sm">
-                    <Users className="w-8 h-8 text-purple-400 mb-2" />
-                    <span className="text-xs text-purple-200">好友注册</span>
+                 <div className="flex flex-col items-center gap-3">
+                     <div className="w-16 h-16 rounded-2xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30 backdrop-blur-sm shadow-lg shadow-purple-500/10">
+                        <Users className="w-8 h-8 text-purple-400" />
+                     </div>
+                     <span className="text-xs text-purple-200 font-medium">2. 好友注册</span>
                  </div>
-                 <div className="w-24 h-24 rounded-2xl bg-yellow-500/20 flex flex-col items-center justify-center border border-yellow-500/30 backdrop-blur-sm">
-                    <Coins className="w-8 h-8 text-yellow-400 mb-2" />
-                    <span className="text-xs text-yellow-200">获得奖励</span>
+                 <div className="flex flex-col items-center gap-3">
+                     <div className="w-16 h-16 rounded-2xl bg-yellow-500/20 flex items-center justify-center border border-yellow-500/30 backdrop-blur-sm shadow-lg shadow-yellow-500/10">
+                        <Gift className="w-8 h-8 text-yellow-400" />
+                     </div>
+                     <span className="text-xs text-yellow-200 font-medium">3. 获得奖励</span>
                  </div>
               </div>
             </div>
@@ -206,7 +209,7 @@ export default function InviteDashboardPage() {
 
       {/* Stats Cards */}
       <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm">
+        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm hover:bg-[#1e293b]/70 transition-colors">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
               <Users className="h-4 w-4 text-blue-400" />
@@ -218,7 +221,7 @@ export default function InviteDashboardPage() {
           </CardContent>
         </Card>
         
-        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm">
+        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm hover:bg-[#1e293b]/70 transition-colors">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-green-400" />
@@ -230,7 +233,7 @@ export default function InviteDashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm">
+        <Card className="bg-[#1e293b]/50 border-white/10 backdrop-blur-sm hover:bg-[#1e293b]/70 transition-colors">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-400 flex items-center gap-2">
               <Coins className="h-4 w-4 text-yellow-400" />
@@ -238,7 +241,7 @@ export default function InviteDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-yellow-400">{stats.totalEarned.toFixed(0)} <span className="text-sm font-normal text-gray-500">积分</span></div>
+            <div className="text-3xl font-bold text-yellow-400">{stats.totalEarned.toFixed(0)} <span className="text-sm font-normal text-gray-500">A币</span></div>
           </CardContent>
         </Card>
       </motion.div>
@@ -296,7 +299,7 @@ export default function InviteDashboardPage() {
                                 )}
                                 </td>
                                 <td className="px-6 py-4 text-right font-bold text-yellow-400">
-                                {hasPublished ? '+100' : '-'}
+                                {hasPublished ? '+50' : '+20'}
                                 </td>
                             </tr>
                         )

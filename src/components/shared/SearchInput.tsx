@@ -118,7 +118,7 @@ export const SearchInput = forwardRef<SearchInputHandle, SearchInputProps>(({
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
-            className={`bg-muted border border-border rounded-full py-1.5 ${showIcon ? 'pl-9' : 'pl-4'} pr-4 text-sm focus:outline-none focus:border-primary w-full transition-all placeholder:text-muted-foreground ${inputClassName}`}
+            className={`bg-secondary/50 hover:bg-secondary border border-border rounded-full py-1.5 ${showIcon ? 'pl-9' : 'pl-4'} pr-4 text-sm focus:outline-none focus:border-primary w-full transition-all placeholder:text-muted-foreground ${inputClassName}`}
         />
         {query && (
           <button 

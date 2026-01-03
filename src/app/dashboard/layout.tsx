@@ -11,7 +11,7 @@ export default function DashboardLayout({
 }) {
   return (
     <AuthGuard>
-      <div className="flex h-screen bg-[#0B1120] overflow-hidden flex-col">
+      <div className="flex h-screen bg-background overflow-hidden flex-col">
         <Navbar simple={true} showMobileMenu={false} />
         <div className="flex flex-1 overflow-hidden pt-16">
           <DashboardSidebar />

@@ -14,6 +14,10 @@ import { notFound } from "next/navigation"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
+import { ProfilePageSkeleton } from "@/components/shared/Skeletons"
+import { EmptyState } from "@/components/shared/EmptyState"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+
 interface ProfilePageProps {
   params: Promise<{
     id: string
@@ -215,11 +219,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-      </div>
-    )
+    return <ProfilePageSkeleton />
   }
 
   if (!profile) {
@@ -234,7 +234,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-8">
             {/* Left Sidebar: Profile Card */}
             <aside className="space-y-6">
-                <div className="bg-card rounded-2xl border border-border overflow-hidden relative group">
+                <div className="bg-card rounded-2xl border border-border overflow-hidden relative group shadow-sm">
                     {/* Cover/Background Effect */}
                     <div className="h-32 bg-gradient-to-b from-blue-900/20 to-card relative">
                         <div className="absolute top-4 right-4">
@@ -247,7 +247,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     <div className="px-6 pb-8 -mt-12 relative">
                          {/* Avatar */}
                         <div className="relative inline-block mb-4">
-                            <Avatar className="w-24 h-24 border-4 border-card shadow-xl">
+                            <Avatar className="w-24 h-24 border-4 border-card shadow-md">
                                 <AvatarImage src={profile.avatar_url} />
                                 <AvatarFallback className="text-2xl bg-blue-900/50 text-blue-200">
                                     {profile.username?.[0]?.toUpperCase()}
@@ -263,7 +263,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                         {/* Name & Badge */}
                         <div className="mb-4">
                             <div className="flex items-center gap-2 mb-1">
-                                <h1 className="text-2xl font-bold text-foreground truncate">{profile.username || "Unknown User"}</h1>
+                                <h1 className="text-2xl font-bold text-foreground truncate">{profile.full_name || profile.username || "Unknown User"}</h1>
                                 {profile.role === 'admin' && (
                                     <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 px-1.5 py-0.5 h-5 text-[10px]">
                                         <Trophy className="w-3 h-3 mr-1" /> 官方
@@ -296,7 +296,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                                             "w-full font-medium transition-all",
                                             isFollowing 
                                                 ? "bg-muted hover:bg-accent text-muted-foreground border border-border" 
-                                                : "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-900/20"
+                                                : "bg-red-600 hover:bg-red-700 text-white shadow-sm"
                                         )}
                                         onClick={handleFollow}
                                     >
@@ -375,13 +375,13 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             {/* Right Content */}
             <div className="min-w-0">
                 <Tabs defaultValue="videos" className="w-full">
-                    <div className="bg-card border border-border rounded-xl mb-6 px-2 sticky top-24 z-30 shadow-xl shadow-black/20 backdrop-blur-xl bg-card/90">
-                        <TabsList className="w-full justify-start h-14 bg-transparent p-0">
+                    <div className="sticky top-16 z-30 bg-background/95 backdrop-blur-sm border-b border-border mb-6 py-2">
+                        <TabsList className="w-full justify-start h-10 bg-transparent p-0">
                             <TabsTrigger 
                                 value="videos" 
                                 className="h-full rounded-none border-b-2 border-transparent px-6 data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-foreground text-muted-foreground font-medium transition-all"
                             >
-                                创作
+                                作品
                                 <span className="ml-2 text-xs bg-accent px-1.5 py-0.5 rounded-full text-muted-foreground data-[state=active]:text-blue-400">
                                     {videos.length}
                                 </span>
@@ -390,7 +390,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                                 value="likes" 
                                 className="h-full rounded-none border-b-2 border-transparent px-6 data-[state=active]:border-blue-500 data-[state=active]:bg-transparent data-[state=active]:text-foreground text-muted-foreground font-medium transition-all"
                             >
-                                喜欢
+                                点赞
                                 <span className="ml-2 text-xs bg-accent px-1.5 py-0.5 rounded-full text-muted-foreground data-[state=active]:text-blue-400">
                                     {likedVideos.length}
                                 </span>
@@ -408,27 +408,17 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     </div>
 
                     <TabsContent value="videos" className="mt-0 space-y-6">
-                        {/* Filters (Mock) */}
-                        <div className="flex items-center justify-between text-sm text-muted-foreground px-1">
-                            <div className="flex items-center gap-4">
-                                <span className="text-foreground font-medium">全部</span>
-                                <span className="hover:text-foreground cursor-pointer transition-colors">视频</span>
-                                <span className="hover:text-foreground cursor-pointer transition-colors">图片</span>
-                            </div>
-                            <div className="flex items-center cursor-pointer hover:text-foreground transition-colors">
-                                按时间排序 <ChevronRight className="w-3 h-3 ml-1" />
-                            </div>
-                        </div>
-
                         {videos.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                            <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
                                 {videos.map((video) => (
-                                    <VideoCard 
-                                        key={video.id}
-                                        {...video}
-                                        author={profile.username}
-                                        user_avatar={profile.avatar_url}
-                                    />
+                                    <div key={video.id} className="break-inside-avoid">
+                                        <VideoCard 
+                                            {...video}
+                                            author={profile.full_name || profile.username}
+                                            user_avatar={profile.avatar_url}
+                                            aspectRatio="auto"
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         ) : (
@@ -444,12 +434,14 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 
                     <TabsContent value="likes" className="mt-0">
                         {likedVideos.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                            <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
                                 {likedVideos.map((video) => (
-                                    <VideoCard 
-                                        key={video.id}
-                                        {...video}
-                                    />
+                                    <div key={video.id} className="break-inside-avoid">
+                                        <VideoCard 
+                                            {...video}
+                                            aspectRatio="auto"
+                                        />
+                                    </div>
                                 ))}
                             </div>
                         ) : (
@@ -457,7 +449,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                                 <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
                                     <Heart className="w-8 h-8 text-muted-foreground" />
                                 </div>
-                                <h3 className="text-lg font-medium text-foreground mb-2">暂无喜欢内容</h3>
+                                <h3 className="text-lg font-medium text-foreground mb-2">暂无点赞内容</h3>
                                 <p className="text-muted-foreground">该创作者还没有标记喜欢的视频</p>
                             </div>
                         )}
