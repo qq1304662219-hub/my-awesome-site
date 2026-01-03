@@ -19,7 +19,6 @@ interface Creator {
     video_count: number
     follower_count: number
     views_count: number
-    is_online?: boolean
 }
 
 export function FeaturedCreators() {
@@ -53,8 +52,7 @@ export function FeaturedCreators() {
                         ...c,
                         video_count: videoCount,
                         follower_count: followerCount || 0,
-                        views_count: totalViews,
-                        is_online: Math.random() > 0.7 // Mock online status
+                        views_count: totalViews
                     }
                 }))
                 setCreators(creatorsWithStats)
@@ -126,9 +124,6 @@ export function FeaturedCreators() {
                                     <AvatarImage src={creator.avatar_url} />
                                     <AvatarFallback>{creator.full_name?.[0]}</AvatarFallback>
                                 </Avatar>
-                                {creator.is_online && (
-                                    <div className="absolute top-1 right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-card animate-pulse" title="在线"></div>
-                                )}
                             </Link>
 
                             {creator.is_verified && (

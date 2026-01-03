@@ -33,7 +33,6 @@ interface Creator {
     followers_count: number
     views_count: number
     recent_works?: any[]
-    is_online?: boolean
 }
 
 export default function CreatorsPage() {
@@ -114,9 +113,7 @@ export default function CreatorsPage() {
                     ...creator,
                     recent_works: recentWorks,
                     followers_count: count || 0,
-                    views_count: totalViews,
-                    // Mock online status (random for demo, ideally from presence)
-                    is_online: Math.random() > 0.7
+                    views_count: totalViews
                 }
             }))
 
@@ -248,9 +245,6 @@ export default function CreatorsPage() {
                                                             <AvatarImage src={creator.avatar_url} />
                                                             <AvatarFallback>{creator.username?.[0]?.toUpperCase()}</AvatarFallback>
                                                         </Avatar>
-                                                        {creator.is_online && (
-                                                            <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-card rounded-full" title="在线"></div>
-                                                        )}
                                                     </Link>
                                                     <div className="flex flex-col min-w-0">
                                                         <div className="flex items-center gap-1.5 mb-1">
