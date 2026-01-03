@@ -108,7 +108,7 @@ export default function AdminReportsPage() {
                 <TableRow key={report.id} className="border-border hover:bg-muted/50 transition-colors">
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      {report.video_id ? <Video className="w-4 h-4 text-primary" /> : <MessageSquare className="w-4 h-4 text-green-500" />}
+                      {report.video_id ? <Video className="w-4 h-4 text-primary" /> : <MessageSquare className="w-4 h-4 text-success" />}
                       <span className="capitalize text-foreground">{report.video_id ? '视频' : '评论'}</span>
                     </div>
                   </TableCell>
@@ -154,7 +154,7 @@ export default function AdminReportsPage() {
                             <Button 
                                 size="sm" 
                                 variant="ghost" 
-                                className="h-8 w-8 p-0 text-green-500 hover:bg-green-500/20"
+                                className="h-8 w-8 p-0 text-success hover:bg-success/20"
                                 title="标记为已解决"
                                 onClick={() => handleUpdateStatus(report.id, 'resolved')}
                             >

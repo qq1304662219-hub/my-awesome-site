@@ -60,13 +60,13 @@ const CommentItem = ({
           
           <div className="flex-1">
              <div className="flex items-center justify-between mb-1">
-                <Link href={`/profile/${comment.user_id}`} className="font-semibold text-sm hover:text-blue-500 transition-colors text-foreground">
+                <Link href={`/profile/${comment.user_id}`} className="font-semibold text-sm hover:text-primary transition-colors text-foreground">
                    {comment.profiles?.full_name || `User ${comment.user_id.slice(0, 6)}`}
                 </Link>
                 <span className="text-xs text-muted-foreground flex items-center gap-2">
                    {new Date(comment.created_at).toLocaleDateString()}
                    <button 
-                      className="hover:text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
+                      className="hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
                       onClick={() => {
                           setReplyingTo(isReplying ? null : comment.id);
                           setReplyContent("");
@@ -77,7 +77,7 @@ const CommentItem = ({
                       回复
                    </button>
                    <button 
-                      className="hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={() => onReport(comment.id)}
                       title="举报"
                    >

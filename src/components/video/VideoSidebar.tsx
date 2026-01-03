@@ -94,7 +94,7 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl }:
   return (
     <div className="space-y-6">
       {/* 1. Action Box (Download/Buy) */}
-      <div className="bg-card backdrop-blur-sm border border-border rounded-xl p-6 shadow-xl">
+      <div className="bg-card backdrop-blur-sm border border-border rounded-xl p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-card-foreground">获取素材</h3>
           <Badge variant="outline" className="border-blue-500/30 text-blue-600 dark:text-blue-400 bg-blue-500/10">

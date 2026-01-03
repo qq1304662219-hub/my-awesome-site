@@ -375,7 +375,7 @@ export default function AdminVideosPage() {
 
                         <div className="pt-6 mt-auto border-t border-border flex flex-col gap-3">
                             <Button 
-                                className="w-full bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-800"
+                                className="w-full bg-success hover:bg-success/90 text-success-foreground"
                                 onClick={() => selectedVideo && handleApprove(selectedVideo.id)}
                                 disabled={selectedVideo?.status === 'published'}
                             >

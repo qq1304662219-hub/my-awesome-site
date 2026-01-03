@@ -142,6 +142,9 @@ export function MaterialHeader() {
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem onClick={() => updateFilter("sort", "newest")}>最新发布</DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => updateFilter("sort", "popular")}>最多浏览</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => updateFilter("sort", "most_downloaded")}>最多下载</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => updateFilter("sort", "most_collected")}>最多收藏</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => updateFilter("sort", "most_liked")}>最多点赞</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>

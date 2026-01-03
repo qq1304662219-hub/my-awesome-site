@@ -169,14 +169,14 @@ export default function UsersPage() {
                   <TableCell>
                     <Badge variant="outline" className={`
                         ${user.role === 'super_admin' ? 'border-purple-500/50 text-purple-600 dark:text-purple-400 bg-purple-500/10' :
-                          user.role === 'admin' ? 'border-blue-500/50 text-blue-600 dark:text-blue-400 bg-blue-500/10' :
+                          user.role === 'admin' ? 'border-primary/50 text-primary bg-primary/10' :
                           'border-border text-muted-foreground bg-secondary'}
                     `}>
                         {user.role === 'super_admin' ? '超级管理员' : user.role === 'admin' ? '管理员' : '普通用户'}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <span className="font-mono text-green-600 dark:text-green-500">¥{(user.balance || 0).toFixed(2)}</span>
+                    <span className="font-mono text-success">¥{(user.balance || 0).toFixed(2)}</span>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
                     {new Date(user.created_at).toLocaleDateString()}

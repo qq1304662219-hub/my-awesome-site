@@ -240,18 +240,18 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
       </div>
       
       {/* Cinema Mode Player Section - High Impact Visual */}
-      <div className="w-full bg-black/95 border-b border-border relative pt-24 pb-12 shadow-2xl">
+      <div className="w-full bg-muted/20 border-b border-border relative pt-24 pb-12">
           {/* Subtle Background Glow */}
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
           
           <div className="container mx-auto px-4 relative z-10">
                <Breadcrumbs 
                     items={[
-                        { label: "探索", href: "/explore" },
-                        { label: video.category || "视频", href: `/explore?category=${video.category}` },
+                        { label: "素材", href: "/explore" },
+                        { label: video.category === 'Other' ? '其他' : (video.category || "视频"), href: `/explore?category=${video.category}` },
                         { label: video.title }
                     ]} 
-                    className="mb-6 opacity-70 hover:opacity-100 transition-opacity text-white"
+                    className="mb-6 opacity-70 hover:opacity-100 transition-opacity"
                 />
                <div className="max-w-6xl mx-auto shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden bg-black border border-white/10">
                     <VideoPlayer 
@@ -284,7 +284,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
 
             {/* AI Info Card */}
             {(video.prompt || video.ai_model || (video.tags && video.tags.length > 0)) && (
-                 <div className="bg-card rounded-xl p-6 border border-border shadow-lg relative overflow-hidden group">
+                 <div className="bg-card rounded-xl p-6 border border-border shadow-sm relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Check className="w-24 h-24 text-blue-500" />
                     </div>

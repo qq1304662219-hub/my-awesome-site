@@ -140,14 +140,14 @@ export default function AdminRequests() {
                       <h3 className="font-medium text-foreground truncate max-w-[300px]" title={request.title}>
                         {request.title}
                       </h3>
-                      <Badge variant={request.status === 'open' ? 'default' : 'secondary'} className={request.status === 'open' ? 'bg-green-500/10 text-green-500 hover:bg-green-500/20' : 'bg-muted text-muted-foreground'}>
+                      <Badge variant={request.status === 'open' ? 'default' : 'secondary'} className={request.status === 'open' ? 'bg-success/10 text-success hover:bg-success/20' : 'bg-muted text-muted-foreground'}>
                         {request.status === 'open' ? '进行中' : '已结束'}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span>{request.profiles?.full_name || 'Unknown'}</span>
                       <span>{new Date(request.created_at).toLocaleDateString()}</span>
-                      <span className="flex items-center gap-1 text-yellow-500">
+                      <span className="flex items-center gap-1 text-warning">
                         <Coins className="w-3 h-3" />
                         {request.budget}
                       </span>

@@ -70,10 +70,23 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
       }
 
       // Apply sorting
-      if (sort === 'popular') {
-        query = query.order('views', { ascending: false })
-      } else {
-        query = query.order('created_at', { ascending: false })
+      switch (sort) {
+        case 'popular':
+          query = query.order('views', { ascending: false })
+          break
+        case 'most_downloaded':
+          query = query.order('downloads', { ascending: false })
+          break
+        case 'most_collected':
+          query = query.order('collections_count', { ascending: false })
+          break
+        case 'most_liked':
+          query = query.order('likes', { ascending: false })
+          break
+        case 'newest':
+        default:
+          query = query.order('created_at', { ascending: false })
+          break
       }
 
       // Apply common filters and pagination

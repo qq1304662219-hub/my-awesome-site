@@ -128,7 +128,8 @@ export default function AdminPaymentsPage() {
                                   <div className="flex gap-2">
                                       <Button 
                                           size="sm" 
-                                          className="bg-green-600 hover:bg-green-700 text-white dark:bg-green-700 dark:hover:bg-green-800"
+                                          variant="outline"
+                                          className="border-green-600 text-green-600 hover:bg-green-50 hover:text-green-700 dark:border-green-500 dark:text-green-500 dark:hover:bg-green-950/30 dark:hover:text-green-400"
                                           onClick={() => handleApprove(tx.id, tx.user_id, tx.amount)}
                                       >
                                           <CheckCircle className="w-4 h-4 mr-1" /> 批准
