@@ -67,7 +67,7 @@ export default function RootLayout({
             </div>
             <FloatingToolbar />
           </AuthProvider>
-          <Toaster position="top-right" />
+          <Toaster position="top-center" richColors closeButton theme="system" />
         </ThemeProvider>
       </body>
     </html>

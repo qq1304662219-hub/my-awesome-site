@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
-import { ShoppingCart, HeadphonesIcon, Ticket, X, Send, ChevronRight, FileText, UploadCloud, AlertCircle } from "lucide-react"
+import { ShoppingCart, HeadphonesIcon, Ticket, X, Send, ChevronRight, FileText, UploadCloud, AlertCircle, ArrowUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
@@ -21,11 +21,23 @@ export function FloatingToolbar() {
     const [cartOpen, setCartOpen] = useState(false)
     const [serviceOpen, setServiceOpen] = useState(false)
     const [ticketOpen, setTicketOpen] = useState(false)
+    const [showScrollTop, setShowScrollTop] = useState(false)
 
     // Prevent hydration mismatch
     useEffect(() => {
         setIsMounted(true)
+
+        const handleScroll = () => {
+            setShowScrollTop(window.scrollY > 400)
+        }
+
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
     }, [])
+
+    const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
 
     if (!isMounted) return null
 
@@ -103,6 +115,23 @@ export function FloatingToolbar() {
                     <TicketDialogContent onClose={() => setTicketOpen(false)} />
                 </DialogContent>
             </Dialog>
+
+            {/* Scroll To Top */}
+            <div className={`transition-all duration-300 ${showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
+                <div className="group relative flex items-center justify-end">
+                    <Button 
+                        variant="secondary" 
+                        size="icon" 
+                        className="h-12 w-12 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/20 transition-transform group-hover:scale-110"
+                        onClick={scrollToTop}
+                    >
+                        <ArrowUp className="h-5 w-5" />
+                    </Button>
+                    <span className="absolute right-14 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                        回到顶部
+                    </span>
+                </div>
+            </div>
         </div>
     )
 }

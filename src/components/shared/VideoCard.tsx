@@ -58,6 +58,7 @@ export function VideoCard({
   const [addingToCart, setAddingToCart] = useState(false);
   const { user } = useAuthStore();
   const containerRef = useRef<HTMLDivElement>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
 
@@ -167,8 +168,22 @@ export function VideoCard({
     <div 
       ref={containerRef}
       className="group relative bg-card rounded-xl overflow-hidden border border-border hover:border-foreground/20 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
-      onMouseEnter={() => !isMobile && setIsHovered(true)}
-      onMouseLeave={() => !isMobile && setIsHovered(false)}
+      onMouseEnter={() => {
+        if (!isMobile) {
+            hoverTimeoutRef.current = setTimeout(() => {
+                setIsHovered(true);
+            }, 300); // 300ms delay
+        }
+      }}
+      onMouseLeave={() => {
+        if (!isMobile) {
+            if (hoverTimeoutRef.current) {
+                clearTimeout(hoverTimeoutRef.current);
+                hoverTimeoutRef.current = null;
+            }
+            setIsHovered(false);
+        }
+      }}
     >
       {/* Thumbnail Area */}
       <div className="aspect-video relative overflow-hidden bg-muted">
