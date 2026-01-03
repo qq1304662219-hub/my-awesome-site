@@ -67,7 +67,7 @@ export async function deleteVideoWithStorage(
  * Extracts the file path from a Supabase Storage public URL.
  * Assumes URL format contains /bucketName/
  */
-function extractPathFromUrl(url: string, bucketName: string): string | null {
+export function extractPathFromUrl(url: string, bucketName: string): string | null {
   try {
     // Decode URL to handle spaces/special chars
     const decodedUrl = decodeURIComponent(url)

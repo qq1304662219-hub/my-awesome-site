@@ -30,19 +30,36 @@ interface VideoSidebarProps {
   authorProfile: any
   currentUser: any
   downloadUrl?: string
+  hasPurchased?: boolean
 }
 
-export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl }: VideoSidebarProps) {
+export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl, hasPurchased = false }: VideoSidebarProps) {
   const [selectedLicense, setSelectedLicense] = useState<'personal' | 'commercial'>('personal')
   const { user } = useAuthStore()
   const router = useRouter()
   const [downloading, setDownloading] = useState(false)
+  
+  const isOwner = user?.id === video.user_id
+  const canDownload = isOwner || hasPurchased || !video.price || video.price === 0;
 
   const handleDownloadClick = async () => {
     if (!user) {
         toast.error("请先登录")
         router.push('/auth?tab=login')
         return
+    }
+
+    // Redirect to checkout if paid video and not purchased
+    if (!canDownload) {
+        const params = new URLSearchParams({
+            videoId: video.id,
+            title: video.title || 'Untitled Video',
+            thumbnail: video.thumbnail_url || '',
+            price: video.price.toString(),
+            license: selectedLicense
+        });
+        router.push(`/checkout?${params.toString()}`);
+        return;
     }
 
     setDownloading(true)
@@ -71,16 +88,15 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl }:
             });
         }
 
-        // 4. Trigger Download
+        // 4. Trigger Secure Download
         const link = document.createElement('a');
-        link.href = downloadUrl || video.url;
-        link.download = video.title || 'video.mp4';
-        link.target = '_blank';
+        link.href = `/api/download?id=${video.id}`;
+        link.download = '';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         
-        toast.success("开始下载");
+        toast.success("正在打包下载，请稍候...");
     } catch (error) {
         console.error("Download error:", error);
         toast.error("下载失败，请稍后重试");
@@ -88,8 +104,6 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl }:
         setDownloading(false)
     }
   }
-
-  const isOwner = user?.id === video.user_id
 
   return (
     <div className="space-y-6">
@@ -103,7 +117,7 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl }:
         </div>
 
         {/* License Selection if price > 0 */}
-        {video.price > 0 && !isOwner && (
+        {video.price > 0 && !canDownload && (
              <div className="mb-6">
                 <LicenseSelector 
                     videoId={video.id}
@@ -130,7 +144,7 @@ export function VideoSidebar({ video, authorProfile, currentUser, downloadUrl }:
             ) : (
                 <>
                     <Download className="mr-2 h-5 w-5" />
-                    {isOwner ? '下载源文件' : (video.price > 0 ? '购买并下载' : '立即下载')}
+                    {canDownload ? (isOwner ? '下载源文件' : '立即下载') : '购买并下载'}
                 </>
             )}
         </Button>

@@ -108,7 +108,7 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
       }
       if (filters.resolution) {
         if (filters.resolution === '720p_low') {
-          query = query.in('resolution', ['720p', '480p', '360p'])
+          query = query.in('resolution', ['720p', '480p', '360p', '720p_low'])
         } else {
           query = query.eq('resolution', filters.resolution)
         }
@@ -117,24 +117,12 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
         query = query.eq('movement', filters.movement)
       }
       if (filters.fps) {
-        if (filters.fps === 'under_24') {
-          query = query.lt('fps', 24)
-        } else if (filters.fps === 'over_60') {
-          query = query.gte('fps', 60)
-        } else {
-          query = query.eq('fps', parseInt(filters.fps))
-        }
+        // Use the explicit fps_range column which matches the Edit page
+        query = query.eq('fps_range', filters.fps)
       }
       if (filters.duration) {
-        if (filters.duration === 'under_3s') {
-          query = query.lt('duration', 3)
-        } else if (filters.duration === '3_5s') {
-          query = query.gte('duration', 3).lte('duration', 5)
-        } else if (filters.duration === '5_10s') {
-          query = query.gte('duration', 5).lte('duration', 10)
-        } else if (filters.duration === 'over_10s') {
-          query = query.gt('duration', 10)
-        }
+        // Use the explicit duration_range column which matches the Edit page
+        query = query.eq('duration_range', filters.duration)
       }
 
       const { data, error } = await query

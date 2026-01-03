@@ -12,14 +12,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Search, Edit, Trash2, Plus, Filter, MoreHorizontal, Eye, Download, Copy, CheckCircle, AlertCircle, XCircle } from 'lucide-react'
-import Link from 'next/link'
-import { toast } from 'sonner'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Badge } from "@/components/ui/badge"
-import { EmptyState } from "@/components/shared/EmptyState"
-import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,26 +27,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
+import { Label } from "@/components/ui/label"
+import { Search, Edit, Trash2, Plus, Filter, MoreHorizontal, Eye, Download, Copy, CheckCircle, AlertCircle, XCircle } from 'lucide-react'
+import Link from 'next/link'
+import { toast } from 'sonner'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Badge } from "@/components/ui/badge"
+import { EmptyState } from "@/components/shared/EmptyState"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Video } from '@/types/video'
-
-const SCENARIOS = [
-  { value: "Live", label: "直播背景" },
-  { value: "Commerce", label: "电商短视频" },
-  { value: "Game", label: "游戏/CG" },
-  { value: "Wallpaper", label: "动态壁纸" },
-  { value: "Other", label: "其他" }
-]
-
-const AI_MODELS = [
-  { value: "Sora", label: "Sora" },
-  { value: "Runway Gen-2", label: "Runway Gen-2" },
-  { value: "Pika Labs", label: "Pika Labs" },
-  { value: "Stable Video Diffusion", label: "Stable Video Diffusion" },
-  { value: "Midjourney", label: "Midjourney" },
-  { value: "DALL-E 3", label: "DALL-E 3" },
-  { value: "Other", label: "其他" }
-]
+import {
+  CATEGORIES as CONTENT_SUBJECTS,
+  STYLES as VISUAL_STYLES,
+  AI_MODELS,
+  MOVEMENTS as LENS_LANGUAGES,
+  RATIOS,
+  RESOLUTIONS as QUALITIES,
+  DURATIONS,
+  FPS_OPTIONS
+} from "@/lib/constants"
 
 export default function MyVideos() {
   const [videos, setVideos] = useState<Video[]>([])
@@ -62,8 +60,16 @@ export default function MyVideos() {
   const [editPrice, setEditPrice] = useState('0')
   const [editDescription, setEditDescription] = useState('')
   const [editTags, setEditTags] = useState('')
-  const [editCategory, setEditCategory] = useState('')
-  const [editAiModel, setEditAiModel] = useState('')
+  
+  // New 8 classification dimensions
+  const [editStyle, setEditStyle] = useState('') // Visual Style
+  const [editCategory, setEditCategory] = useState('') // Content Subject
+  const [editAiModel, setEditAiModel] = useState('') // AI Model
+  const [editMovement, setEditMovement] = useState('') // Lens Language (Movement)
+  const [editRatio, setEditRatio] = useState('') // Ratio
+  const [editResolution, setEditResolution] = useState('') // Quality (Resolution)
+  const [editDurationRange, setEditDurationRange] = useState('') // Duration Range
+  const [editFpsRange, setEditFpsRange] = useState('') // Frame Rate Range
   const [editPrompt, setEditPrompt] = useState('')
 
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -107,8 +113,18 @@ export default function MyVideos() {
     setEditPrice(video.price?.toString() || '0')
     setEditDescription(video.description || '')
     setEditTags(video.tags?.join(', ') || '')
-    setEditCategory(video.category || 'Other')
-    setEditAiModel(video.ai_model || 'Other')
+    
+    // Map existing fields or use defaults
+    setEditStyle(video.style || '')
+    setEditCategory(video.category || '') // This is now Content Subject
+    setEditAiModel(video.ai_model || '')
+    // For new fields that might not exist in old records, default to empty
+    setEditMovement(video.movement || '') 
+    setEditRatio(video.ratio || '')
+    setEditResolution(video.resolution || '')
+    setEditDurationRange(video.duration_range || '')
+    setEditFpsRange(video.fps_range || '')
+    
     setEditPrompt(video.prompt || '')
     setIsEditOpen(true)
   }
@@ -118,17 +134,26 @@ export default function MyVideos() {
 
     const tagsArray = editTags.split(/[,，]/).map(t => t.trim()).filter(Boolean)
 
-    const { error } = await supabase
-      .from('videos')
-      .update({ 
+    const updateData = { 
         title: editTitle,
         price: parseFloat(editPrice),
         description: editDescription,
         tags: tagsArray,
+        style: editStyle,
         category: editCategory,
         ai_model: editAiModel,
-        prompt: editPrompt
-      })
+        prompt: editPrompt,
+        // New fields to be saved to DB
+        ratio: editRatio,
+        resolution: editResolution,
+        movement: editMovement,
+        duration_range: editDurationRange,
+        fps_range: editFpsRange,
+    }
+
+    const { error } = await supabase
+      .from('videos')
+      .update(updateData)
       .eq('id', editingVideo.id)
 
     if (error) {
@@ -137,13 +162,8 @@ export default function MyVideos() {
       toast.success('作品已更新')
       setVideos(videos.map(v => v.id === editingVideo.id ? { 
         ...v, 
-        title: editTitle, 
-        price: parseFloat(editPrice),
-        description: editDescription,
-        tags: tagsArray,
-        category: editCategory,
-        ai_model: editAiModel,
-        prompt: editPrompt
+        ...updateData,
+        // Ensure type compatibility if needed
       } : v))
       setIsEditOpen(false)
     }
@@ -369,7 +389,7 @@ export default function MyVideos() {
             </DialogHeader>
             <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
-                    <Label htmlFor="title" className="text-foreground">标题</Label>
+                    <Label htmlFor="title" className="text-foreground">标题 <span className="text-red-500">*</span></Label>
                     <Input
                         id="title"
                         value={editTitle}
@@ -386,63 +406,178 @@ export default function MyVideos() {
                         className="bg-background border-input text-foreground min-h-[100px] focus:border-primary/50"
                     />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                        <Label htmlFor="price" className="text-foreground">价格 (元)</Label>
-                        <Input
-                            id="price"
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={editPrice}
-                            onChange={(e) => setEditPrice(e.target.value)}
-                            className="bg-background border-input text-foreground focus:border-primary/50"
-                        />
-                    </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="category" className="text-foreground">分类</Label>
-                        <select
-                            id="category"
-                            value={editCategory}
-                            onChange={(e) => setEditCategory(e.target.value)}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                            {SCENARIOS.map(s => (
-                                <option key={s.value} value={s.value}>{s.label}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="tags" className="text-foreground">标签 (逗号分隔)</Label>
-                    <Input
-                        id="tags"
-                        value={editTags}
-                        onChange={(e) => setEditTags(e.target.value)}
-                        placeholder="例如: 风景, 4K, 自然"
-                        className="bg-background border-input text-foreground focus:border-primary/50"
-                    />
-                </div>
-                <div className="grid gap-2">
-                    <Label htmlFor="ai_model" className="text-foreground">AI 模型</Label>
-                    <select
-                        id="ai_model"
-                        value={editAiModel}
-                        onChange={(e) => setEditAiModel(e.target.value)}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                        {AI_MODELS.map(m => (
-                            <option key={m.value} value={m.value}>{m.label}</option>
-                        ))}
-                    </select>
-                </div>
+                
                 <div className="grid gap-2">
                     <Label htmlFor="prompt" className="text-foreground">Prompt (提示词)</Label>
                     <Textarea
                         id="prompt"
                         value={editPrompt}
                         onChange={(e) => setEditPrompt(e.target.value)}
+                        placeholder="生成该视频使用的提示词..."
                         className="bg-background border-input text-foreground min-h-[80px] focus:border-primary/50"
+                    />
+                </div>
+
+                {/* Video Classification Attributes */}
+                <div className="space-y-4 border rounded-lg p-4 bg-muted/20">
+                    <Label className="text-sm font-semibold text-foreground mb-2 block">视频分类属性 (必填)</Label>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Content Subject */}
+                        <div className="space-y-2">
+                            <Label className="text-muted-foreground text-xs">内容题材</Label>
+                            <Select value={editCategory} onValueChange={setEditCategory}>
+                                <SelectTrigger className="bg-background border-input text-foreground">
+                                    <SelectValue placeholder="选择题材" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border-border text-popover-foreground">
+                                    {CONTENT_SUBJECTS.map(s => (
+                                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Visual Style */}
+                        <div className="space-y-2">
+                            <Label className="text-muted-foreground text-xs">视觉风格</Label>
+                            <Select value={editStyle} onValueChange={setEditStyle}>
+                                <SelectTrigger className="bg-background border-input text-foreground">
+                                    <SelectValue placeholder="选择风格" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border-border text-popover-foreground">
+                                    {VISUAL_STYLES.map(s => (
+                                        <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* AI Model */}
+                        <div className="space-y-2">
+                            <Label className="text-muted-foreground text-xs">AI 模型</Label>
+                            <Select value={editAiModel} onValueChange={setEditAiModel}>
+                                <SelectTrigger className="bg-background border-input text-foreground">
+                                    <SelectValue placeholder="选择模型" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border-border text-popover-foreground">
+                                    {AI_MODELS.map(m => (
+                                        <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Lens Language */}
+                        <div className="space-y-2">
+                            <Label className="text-muted-foreground text-xs">镜头语言</Label>
+                            <Select value={editMovement} onValueChange={setEditMovement}>
+                                <SelectTrigger className="bg-background border-input text-foreground">
+                                    <SelectValue placeholder="选择镜头" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border-border text-popover-foreground">
+                                    {LENS_LANGUAGES.map(l => (
+                                        <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Quality/Resolution */}
+                        <div className="space-y-2">
+                            <Label className="text-muted-foreground text-xs flex items-center gap-1">
+                                画质/分辨率
+                                <Badge variant="outline" className="text-[10px] h-4 px-1 border-blue-200 text-blue-500">自动识别</Badge>
+                            </Label>
+                            <Select value={editResolution} onValueChange={setEditResolution} disabled>
+                                <SelectTrigger className="bg-muted border-input text-foreground opacity-100">
+                                    <SelectValue placeholder="选择画质" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border-border text-popover-foreground">
+                                    {QUALITIES.map(q => (
+                                        <SelectItem key={q.value} value={q.value}>{q.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Ratio */}
+                        <div className="space-y-2">
+                            <Label className="text-muted-foreground text-xs flex items-center gap-1">
+                                比例
+                                <Badge variant="outline" className="text-[10px] h-4 px-1 border-blue-200 text-blue-500">自动识别</Badge>
+                            </Label>
+                            <Select value={editRatio} onValueChange={setEditRatio} disabled>
+                                <SelectTrigger className="bg-muted border-input text-foreground opacity-100">
+                                    <SelectValue placeholder="选择比例" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border-border text-popover-foreground">
+                                    {RATIOS.map(r => (
+                                        <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Duration */}
+                        <div className="space-y-2">
+                            <Label className="text-muted-foreground text-xs flex items-center gap-1">
+                                时长
+                                <Badge variant="outline" className="text-[10px] h-4 px-1 border-blue-200 text-blue-500">自动识别</Badge>
+                            </Label>
+                            <Select value={editDurationRange} onValueChange={setEditDurationRange} disabled>
+                                <SelectTrigger className="bg-muted border-input text-foreground opacity-100">
+                                    <SelectValue placeholder="选择时长" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border-border text-popover-foreground">
+                                    {DURATIONS.map(d => (
+                                        <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Frame Rate */}
+                        <div className="space-y-2">
+                            <Label className="text-muted-foreground text-xs flex items-center gap-1">
+                                帧率
+                                <span className="text-[10px] text-muted-foreground">(请手动选择)</span>
+                            </Label>
+                            <Select value={editFpsRange} onValueChange={setEditFpsRange}>
+                                <SelectTrigger className="bg-background border-input text-foreground">
+                                    <SelectValue placeholder="选择帧率" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border-border text-popover-foreground">
+                                    {FPS_OPTIONS.map(f => (
+                                        <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid gap-2">
+                    <Label htmlFor="price" className="text-foreground">价格 (A币)</Label>
+                    <Input
+                        id="price"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={editPrice}
+                        onChange={(e) => setEditPrice(e.target.value)}
+                        className="bg-background border-input text-foreground focus:border-primary/50"
+                    />
+                </div>
+
+                <div className="grid gap-2">
+                    <Label htmlFor="tags" className="text-foreground">标签 (输入后逗号分隔)</Label>
+                    <Input
+                        id="tags"
+                        value={editTags}
+                        onChange={(e) => setEditTags(e.target.value)}
+                        placeholder="例如: 4K, 自然, 延时摄影"
+                        className="bg-background border-input text-foreground focus:border-primary/50"
                     />
                 </div>
             </div>

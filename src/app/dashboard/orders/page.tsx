@@ -239,12 +239,10 @@ export default function OrdersPage() {
                               <div className="text-foreground font-medium">¥{item.price}</div>
                               {item.video?.url ? (
                                 <a 
-                                  href={item.video.url} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer" 
+                                  href={`/api/download?id=${item.video.id}`}
                                   className="text-xs text-primary hover:text-primary/80 flex items-center justify-end gap-1 hover:underline"
                                 >
-                                  <Download className="w-3 h-3" /> 下载
+                                  <Download className="w-3 h-3" /> 打包下载
                                 </a>
                               ) : (
                                 <span className="text-xs text-muted-foreground flex items-center justify-end gap-1">

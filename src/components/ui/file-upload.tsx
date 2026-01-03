@@ -81,19 +81,28 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
     if (width && height) {
         // Auto-detect ratio
         const r = width / height
-        // Find closest ratio
-        if (Math.abs(r - 16/9) < 0.1) setRatio("16:9")
-        else if (Math.abs(r - 9/16) < 0.1) setRatio("9:16")
+        // Find closest ratio with tighter tolerances
+        if (Math.abs(r - 16/9) < 0.15) setRatio("16:9")
+        else if (Math.abs(r - 9/16) < 0.15) setRatio("9:16")
         else if (Math.abs(r - 1) < 0.1) setRatio("1:1")
-        else if (Math.abs(r - 21/9) < 0.1) setRatio("21:9")
-        else if (Math.abs(r - 4/3) < 0.1) setRatio("4:3")
-        else setRatio("16:9") // Default fallback
+        else if (Math.abs(r - 21/9) < 0.15) setRatio("21:9")
+        else if (Math.abs(r - 4/3) < 0.15) setRatio("4:3")
+        else {
+            // Fallback based on orientation
+            if (width > height) setRatio("16:9")
+            else if (height > width) setRatio("9:16")
+            else setRatio("1:1")
+        }
         
-        // Auto-detect resolution tag
-        if (width >= 7680 || height >= 7680) setResolution("8k")
-        else if (width >= 3840 || height >= 3840) setResolution("4k")
-        else if (width >= 2560 || height >= 1440) setResolution("2k")
-        else if (width >= 1920 || height >= 1080) setResolution("1080p")
+        // Auto-detect resolution tag based on the shorter side (standard definition)
+        const minDim = Math.min(width, height)
+        const maxDim = Math.max(width, height)
+        
+        // Logic: 8K (~4320p), 4K (~2160p), 2K (~1440p), 1080p, 720p
+        if (minDim >= 4320 || maxDim >= 7680) setResolution("8k")
+        else if (minDim >= 2160 || maxDim >= 3840) setResolution("4k")
+        else if (minDim >= 1440 || maxDim >= 2560) setResolution("2k")
+        else if (minDim >= 1080 || maxDim >= 1920) setResolution("1080p")
         else setResolution("720p_low")
         
         videoRef.current!.dataset.width = width.toString()
@@ -289,10 +298,12 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           style,
           ratio,
           duration: durationSec,
+          duration_range: durationTag,
           ai_model: aiModel,
           movement, // New field
           prompt,
           resolution, // Storing the tag string (e.g. '1080p') matches VideoGrid filter
+          fps_range: fpsTag,
           width: videoRef.current?.dataset.width ? parseInt(videoRef.current.dataset.width) : null,
           height: videoRef.current?.dataset.height ? parseInt(videoRef.current.dataset.height) : null,
           size: file.size,
@@ -521,18 +532,24 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-muted-foreground text-xs">画质/分辨率</Label>
-                                    <Select value={resolution} onValueChange={setResolution}>
-                                        <SelectTrigger className="bg-background border-input text-foreground"><SelectValue placeholder="选择分辨率" /></SelectTrigger>
+                                    <Label className="text-muted-foreground text-xs flex items-center gap-1">
+                                        画质/分辨率
+                                        <Badge variant="outline" className="text-[10px] h-4 px-1 border-blue-200 text-blue-500">自动识别</Badge>
+                                    </Label>
+                                    <Select value={resolution} onValueChange={setResolution} disabled>
+                                        <SelectTrigger className="bg-muted border-input text-foreground opacity-100"><SelectValue placeholder="自动识别中..." /></SelectTrigger>
                                         <SelectContent className="bg-popover border-border text-popover-foreground">
                                             {RESOLUTIONS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-muted-foreground text-xs">比例</Label>
-                                    <Select value={ratio} onValueChange={setRatio}>
-                                        <SelectTrigger className="bg-background border-input text-foreground"><SelectValue placeholder="选择比例" /></SelectTrigger>
+                                    <Label className="text-muted-foreground text-xs flex items-center gap-1">
+                                        比例
+                                        <Badge variant="outline" className="text-[10px] h-4 px-1 border-blue-200 text-blue-500">自动识别</Badge>
+                                    </Label>
+                                    <Select value={ratio} onValueChange={setRatio} disabled>
+                                        <SelectTrigger className="bg-muted border-input text-foreground opacity-100"><SelectValue placeholder="自动识别中..." /></SelectTrigger>
                                         <SelectContent className="bg-popover border-border text-popover-foreground">
                                             {RATIOS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
                                         </SelectContent>
@@ -542,16 +559,22 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-muted-foreground text-xs">时长</Label>
-                                    <Select value={durationTag} onValueChange={setDurationTag}>
-                                        <SelectTrigger className="bg-background border-input text-foreground"><SelectValue placeholder="选择时长" /></SelectTrigger>
+                                    <Label className="text-muted-foreground text-xs flex items-center gap-1">
+                                        时长
+                                        <Badge variant="outline" className="text-[10px] h-4 px-1 border-blue-200 text-blue-500">自动识别</Badge>
+                                    </Label>
+                                    <Select value={durationTag} onValueChange={setDurationTag} disabled>
+                                        <SelectTrigger className="bg-muted border-input text-foreground opacity-100"><SelectValue placeholder="自动识别中..." /></SelectTrigger>
                                         <SelectContent className="bg-popover border-border text-popover-foreground">
                                             {DURATIONS.map(i => <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>)}
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-muted-foreground text-xs">帧率</Label>
+                                    <Label className="text-muted-foreground text-xs flex items-center gap-1">
+                                        帧率
+                                        <span className="text-[10px] text-muted-foreground">(请手动选择)</span>
+                                    </Label>
                                     <Select value={fpsTag} onValueChange={setFpsTag}>
                                         <SelectTrigger className="bg-background border-input text-foreground"><SelectValue placeholder="选择帧率" /></SelectTrigger>
                                         <SelectContent className="bg-popover border-border text-popover-foreground">

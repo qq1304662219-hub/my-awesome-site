@@ -4,6 +4,7 @@ import { useState, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Navbar } from "@/components/landing/Navbar"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Loader2, QrCode } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
@@ -18,6 +19,8 @@ function RechargeContent() {
   const [selectedAmount, setSelectedAmount] = useState(100)
   const [loading, setLoading] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<'wechat' | 'alipay'>('wechat')
+  const [isCustom, setIsCustom] = useState(false)
+  const [customAmount, setCustomAmount] = useState('')
 
   const amounts = [50, 100, 200, 500, 1000, 2000, 5000, 10000]
 
@@ -25,6 +28,11 @@ function RechargeContent() {
     if (!user) {
         toast.error("请先登录")
         router.push("/auth?tab=login")
+        return
+    }
+
+    if (selectedAmount <= 0) {
+        toast.error("请输入有效的充值金额")
         return
     }
 
@@ -77,22 +85,52 @@ function RechargeContent() {
                         {amounts.map((amount) => (
                             <div 
                                 key={amount}
-                                onClick={() => setSelectedAmount(amount)}
+                                onClick={() => {
+                                    setIsCustom(false)
+                                    setSelectedAmount(amount)
+                                }}
                                 className={`
                                     relative p-4 rounded-xl border text-center cursor-pointer transition-all
-                                    ${selectedAmount === amount 
+                                    ${!isCustom && selectedAmount === amount 
                                         ? 'border-primary bg-primary/10 text-primary' 
                                         : 'border-border bg-card text-muted-foreground hover:bg-muted/50'}
                                 `}
                             >
                                 <span className="text-lg font-bold">¥{amount}</span>
-                                {amount >= 1000 && (
-                                    <span className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-[10px] px-2 py-0.5 rounded-full">
-                                        赠{(amount * 0.1).toFixed(0)}
-                                    </span>
-                                )}
                             </div>
                         ))}
+                        <div 
+                            onClick={() => {
+                                setIsCustom(true)
+                                setSelectedAmount(Number(customAmount) || 0)
+                            }}
+                            className={`
+                                relative p-4 rounded-xl border text-center cursor-pointer transition-all flex items-center justify-center
+                                ${isCustom 
+                                    ? 'border-primary bg-primary/10 text-primary' 
+                                    : 'border-border bg-card text-muted-foreground hover:bg-muted/50'}
+                            `}
+                        >
+                            {isCustom ? (
+                                <div className="flex items-center justify-center w-full">
+                                    <span className="text-lg font-bold mr-1">¥</span>
+                                    <Input 
+                                        type="number" 
+                                        value={customAmount}
+                                        onChange={(e) => {
+                                            const val = e.target.value
+                                            setCustomAmount(val)
+                                            setSelectedAmount(Number(val) || 0)
+                                        }}
+                                        className="h-8 w-20 px-1 text-center bg-transparent border-none focus-visible:ring-0 text-lg font-bold p-0 shadow-none"
+                                        placeholder="0"
+                                        autoFocus
+                                    />
+                                </div>
+                            ) : (
+                                <span className="text-lg font-bold">自定义</span>
+                            )}
+                        </div>
                     </div>
 
                     <div className="bg-muted/50 rounded-xl p-6 border border-border">
@@ -134,7 +172,7 @@ function RechargeContent() {
                         <div className="w-48 h-48 bg-muted/50 border-2 border-border rounded-xl p-2 shadow-inner flex items-center justify-center overflow-hidden">
                              {/* QR Code Image - Always white bg for scanning safety */}
                              <img 
-                                src={paymentMethod === 'wechat' ? '/images/wechat-pay.jpg' : '/images/alipay-pay.jpg'} 
+                                src={paymentMethod === 'wechat' ? '/images/wechat-pay.jpg?v=2' : '/images/alipay-pay.jpg?v=2'} 
                                 alt={paymentMethod === 'wechat' ? 'WeChat Pay' : 'Alipay'}
                                 className="w-full h-full object-contain"
                                 onError={(e) => {

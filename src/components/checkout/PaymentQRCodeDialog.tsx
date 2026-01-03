@@ -99,7 +99,7 @@ export function PaymentQRCodeDialog({ amount, userId, onSuccess, trigger }: Paym
             {/* QR Code */}
             <div className="w-48 h-48 bg-muted/50 p-2 rounded-lg flex items-center justify-center relative overflow-hidden">
                 <Image 
-                    src={paymentMethod === 'wechat' ? '/images/wechat-pay.jpg' : '/images/alipay-pay.jpg'} 
+                    src={paymentMethod === 'wechat' ? '/images/wechat-pay.jpg?v=2' : '/images/alipay-pay.jpg?v=2'} 
                     alt={paymentMethod === 'wechat' ? 'WeChat Pay' : 'Alipay'}
                     width={200}
                     height={200}

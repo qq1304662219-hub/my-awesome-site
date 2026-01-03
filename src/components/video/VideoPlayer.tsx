@@ -233,6 +233,8 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
         poster={poster}
         className="w-full h-full object-contain cursor-pointer"
         onClick={togglePlay}
+        onContextMenu={(e) => e.preventDefault()} // Disable right click
+        controlsList="nodownload" // Chrome attribute to hide download button
       />
 
       {/* Error Overlay */}

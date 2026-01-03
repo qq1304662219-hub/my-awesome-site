@@ -30,6 +30,8 @@ export interface Video {
   resolution?: string;
   fps?: number;
   movement?: string;
+  duration_range?: string;
+  fps_range?: string;
   format?: string;
   size?: number;
 }

@@ -22,10 +22,12 @@ interface VideoInteractionsProps {
   downloadUrl?: string;
   authorId?: string;
   authorName?: string;
+  price?: number;
+  hasPurchased?: boolean;
   children?: React.ReactNode;
 }
 
-export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl, videoTitle, downloadUrl, authorId, authorName = "作者", children }: VideoInteractionsProps) {
+export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl, videoTitle, downloadUrl, authorId, authorName = "作者", price = 0, hasPurchased = false, children }: VideoInteractionsProps) {
   const router = useRouter();
   const { user, isLoading } = useAuthStore();
   const effectiveUser = user || currentUser;
@@ -36,6 +38,9 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
   const [isTipModalOpen, setIsTipModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   
+  const isOwner = effectiveUser?.id === authorId;
+  const canDownload = isOwner || hasPurchased || !price || price === 0;
+
   useEffect(() => {
     checkLikeStatus();
   }, [videoId, effectiveUser]);
@@ -106,34 +111,95 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
   };
 
   const handleDownload = async () => {
-    try {
-        // 1. Increment counter
-        await supabase.rpc('increment_downloads', { video_id: videoId });
+    if (!effectiveUser) {
+      toast.error("请先登录")
+      router.push("/auth")
+      return
+    }
 
-        // 2. Record history if logged in
-        if (effectiveUser) {
-            const { error } = await supabase.from('user_downloads').insert({
-                user_id: effectiveUser.id,
-                video_id: videoId
+    if (!canDownload) {
+      // Handle purchase flow
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+         toast.error("请先登录");
+         router.push("/auth");
+         return;
+      }
+
+      try {
+        // Create pending order
+        const { data: order, error } = await supabase
+            .from('orders')
+            .insert({
+                user_id: user.id,
+                total_amount: price,
+                status: 'pending'
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        // Create order item
+        const { error: itemError } = await supabase
+            .from('order_items')
+            .insert({
+                order_id: order.id,
+                video_id: videoId,
+                price: price
             });
-            if (error) console.error("Error recording download history:", error);
 
-            // Notification for Download
-            if (authorId && effectiveUser.id !== authorId) {
-                await supabase.from("notifications").insert({
-                    user_id: authorId,
-                    actor_id: effectiveUser.id,
-                    type: "system",
-                    resource_id: videoId,
-                    resource_type: "video",
-                    content: `下载了你的视频${videoTitle ? `: ${videoTitle}` : ''}`,
-                    is_read: false
-                });
-            }
-        }
+        if (itemError) throw itemError;
+
+        router.push(`/checkout?orderId=${order.id}`);
+      } catch (error) {
+        console.error('Error creating order:', error);
+        toast.error('创建订单失败');
+      }
+      return
+    }
+
+    // Secure Download via API (Zipped)
+    try {
+      toast.success("正在打包下载，请稍候...")
+      const downloadLink = `/api/download?id=${videoId}`
+      
+      // Use a hidden link to trigger download
+      const link = document.createElement('a')
+      link.href = downloadLink
+      link.download = '' // Browser will use Content-Disposition filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      
+      // Track download count
+      await supabase.rpc('increment_downloads', { video_id: videoId })
+
+      // Record history if logged in
+      if (effectiveUser) {
+          const { error } = await supabase.from('user_downloads').insert({
+              user_id: effectiveUser.id,
+              video_id: videoId
+          });
+          if (error) console.error("Error recording download history:", error);
+
+          // Notification for Download
+          if (authorId && effectiveUser.id !== authorId) {
+              await supabase.from("notifications").insert({
+                  user_id: authorId,
+                  actor_id: effectiveUser.id,
+                  type: "system",
+                  resource_id: videoId,
+                  resource_type: "video",
+                  content: `下载了你的视频${videoTitle ? `: ${videoTitle}` : ''}`,
+                  is_read: false
+              });
+          }
+      }
+      
     } catch (error) {
-      console.error("Error incrementing downloads:", error);
-      toast.error("下载统计失败");
+      console.error("Download failed", error)
+      toast.error("下载请求失败")
     }
   };
 
@@ -156,12 +222,14 @@ export function VideoInteractions({ videoId, initialLikes, currentUser, videoUrl
 
           <SocialShare url={typeof window !== 'undefined' ? window.location.href : videoUrl} title={videoTitle} />
           
-          <a href={downloadUrl || videoUrl} download target="_blank" rel="noopener noreferrer" onClick={handleDownload}>
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isLoading}>
-          <Download className="h-4 w-4 mr-2" />
-          下载
-        </Button>
-          </a>
+          <Button 
+            className="bg-primary hover:bg-primary/90 text-primary-foreground" 
+            disabled={isLoading}
+            onClick={handleDownload}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            {canDownload ? '下载' : '购买'}
+          </Button>
           
           <Button 
           className="bg-yellow-500 hover:bg-yellow-600 text-white dark:bg-yellow-600 dark:hover:bg-yellow-700 border-0"

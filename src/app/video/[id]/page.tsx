@@ -110,6 +110,26 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
   // 4. Fetch Current User
   const { data: { user } } = await supabase.auth.getUser();
 
+  // 4.1 Check Purchase Status
+  let hasPurchased = false;
+  if (user) {
+    if (user.id === video.user_id) {
+        hasPurchased = true;
+    } else {
+        // Check if user has purchased this video via orders
+        const { data: purchase } = await supabase
+            .from('order_items')
+            .select('orders!inner(user_id, status)')
+            .eq('video_id', id)
+            .eq('orders.user_id', user.id)
+            .eq('orders.status', 'completed')
+            .limit(1)
+            .maybeSingle();
+        
+        if (purchase) hasPurchased = true;
+    }
+  }
+
   // 5. Generate Signed URL (Security)
   let videoUrl = video.url;
   const storagePath = getStoragePathFromUrl(video.url);
@@ -343,6 +363,8 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                 downloadUrl={videoUrl} // Use signed URL for download as well
                 authorId={video.user_id}
                 authorName={authorProfile?.full_name || authorProfile?.username}
+                price={video.price || 0}
+                hasPurchased={hasPurchased}
             >
                 <Separator className="bg-border my-8" />
                 
@@ -372,6 +394,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                     authorProfile={authorProfile} 
                     currentUser={user}
                     downloadUrl={videoUrl}
+                    hasPurchased={hasPurchased}
                 />
 
                 {/* Related Videos */}

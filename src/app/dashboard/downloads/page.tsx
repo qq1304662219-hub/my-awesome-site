@@ -313,13 +313,11 @@ export default function MyAssetsPage() {
                               <div className="flex gap-3 mt-2">
                                  {item.video?.url && (
                                    <a 
-                                     href={item.video.url} 
-                                     target="_blank" 
-                                     rel="noopener noreferrer"
+                                     href={`/api/download?id=${item.video.id}`}
                                      className="inline-flex items-center gap-1.5 text-xs text-foreground hover:text-primary transition-colors"
                                    >
                                      <Download className="w-3 h-3" />
-                                     下载资源
+                                     打包下载
                                    </a>
                                  )}
                                  <Link href={`/video/${item.video?.id}`} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
