@@ -17,7 +17,7 @@ interface Message {
 const INITIAL_MESSAGE: Message = {
   id: 'init-1',
   role: 'assistant',
-  content: '您好，我是AI客服光子，很高兴为您服务，请问有什么可以帮助您的吗？',
+  content: '您好，我是AI客服小二，很高兴为您服务，请问有什么可以帮助您的吗？',
   createdAt: Date.now()
 }
 
@@ -102,10 +102,10 @@ export function ServiceDialogContent() {
             <div className="bg-primary p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary-foreground flex items-center justify-center text-primary font-bold text-lg">
-                        光
+                        小
                     </div>
                     <div>
-                        <h3 className="font-bold text-primary-foreground">光子</h3>
+                        <h3 className="font-bold text-primary-foreground">小二</h3>
                         <p className="text-xs text-primary-foreground/80">AI客服在线时间 9:00-22:00</p>
                     </div>
                 </div>
@@ -125,7 +125,7 @@ export function ServiceDialogContent() {
                                     "w-8 h-8 rounded-full flex items-center justify-center text-xs shrink-0",
                                     msg.role === 'assistant' ? "bg-teal-600 text-white" : "bg-blue-600 text-white"
                                 )}>
-                                    {msg.role === 'assistant' ? '光' : '我'}
+                                    {msg.role === 'assistant' ? '小' : '我'}
                                 </div>
                                 <div className={cn(
                                     "p-3 rounded-lg shadow-sm max-w-[85%] text-sm break-words",
@@ -141,7 +141,7 @@ export function ServiceDialogContent() {
                         {isLoading && (
                             <div className="flex gap-3">
                                 <div className="w-8 h-8 rounded-full bg-teal-600 flex items-center justify-center text-white text-xs shrink-0">
-                                    光
+                                    小
                                 </div>
                                 <div className="bg-card p-3 rounded-lg rounded-tl-none shadow-sm">
                                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
