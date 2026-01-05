@@ -70,6 +70,18 @@ function AdminContent({ children }: { children: React.ReactNode }) {
       show: true
     },
     {
+      name: "工单管理",
+      href: "/admin/tickets",
+      icon: FileQuestion,
+      show: true
+    },
+    {
+      name: "消息通知",
+      href: "/admin/notifications",
+      icon: AlertTriangle,
+      show: true
+    },
+    {
       name: "团队管理",
       href: "/admin/users",
       icon: Users,
