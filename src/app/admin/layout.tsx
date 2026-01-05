@@ -88,6 +88,12 @@ function AdminContent({ children }: { children: React.ReactNode }) {
       show: true // Everyone (admins) can see
     },
     {
+      name: "系统日志",
+      href: "/admin/logs",
+      icon: FileQuestion, // Using FileQuestion temporarily or replace with ShieldAlert if available
+      show: true
+    },
+    {
       name: "系统设置",
       href: "/admin/settings",
       icon: Settings,
