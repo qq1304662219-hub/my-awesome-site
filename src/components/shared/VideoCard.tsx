@@ -321,13 +321,13 @@ export function VideoCard({
                             size="icon" 
                             variant="secondary" 
                             className={`h-8 w-8 rounded-full backdrop-blur-md hover:bg-secondary hover:text-foreground border border-border transition-colors ${hasLiked ? 'bg-primary text-primary-foreground' : 'bg-background/60 text-muted-foreground'}`}
-                            aria-label="收藏"
+                            aria-label="喜欢"
                             onClick={handleLike}
                         >
                             <Heart className={`h-4 w-4 ${hasLiked ? 'fill-current' : ''}`} />
                         </Button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom"><p>{hasLiked ? "取消收藏" : "收藏"}</p></TooltipContent>
+                    <TooltipContent side="bottom"><p>{hasLiked ? "取消喜欢" : "喜欢"}</p></TooltipContent>
                 </Tooltip>
                 <AddToCollectionModal 
                     videoId={id}
