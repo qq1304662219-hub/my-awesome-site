@@ -153,6 +153,16 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
   const relatedLimit = 6;
   let candidates: any[] = [];
 
+  // 6.5 Fetch Author's Other Videos
+  const { data: authorVideos } = await supabase
+    .from('videos')
+    .select('id, title, url, thumbnail_url, user_id, created_at, views, duration')
+    .eq('user_id', video.user_id)
+    .neq('id', id)
+    .eq('status', 'published')
+    .order('created_at', { ascending: false })
+    .limit(4);
+
   // Parallel requests for better performance
   const promises = [];
 
@@ -348,7 +358,7 @@ export default async function VideoDetailsPage({ params }: { params: Promise<{ i
                             <div className="flex flex-wrap gap-2">
                                 {video.tags.map((tag: string, index: number) => (
                                     <Link key={index} href={`/explore?q=${encodeURIComponent(tag)}`}>
-                                        <span className="text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded hover:bg-accent hover:text-accent-foreground cursor-pointer transition-all border border-transparent hover:border-border">
+                                        <span className="text-xs font-medium text-muted-foreground bg-secondary/50 px-3 py-1.5 rounded-full hover:bg-primary hover:text-primary-foreground cursor-pointer transition-all duration-300 border border-transparent hover:shadow-md hover:-translate-y-0.5 inline-block">
                                             #{tag}
                                         </span>
                                     </Link>

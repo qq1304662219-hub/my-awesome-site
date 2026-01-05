@@ -16,9 +16,13 @@ function DiscoverContent() {
   const [extraFilters, setExtraFilters] = useState<{
       ratio: string | null
       duration: string | null
+      resolution: string | null
+      fps: string | null
   }>({
       ratio: null,
-      duration: null
+      duration: null,
+      resolution: null,
+      fps: null
   })
 
   const categories = [
@@ -83,7 +87,9 @@ function DiscoverContent() {
         ratio: extraFilters.ratio, 
         model: null, 
         query: null as string | null,
-        duration: extraFilters.duration
+        duration: extraFilters.duration,
+        resolution: extraFilters.resolution,
+        fps: extraFilters.fps
     }
     
     // Logic to simulate distinct content sections using available DB fields

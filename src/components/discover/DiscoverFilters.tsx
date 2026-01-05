@@ -7,6 +7,8 @@ interface DiscoverFiltersProps {
     filters: {
         ratio: string | null
         duration: string | null
+        resolution: string | null
+        fps: string | null
     }
     onChange: (key: string, value: string | null) => void
 }
@@ -84,6 +86,80 @@ export function DiscoverFilters({ filters, onChange }: DiscoverFiltersProps) {
                         className={`h-8 text-xs rounded-lg transition-all ${filters.duration === "long" ? 'bg-background shadow-sm text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}`}
                     >
                         &gt;60s
+                    </Button>
+                </div>
+
+                <div className="w-px h-8 bg-border/50 shrink-0 hidden sm:block" />
+
+                <div className="flex items-center gap-2 bg-muted/40 p-1.5 rounded-xl border border-border/50 backdrop-blur-sm shrink-0">
+                    <span className="text-xs font-medium px-2 text-muted-foreground flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">画质</span>
+                    </span>
+                    <Button 
+                        variant={filters.resolution === null ? "secondary" : "ghost"} 
+                        size="sm" 
+                        onClick={() => onChange("resolution", null)}
+                        className={`h-8 text-xs rounded-lg transition-all ${filters.resolution === null ? 'bg-background shadow-sm text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                    >
+                        全部
+                    </Button>
+                    <Button 
+                        variant={filters.resolution === "4k" ? "secondary" : "ghost"} 
+                        size="sm" 
+                        onClick={() => onChange("resolution", "4k")}
+                        className={`h-8 text-xs rounded-lg transition-all ${filters.resolution === "4k" ? 'bg-background shadow-sm text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                    >
+                        4K
+                    </Button>
+                    <Button 
+                        variant={filters.resolution === "1080p" ? "secondary" : "ghost"} 
+                        size="sm" 
+                        onClick={() => onChange("resolution", "1080p")}
+                        className={`h-8 text-xs rounded-lg transition-all ${filters.resolution === "1080p" ? 'bg-background shadow-sm text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                    >
+                        1080P
+                    </Button>
+                </div>
+
+                <div className="w-px h-8 bg-border/50 shrink-0 hidden sm:block" />
+
+                <div className="flex items-center gap-2 bg-muted/40 p-1.5 rounded-xl border border-border/50 backdrop-blur-sm shrink-0">
+                    <span className="text-xs font-medium px-2 text-muted-foreground flex items-center gap-1.5">
+                        <Monitor className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">帧率</span>
+                    </span>
+                    <Button 
+                        variant={filters.fps === null ? "secondary" : "ghost"} 
+                        size="sm" 
+                        onClick={() => onChange("fps", null)}
+                        className={`h-8 text-xs rounded-lg transition-all ${filters.fps === null ? 'bg-background shadow-sm text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                    >
+                        全部
+                    </Button>
+                    <Button 
+                        variant={filters.fps === "60fps" ? "secondary" : "ghost"} 
+                        size="sm" 
+                        onClick={() => onChange("fps", "60fps")}
+                        className={`h-8 text-xs rounded-lg transition-all ${filters.fps === "60fps" ? 'bg-background shadow-sm text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                    >
+                        60 FPS
+                    </Button>
+                    <Button 
+                        variant={filters.fps === "30fps" ? "secondary" : "ghost"} 
+                        size="sm" 
+                        onClick={() => onChange("fps", "30fps")}
+                        className={`h-8 text-xs rounded-lg transition-all ${filters.fps === "30fps" ? 'bg-background shadow-sm text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                    >
+                        30 FPS
+                    </Button>
+                    <Button 
+                        variant={filters.fps === "24fps" ? "secondary" : "ghost"} 
+                        size="sm" 
+                        onClick={() => onChange("fps", "24fps")}
+                        className={`h-8 text-xs rounded-lg transition-all ${filters.fps === "24fps" ? 'bg-background shadow-sm text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}`}
+                    >
+                        24 FPS
                     </Button>
                 </div>
             </div>

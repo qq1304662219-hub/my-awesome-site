@@ -14,11 +14,13 @@ ON CONFLICT (id) DO NOTHING;
 -- 2. Storage Policies
 -- raw_videos: Only authenticated users can upload, only owner can select (initially), service role can do everything.
 -- For processing, the user uploads to it.
+DROP POLICY IF EXISTS "Users can upload to raw_videos" ON storage.objects;
 CREATE POLICY "Users can upload to raw_videos" ON storage.objects
 FOR INSERT TO authenticated
 WITH CHECK (bucket_id = 'raw_videos' AND auth.uid() = owner);
 
 -- public_videos: Public can view. Service role writes.
+DROP POLICY IF EXISTS "Public Videos are viewable by everyone" ON storage.objects;
 CREATE POLICY "Public Videos are viewable by everyone" ON storage.objects
 FOR SELECT TO public
 USING (bucket_id = 'public_videos');

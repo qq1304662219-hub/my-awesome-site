@@ -126,7 +126,7 @@ export function VideoCard({
       entries.forEach(entry => {
         setIsHovered(entry.isIntersecting);
       });
-    }, { threshold: 0.6 });
+    }, { threshold: 0.5 }); // Lower threshold for better mobile experience
 
     if (containerRef.current) {
       observer.observe(containerRef.current);
@@ -176,21 +176,16 @@ export function VideoCard({
         "group relative flex flex-col gap-3 rounded-xl overflow-hidden bg-card transition-all duration-300",
         "border border-border/50 hover:border-border",
         "shadow-sm hover:shadow-md",
+        "active:scale-[0.98] active:shadow-sm",
         className
       )}
       onMouseEnter={() => {
         if (!isMobile) {
-            hoverTimeoutRef.current = setTimeout(() => {
-                setIsHovered(true);
-            }, 300); // 300ms delay
+            setIsHovered(true);
         }
       }}
       onMouseLeave={() => {
         if (!isMobile) {
-            if (hoverTimeoutRef.current) {
-                clearTimeout(hoverTimeoutRef.current);
-                hoverTimeoutRef.current = null;
-            }
             setIsHovered(false);
         }
       }}

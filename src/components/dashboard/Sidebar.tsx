@@ -95,22 +95,6 @@ export function DashboardSidebar() {
     }
   }
 
-  const handleForceAdmin = async () => {
-      if (!user) return
-      
-      const confirm = window.confirm('⚠️ 确定要强制将当前账户提升为超级管理员吗？')
-      if (!confirm) return
-
-      try {
-        const { error } = await supabase.from('profiles').update({ role: 'super_admin' }).eq('id', user.id)
-        if (error) throw error
-        toast.success('已提升为超级管理员，请刷新页面')
-        window.location.reload()
-      } catch (error: any) {
-        toast.error('操作失败: ' + error.message)
-      }
-  }
-
   return (
     <>
       {/* Mobile Overlay */}
@@ -195,16 +179,6 @@ export function DashboardSidebar() {
               >
                   <LogOut className="mr-2 h-3 w-3" />
                   退出登录
-              </Button>
-              
-              {/* Dev Helper */}
-              <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-accent h-6 text-[10px]"
-                  onClick={handleForceAdmin}
-              >
-                  <ShieldAlert className="mr-2 h-3 w-3" />
-                  Dev: Force Admin
               </Button>
           </div>
         </div>

@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase"
 import { Video } from "@/types/video"
 import { motion, AnimatePresence } from "framer-motion"
 import { VideoCard } from "@/components/shared/VideoCard"
-import { Skeleton } from "@/components/ui/skeleton"
+import { VideoCardSkeleton } from "@/components/shared/Skeletons"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, RefreshCw, Loader2 } from "lucide-react"
 
@@ -156,15 +156,9 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
 
   if (loading && page === 0) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {[...Array(8)].map((_, i) => (
-          <div key={i} className="space-y-4">
-            <Skeleton className="aspect-video w-full rounded-xl bg-muted" />
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-3/4 bg-muted" />
-              <Skeleton className="h-4 w-1/2 bg-muted" />
-            </div>
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+        {[...Array(10)].map((_, i) => (
+          <VideoCardSkeleton key={i} />
         ))}
       </div>
     )
@@ -187,22 +181,30 @@ export function VideoGrid({ filters, sort }: VideoGridProps) {
   return (
     <div className="space-y-8">
       {videos.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center border border-dashed border-border rounded-3xl bg-muted/30">
-            <div className="bg-background p-4 rounded-full mb-4 shadow-sm">
-                <AlertTriangle className="h-8 w-8 text-muted-foreground" />
+        <div className="flex flex-col items-center justify-center py-32 text-center border border-dashed border-border rounded-3xl bg-muted/30">
+            <div className="bg-background p-6 rounded-full mb-6 shadow-sm ring-1 ring-border/50">
+                <AlertTriangle className="h-10 w-10 text-muted-foreground" />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-2">没有找到相关视频</h3>
-            <p className="text-muted-foreground max-w-sm mx-auto mb-6">
-                尝试调整筛选条件或搜索关键词，探索更多精彩内容
+            <h3 className="text-2xl font-bold text-foreground mb-3">没有找到相关视频</h3>
+            <p className="text-muted-foreground max-w-md mx-auto mb-8 text-base">
+                我们没能找到匹配的内容。尝试调整筛选条件，或者使用更通用的搜索关键词。
             </p>
-            <Button 
-                onClick={() => window.location.reload()} // Simple reload or better filter reset logic could be passed down
-                variant="outline"
-                className="gap-2"
-            >
-                <RefreshCw className="h-4 w-4" />
-                重置筛选
-            </Button>
+            <div className="flex gap-4">
+                <Button 
+                    onClick={() => window.location.reload()} 
+                    variant="outline"
+                    className="gap-2 min-w-[120px]"
+                >
+                    <RefreshCw className="h-4 w-4" />
+                    刷新页面
+                </Button>
+                <Button 
+                    onClick={() => router.push('/discover')}
+                    className="gap-2 min-w-[120px]"
+                >
+                    浏览发现
+                </Button>
+            </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">

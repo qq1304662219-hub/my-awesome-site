@@ -291,7 +291,7 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
           original_url: fileName, // Store path to raw video
           cover_url: coverPublicUrl,
           price: parseFloat(price) || 0,
-          status: 'processing', // Set to processing
+          status: 'pending',
           tags,
           category,
           style,

@@ -1,310 +1,306 @@
-'use client'
-import { useState, Suspense } from 'react'
-import { supabase } from '@/lib/supabase'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Video } from 'lucide-react'
-import Link from 'next/link'
-import { toast } from 'sonner'
+"use client"
 
-const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" {...props}>
-    <path
-      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-      fill="#4285F4"
-    />
-    <path
-      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-      fill="#34A853"
-    />
-    <path
-      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-      fill="#FBBC05"
-    />
-    <path
-      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-      fill="#EA4335"
-    />
-  </svg>
-)
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Video, Github, Mail, ArrowRight, CheckCircle2, Sparkles } from "lucide-react"
+import { useAuthStore } from "@/store/useAuthStore"
+import { toast } from "sonner"
+import { supabase } from "@/lib/supabase"
 
-const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" {...props}>
-    <path
-      d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
-      fill="currentColor"
-    />
-  </svg>
-)
+function GoogleIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24">
+      <path
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+        fill="#4285F4"
+      />
+      <path
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+        fill="#34A853"
+      />
+      <path
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+        fill="#FBBC05"
+      />
+      <path
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+        fill="#EA4335"
+      />
+    </svg>
+  )
+}
 
-function AuthContent() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+function GithubIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+    </svg>
+  )
+}
+
+export default function AuthPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [inviteCode, setInviteCode] = useState("")
+  const [defaultTab, setDefaultTab] = useState("login")
   
-  const defaultTab = searchParams.get('tab') || (searchParams.get('ref') || searchParams.get('invite') ? 'register' : 'login')
-  const inviteCode = searchParams.get('invite') || searchParams.get('ref')
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      alert(error.message)
-    } else {
-      router.push('/explore')
-      router.refresh()
+  // Check for invite code in URL
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('invite')
+    if (code && !inviteCode) {
+        setInviteCode(code)
+        setDefaultTab("register")
     }
-    setLoading(false)
   }
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const { error } = await supabase.auth.signUp({ 
-      email, 
-      password,
-      options: {
-        data: {
-          invited_by_username: inviteCode
-        },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/explore`
-      }
-    })
-    if (error) {
-      toast.error(error.message)
-    } else {
-      toast.success('注册成功！请检查您的邮箱进行验证。')
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+      if (error) throw error
+      toast.success("登录成功")
+      router.push("/dashboard")
+      router.refresh()
+    } catch (error: any) {
+      toast.error(error.message || "登录失败")
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
+  }
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: {
+                invite_code: inviteCode
+            }
+        }
+      })
+      if (error) throw error
+      toast.success("注册成功！请检查邮箱完成验证")
+    } catch (error: any) {
+      toast.error(error.message || "注册失败")
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleGoogleLogin = async () => {
     setLoading(true)
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/explore`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-          ...(inviteCode ? { invited_by_username: inviteCode } : {})
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
-      },
-    })
-    if (error) {
-      toast.error(error.message)
+      })
+      if (error) throw error
+    } catch (error: any) {
+      toast.error(error.message || "Google 登录失败")
       setLoading(false)
     }
   }
 
   const handleGithubLogin = async () => {
     setLoading(true)
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/explore`,
-        queryParams: {
-          ...(inviteCode ? { invited_by_username: inviteCode } : {})
-        }
-      },
-    })
-    if (error) {
-      toast.error(error.message)
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "github",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+      if (error) throw error
+    } catch (error: any) {
+      toast.error(error.message || "GitHub 登录失败")
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[128px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[128px] pointer-events-none" />
-
-      <div className="w-full max-w-md px-4 relative z-10">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-4">
-            <Video className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              AI Vision
-            </span>
+    <div className="min-h-screen w-full flex bg-background text-foreground">
+      {/* Left: Showcase Section */}
+      <div className="hidden lg:flex lg:w-1/2 bg-black relative overflow-hidden flex-col justify-between p-12">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+        
+        <div className="relative z-10">
+          <Link href="/" className="flex items-center gap-2 mb-8">
+             <Video className="h-8 w-8 text-primary" />
+             <span className="text-2xl font-bold text-white">AI Vision</span>
           </Link>
-          <h1 className="text-2xl font-bold text-foreground">欢迎回来</h1>
-          <p className="text-muted-foreground mt-2">登录您的账户以管理您的创意作品</p>
+          <div className="space-y-6 max-w-lg">
+             <h2 className="text-4xl font-bold text-white leading-tight">
+                激发无限创意<br/>
+                探索 AI 视频的未来
+             </h2>
+             <div className="space-y-4">
+                <div className="flex items-center gap-3 text-white/80">
+                    <CheckCircle2 className="w-5 h-5 text-primary" />
+                    <span>海量 4K 高清 AI 视频素材</span>
+                </div>
+                <div className="flex items-center gap-3 text-white/80">
+                    <CheckCircle2 className="w-5 h-5 text-primary" />
+                    <span>一键获取商业授权，安全无忧</span>
+                </div>
+                <div className="flex items-center gap-3 text-white/80">
+                    <CheckCircle2 className="w-5 h-5 text-primary" />
+                    <span>加入创作者社区，分享你的作品</span>
+                </div>
+             </div>
+          </div>
         </div>
 
-        <Tabs defaultValue={defaultTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-muted border border-border">
-            <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground">登录</TabsTrigger>
-            <TabsTrigger value="register" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground">注册</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="login">
-            <Card className="bg-card border-border backdrop-blur-md">
-              <CardHeader>
-                <CardTitle className="text-foreground">账户登录</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  选择登录方式
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={handleGoogleLogin} 
-                    className="w-full border-border bg-background hover:bg-accent text-foreground hover:text-accent-foreground"
-                    disabled={loading}
-                  >
-                    <GoogleIcon className="mr-2 h-4 w-4" />
-                    Google
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={handleGithubLogin} 
-                    className="w-full border-border bg-background hover:bg-accent text-foreground hover:text-accent-foreground"
-                    disabled={loading}
-                  >
-                    <GithubIcon className="mr-2 h-4 w-4" />
-                    GitHub
-                  </Button>
-                </div>
-                
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">或者使用邮箱</span>
-                  </div>
-                </div>
+        <div className="relative z-10 text-white/60 text-sm">
+            © 2024 AI Vision. All rights reserved.
+        </div>
+      </div>
 
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email-login" className="text-foreground">邮箱</Label>
-                    <Input 
-                      id="email-login" 
-                      type="email" 
-                      placeholder="name@example.com" 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password-login" className="text-foreground">密码</Label>
-                    <Input 
-                      id="password-login" 
-                      type="password" 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
-                      required
-                    />
-                    <div className="text-right">
-                      <Link href="/auth/forgot-password" className="text-xs text-primary hover:text-primary/80">
-                        忘记密码？
-                      </Link>
+      {/* Right: Auth Form */}
+      <div className="flex-1 flex flex-col items-center justify-center p-4 lg:p-8 bg-background relative">
+        <div className="absolute top-4 right-4 lg:hidden">
+            <Link href="/" className="flex items-center gap-2">
+                <Video className="h-6 w-6 text-primary" />
+                <span className="font-bold">AI Vision</span>
+            </Link>
+        </div>
+
+        <div className="w-full max-w-sm space-y-6">
+            <div className="text-center lg:text-left">
+                <h1 className="text-2xl font-bold tracking-tight">欢迎回来</h1>
+                <p className="text-muted-foreground mt-2">
+                    登录您的账户以开始创作之旅
+                </p>
+            </div>
+
+            <Tabs defaultValue={defaultTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 bg-muted border border-border mb-6">
+                <TabsTrigger value="login">登录</TabsTrigger>
+                <TabsTrigger value="register">注册</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="login" className="space-y-4">
+                <form onSubmit={handleEmailLogin} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="email">邮箱地址</Label>
+                        <Input 
+                            id="email" 
+                            type="email" 
+                            placeholder="name@example.com" 
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required 
+                            className="bg-muted/50"
+                        />
                     </div>
-                  </div>
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
-                    {loading ? '登录中...' : '立即登录'}
-                  </Button>
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="password">密码</Label>
+                            <Link href="/auth/forgot-password" className="text-xs text-primary hover:underline">
+                                忘记密码？
+                            </Link>
+                        </div>
+                        <Input 
+                            id="password" 
+                            type="password" 
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required 
+                            className="bg-muted/50"
+                        />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                        {loading ? '登录中...' : '立即登录'}
+                        {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
+                    </Button>
                 </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </TabsContent>
 
-          <TabsContent value="register">
-            <Card className="bg-card border-border backdrop-blur-md">
-              <CardHeader>
-                <CardTitle className="text-foreground">创建账户</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  {inviteCode ? '通过邀请链接注册' : '注册一个新的账户'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={handleGoogleLogin} 
-                    className="w-full border-border bg-background hover:bg-accent text-foreground hover:text-accent-foreground"
-                    disabled={loading}
-                  >
+              <TabsContent value="register" className="space-y-4">
+                <form onSubmit={handleRegister} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="reg-email">邮箱地址</Label>
+                        <Input 
+                            id="reg-email" 
+                            type="email" 
+                            placeholder="name@example.com" 
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required 
+                            className="bg-muted/50"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="reg-password">设置密码</Label>
+                        <Input 
+                            id="reg-password" 
+                            type="password" 
+                            placeholder="至少6位字符"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required 
+                            minLength={6}
+                            className="bg-muted/50"
+                        />
+                    </div>
+                    {inviteCode && (
+                        <div className="space-y-2">
+                            <Label>邀请码</Label>
+                            <div className="px-3 py-2 bg-primary/10 text-primary rounded-md text-sm font-medium border border-primary/20 flex items-center gap-2">
+                                <Sparkles className="w-4 h-4" />
+                                {inviteCode}
+                            </div>
+                        </div>
+                    )}
+                    <Button type="submit" className="w-full" disabled={loading}>
+                        {loading ? '注册中...' : '创建账户'}
+                        {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
+                    </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                        或者使用以下方式
+                    </span>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <Button variant="outline" onClick={handleGoogleLogin} disabled={loading} className="w-full">
                     <GoogleIcon className="mr-2 h-4 w-4" />
                     Google
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={handleGithubLogin} 
-                    className="w-full border-border bg-background hover:bg-accent text-foreground hover:text-accent-foreground"
-                    disabled={loading}
-                  >
+                </Button>
+                <Button variant="outline" onClick={handleGithubLogin} disabled={loading} className="w-full">
                     <GithubIcon className="mr-2 h-4 w-4" />
                     GitHub
-                  </Button>
-                </div>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">或者使用邮箱</span>
-                  </div>
-                </div>
-
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email-register" className="text-foreground">邮箱</Label>
-                    <Input 
-                      id="email-register" 
-                      type="email" 
-                      placeholder="name@example.com" 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password-register" className="text-foreground">密码</Label>
-                    <Input 
-                      id="password-register" 
-                      type="password" 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="bg-background border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary"
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
-                    {loading ? '注册中...' : '立即注册'}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                </Button>
+            </div>
+        </div>
       </div>
     </div>
-  )
-}
-
-export default function AuthPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <AuthContent />
-    </Suspense>
   )
 }

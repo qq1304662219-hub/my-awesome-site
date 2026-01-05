@@ -125,6 +125,18 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
         e.preventDefault()
         togglePlay()
       }
+      if (e.code === "ArrowRight") {
+        e.preventDefault()
+        if (videoRef.current) {
+            videoRef.current.currentTime = Math.min(videoRef.current.currentTime + 5, videoRef.current.duration)
+        }
+      }
+      if (e.code === "ArrowLeft") {
+        e.preventDefault()
+        if (videoRef.current) {
+            videoRef.current.currentTime = Math.max(videoRef.current.currentTime - 5, 0)
+        }
+      }
     }
     window.addEventListener("keydown", handleKeyDown)
 
