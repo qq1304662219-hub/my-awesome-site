@@ -1,18 +1,57 @@
 import { NextResponse } from 'next/server';
+import OpenAI from 'openai';
+
+// Initialize OpenAI client with DeepSeek configuration
+const openai = new OpenAI({
+  baseURL: 'https://api.deepseek.com',
+  apiKey: process.env.DEEPSEEK_API_KEY || 'sk-placeholder', // Fallback to avoid initialization error if key is missing
+});
 
 export async function POST(req: Request) {
   try {
     const { message } = await req.json();
+    const msg = message.toLowerCase();
 
-    // Simulation of AI processing delay
+    // 1. Check if DeepSeek API Key is configured
+    if (process.env.DEEPSEEK_API_KEY) {
+      try {
+        const completion = await openai.chat.completions.create({
+          messages: [
+            {
+              role: "system",
+              content: `你是一个名为“光子”的AI智能客服助手，服务于一家专业的视频素材交易平台。
+              
+              你的主要职责是：
+              1. 热情、礼貌地回答用户关于平台使用、会员充值、视频上传下载、发票申请等问题。
+              2. 你的回答应该简洁明了，语气专业且亲切。
+              3. 如果用户询问你无法回答的技术问题或账号具体状态，请建议他们联系人工客服。
+              4. 平台支持支付宝和微信支付。
+              5. 视频格式支持 MP4, MOV 等主流格式。
+              6. 只有购买会员或单独购买素材后才能下载无水印视频。
+              7. 发票可以在“个人中心” -> “发票管理”中申请，3-5个工作日开具。
+              
+              如果用户问候你，请用“您好！我是光子，有什么可以帮您的吗？”作为开头。
+              `
+            },
+            { role: "user", content: message }
+          ],
+          model: "deepseek-chat",
+        });
+
+        const aiResponse = completion.choices[0].message.content;
+        return NextResponse.json({ response: aiResponse });
+
+      } catch (apiError) {
+        console.error('DeepSeek API Error:', apiError);
+        // Fallback to local logic if API fails
+      }
+    }
+
+    // 2. Fallback: Local keyword matching logic (Mock AI)
+    // Simulation of AI processing delay only if we fell back
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     let responseText = "抱歉，我不理解您的问题。您可以尝试咨询人工客服。";
-    const msg = message.toLowerCase();
-
-    // Simple keyword matching logic (Mock AI)
-    // In a real implementation, you would call OpenAI API here:
-    // const completion = await openai.chat.completions.create({ ... })
 
     if (msg.includes('充值') || msg.includes('价格') || msg.includes('套餐') || msg.includes('会员')) {
         responseText = "我们提供多种套餐供您选择。您可以点击右上角的头像，选择“会员中心”查看详细价格和权益。目前支持支付宝和微信支付。";
