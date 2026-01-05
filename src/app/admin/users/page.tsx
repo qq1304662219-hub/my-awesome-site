@@ -105,6 +105,36 @@ export default function UsersPage() {
     }
   }
 
+  const handleBanUser = async (user: UserProfile) => {
+    const isBanned = user.status === 'banned'
+    const newStatus = isBanned ? 'active' : 'banned'
+    const actionText = isBanned ? '解封' : '禁用'
+
+    if (!confirm(`确定要${actionText}用户 ${user.username || 'Unset Username'} 吗？`)) return
+
+    try {
+      // 1. Update profile status
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+            status: newStatus,
+            banned_at: isBanned ? null : new Date().toISOString()
+        })
+        .eq('id', user.id)
+
+      if (error) throw error
+
+      // 2. Log the action (if audit_logs exists, otherwise this is just a placeholder logic)
+      // await supabase.from('audit_logs').insert({ ... })
+
+      toast.success(`已成功${actionText}用户`)
+      setUsers(users.map(u => u.id === user.id ? { ...u, status: newStatus } : u))
+    } catch (error) {
+      console.error(`Error ${actionText} user:`, error)
+      toast.error(`${actionText}失败`)
+    }
+  }
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex justify-between items-center">
@@ -202,10 +232,23 @@ export default function UsersPage() {
                             修改权限
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-border" />
-                        <DropdownMenuItem className="text-destructive focus:bg-accent focus:text-destructive cursor-pointer">
-                            <Ban className="w-4 h-4 mr-2" />
-                            禁用账号
-                        </DropdownMenuItem>
+                        {user.status === 'banned' ? (
+                            <DropdownMenuItem 
+                                className="text-green-500 focus:bg-accent focus:text-green-500 cursor-pointer"
+                                onClick={() => handleBanUser(user)}
+                            >
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                解封账号
+                            </DropdownMenuItem>
+                        ) : (
+                            <DropdownMenuItem 
+                                className="text-destructive focus:bg-accent focus:text-destructive cursor-pointer"
+                                onClick={() => handleBanUser(user)}
+                            >
+                                <Ban className="w-4 h-4 mr-2" />
+                                禁用账号
+                            </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
