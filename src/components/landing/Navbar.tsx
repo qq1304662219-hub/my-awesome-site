@@ -26,6 +26,7 @@ import { UserHoverMenu } from "@/components/landing/UserHoverMenu";
 import { SearchInput } from "@/components/shared/SearchInput";
 import { ModeToggle } from "@/components/shared/ModeToggle";
 import { CartDrawerContent } from "@/components/cart/CartDrawerContent";
+import { AnnouncementBanner } from "@/components/shared/AnnouncementBanner";
 
 export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boolean; showMobileMenu?: boolean }) {
   const router = useRouter();
@@ -83,6 +84,7 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
         ? "bg-transparent border-transparent" 
         : "border-b border-border bg-background/80 backdrop-blur-md"
     )}>
+      {isHome && !simple && <AnnouncementBanner />}
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-8">

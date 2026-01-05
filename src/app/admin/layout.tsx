@@ -3,7 +3,7 @@
 import { useAuthStore } from "@/store/useAuthStore"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Users, Video, LogOut, FileQuestion, GraduationCap, AlertTriangle, Wallet, CreditCard, LayoutDashboard, Settings, UserCheck } from "lucide-react"
+import { Users, Video, LogOut, FileQuestion, GraduationCap, AlertTriangle, Wallet, CreditCard, LayoutDashboard, Settings, UserCheck, Megaphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { AuthGuard } from "@/components/auth/AuthGuard"
@@ -79,6 +79,12 @@ function AdminContent({ children }: { children: React.ReactNode }) {
       name: "消息通知",
       href: "/admin/notifications",
       icon: AlertTriangle,
+      show: true
+    },
+    {
+      name: "公告管理",
+      href: "/admin/announcements",
+      icon: Megaphone,
       show: true
     },
     {
