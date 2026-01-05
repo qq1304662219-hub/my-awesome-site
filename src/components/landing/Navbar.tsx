@@ -196,7 +196,7 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
         </div>
 
         {/* Mobile Menu Button & Search */}
-        <div className="md:hidden flex items-center gap-2">
+        <div className="lg:hidden flex items-center gap-2">
             <ModeToggle />
             <Button variant="ghost" size="icon" onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)} aria-label="搜索">
                 <Search className="h-5 w-5 text-muted-foreground" />
@@ -209,14 +209,14 @@ export function Navbar({ simple = false, showMobileMenu = true }: { simple?: boo
 
       {/* Mobile Search Bar */}
       {isMobileSearchOpen && (
-        <div className="md:hidden absolute top-16 left-0 w-full bg-background p-4 border-b border-border animate-in slide-in-from-top-2 duration-200 z-40">
+        <div className="lg:hidden absolute top-16 left-0 w-full bg-background p-4 border-b border-border animate-in slide-in-from-top-2 duration-200 z-40">
            <SearchInput className="w-full" autoFocus />
         </div>
       )}
 
       {/* Mobile Menu */}
       {showMobileMenu && isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 top-16 bg-background/95 backdrop-blur-sm z-50 overflow-y-auto">
+        <div className="lg:hidden fixed inset-0 top-16 bg-background/95 backdrop-blur-sm z-50 overflow-y-auto">
             <div className="flex flex-col p-4 gap-2">
                 <Link href="/" onClick={closeMobileMenu} className="text-muted-foreground hover:text-foreground py-3 px-4 hover:bg-accent rounded-lg transition-colors font-medium">首页</Link>
                 <Link href="/discover" onClick={closeMobileMenu} className="text-muted-foreground hover:text-foreground py-3 px-4 hover:bg-accent rounded-lg transition-colors font-medium">发现</Link>
