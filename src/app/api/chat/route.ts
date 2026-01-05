@@ -41,8 +41,16 @@ export async function POST(req: Request) {
         const aiResponse = completion.choices[0].message.content;
         return NextResponse.json({ response: aiResponse });
 
-      } catch (apiError) {
+      } catch (apiError: any) {
         console.error('DeepSeek API Error:', apiError);
+        
+        // If it's an authentication or quota error, log it clearly
+        if (apiError?.status === 401) {
+            console.error('DeepSeek API Key is invalid or missing.');
+        } else if (apiError?.status === 402) {
+            console.error('DeepSeek API Quota exceeded (Insufficient Balance).');
+        }
+        
         // Fallback to local logic if API fails
       }
     }

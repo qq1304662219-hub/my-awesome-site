@@ -110,9 +110,7 @@ export function ServiceDialogContent() {
                     </div>
                 </div>
                 <div className="flex gap-2 text-primary-foreground/80">
-                    <Button variant="ghost" size="icon" className="hover:bg-primary-foreground/10 hover:text-primary-foreground">
-                        <AlertCircle className="h-5 w-5" />
-                    </Button>
+                    {/* Removed unused alert icon */}
                 </div>
             </div>
             
