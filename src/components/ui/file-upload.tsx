@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { motion, AnimatePresence } from "framer-motion"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import canvasConfetti from 'canvas-confetti'
 
 import { 
     CATEGORIES, 
@@ -377,6 +378,13 @@ export function FileUpload({ userId, onUploadSuccess }: FileUploadProps) {
 
       setMessage({ type: 'success', text: '上传成功！' })
       setStep(3)
+      
+      canvasConfetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#2563eb', '#9333ea', '#db2777']
+      })
       
       if (onUploadSuccess) {
         onUploadSuccess()

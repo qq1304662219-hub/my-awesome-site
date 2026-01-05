@@ -173,10 +173,7 @@ export function VideoCard({
     <div 
       ref={containerRef}
       className={cn(
-        "group relative flex flex-col gap-3 rounded-xl overflow-hidden bg-card transition-all duration-300",
-        "border border-border/50 hover:border-border",
-        "shadow-sm hover:shadow-md",
-        "active:scale-[0.98] active:shadow-sm",
+        "group relative flex flex-col rounded-xl overflow-hidden bg-card border border-border transition-all duration-300 hover:shadow-2xl hover:border-primary/50 active:scale-[0.98]", 
         className
       )}
       onMouseEnter={() => {

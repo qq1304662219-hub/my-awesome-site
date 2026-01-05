@@ -6,6 +6,7 @@ import { Slider } from "@/components/ui/slider"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { supabase } from "@/lib/supabase"
 import Hls from "hls.js"
+import { toast } from "sonner"
 
 interface VideoPlayerProps {
   src: string
@@ -121,6 +122,11 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
 
     // Keyboard controls
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input
+      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') {
+        return;
+      }
+
       if (e.code === "Space") {
         e.preventDefault()
         togglePlay()
@@ -136,6 +142,29 @@ export function VideoPlayer({ src, poster, autoPlay = false, width, height, onSt
         if (videoRef.current) {
             videoRef.current.currentTime = Math.max(videoRef.current.currentTime - 5, 0)
         }
+      }
+      // Speed controls: > (Shift+.) or ] to increase, < (Shift+,) or [ to decrease
+      if (e.key === ">" || e.code === "BracketRight") {
+        e.preventDefault()
+        const newRate = Math.min(playbackRate + 0.25, 2)
+        handlePlaybackRate(newRate)
+        toast.info(`播放速度: ${newRate}x`)
+      }
+      if (e.key === "<" || e.code === "BracketLeft") {
+        e.preventDefault()
+        const newRate = Math.max(playbackRate - 0.25, 0.5)
+        handlePlaybackRate(newRate)
+        toast.info(`播放速度: ${newRate}x`)
+      }
+      // F for fullscreen
+      if (e.code === "KeyF") {
+        e.preventDefault()
+        toggleFullscreen()
+      }
+      // M for mute
+      if (e.code === "KeyM") {
+        e.preventDefault()
+        toggleMute()
       }
     }
     window.addEventListener("keydown", handleKeyDown)
